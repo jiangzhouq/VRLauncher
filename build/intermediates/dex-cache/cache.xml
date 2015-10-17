@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="/Users/qjizho/Documents/CardboardSample/libs/android-support-v4.jar"
+        jumboMode="false"
+        revision="20.0.0"
+        sha1="efec67655f6db90757faa37201efcee2a9ec3507">
+        <dex dex="/Users/qjizho/Documents/CardboardSample/build/intermediates/pre-dexed/debug/android-support-v4-636c3ce04ed2b8aab3871b41d9e8cca9acd5e1da.jar" />
+    </item>
+    <item
+        jar="/Users/qjizho/Documents/CardboardSample/libs/libprotobuf-java-2.3-nano.jar"
+        jumboMode="false"
+        revision="20.0.0"
+        sha1="c4d70e4409fdf6dc367b7db105751ab73bec766a">
+        <dex dex="/Users/qjizho/Documents/CardboardSample/build/intermediates/pre-dexed/debug/libprotobuf-java-2.3-nano-d8b56fc46b6556964a8ca95c8b68e38b6e6380a3.jar" />
+    </item>
+    <item
+        jar="/Users/qjizho/Documents/CardboardSample/libs/cardboard.jar"
+        jumboMode="false"
+        revision="20.0.0"
+        sha1="9b31afa1cc6f509d0386a5281d11872dc079f950">
+        <dex dex="/Users/qjizho/Documents/CardboardSample/build/intermediates/pre-dexed/debug/cardboard-da2986e23abb6d1600c36597a41e05a521fcf450.jar" />
+    </item>
+
+</items>

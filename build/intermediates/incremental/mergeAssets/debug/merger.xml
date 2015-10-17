@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger version="3"><dataSet config="main"><source path="/Users/qjizho/Documents/CardboardSample/assets"><file name="frag_earth.sh" path="/Users/qjizho/Documents/CardboardSample/assets/frag_earth.sh"/><file name="vertex_earth.sh" path="/Users/qjizho/Documents/CardboardSample/assets/vertex_earth.sh"/></source></dataSet><dataSet config="debug"><source path="/Users/qjizho/Documents/CardboardSample/build-types/debug/assets"/></dataSet></merger>
