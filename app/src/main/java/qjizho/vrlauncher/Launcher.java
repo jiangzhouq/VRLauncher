@@ -1,7 +1,11 @@
 package qjizho.vrlauncher;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -12,9 +16,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -58,7 +60,7 @@ public class Launcher extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 showExplorer(position);
-                GetFiles("file:///mnt/sdcard/DCIM/Camera/IMG_20151021_113627.jpg", "jpg", true);
+                GetFiles("/mnt/sdcard/DCIM/Camera/", "jpg", true);
                 for(int j = 0; j < lstPics.size() ; j++){
                     Log.d("qiqi", lstPics.get(j).get("img") + " " + lstPics.get(j).get("name"));
                 }
@@ -72,6 +74,7 @@ public class Launcher extends AppCompatActivity {
                 adapter.notifyDataSetChanged();
             }
         });
+        requestPermission();
     }
 
     private void showLauncher(){
@@ -137,11 +140,7 @@ public class Launcher extends AppCompatActivity {
     {
         File file1 = new File(Path);
         boolean isD = file1.isDirectory();
-        Log.d("qiqi", Path + " is Directory :" + isD + " contains item:" + file1.list());
-        ImageLoaderConfiguration config = ImageLoaderConfiguration.createDefault(this);
-        ImageLoader.getInstance().init(config);
-        ImageLoader imageLoader = ImageLoader.getInstance();
-        imageLoader.displayImage(Path, selected_left);
+        Log.d("qiqi", Path + " is Directory :" + isD + " contains item:" + file1.listFiles().length);
 
 //        File[] files = new File(Path).listFiles();
 //        Map<String , String> map ;
@@ -197,4 +196,42 @@ public class Launcher extends AppCompatActivity {
             hideSystemUI();
         }
     };
+
+    public static final int EXTERNAL_STORAGE_REQ_CODE = 10 ;
+
+    public void requestPermission(){
+        //判断当前Activity是否已经获得了该权限
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            //如果App的权限申请曾经被用户拒绝过，就需要在这里跟用户做出解释
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                Toast.makeText(this, "please give me the permission", Toast.LENGTH_SHORT).show();
+            } else {
+                //进行权限请求
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        EXTERNAL_STORAGE_REQ_CODE);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case EXTERNAL_STORAGE_REQ_CODE: {
+                // 如果请求被拒绝，那么通常grantResults数组为空
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //申请成功，进行相应操作
+
+                } else {
+                    //申请失败，可以继续向用户解释。
+                }
+                return;
+            }
+        }
+    }
 }
