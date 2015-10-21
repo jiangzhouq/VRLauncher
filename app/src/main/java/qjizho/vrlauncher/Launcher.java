@@ -291,7 +291,7 @@ public class Launcher extends AppCompatActivity {
             ViewHolder holder = null;
             if(convertView == null){
                 holder = new ViewHolder();
-                convertView = LayoutInflater.from(mContext).inflate(R.layout.explorer_list_item, null);
+                convertView = LayoutInflater.from(mContext).inflate(R.layout.explorer_list_item, parent, false);
                 holder.image = (ImageView) convertView.findViewById(R.id.img);
                 holder.name = (TextView) convertView.findViewById(R.id.txt);
                 convertView.setTag(holder);
