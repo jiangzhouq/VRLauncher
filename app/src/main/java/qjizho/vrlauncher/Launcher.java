@@ -13,6 +13,9 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,7 +58,7 @@ public class Launcher extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 showExplorer(position);
-                GetFiles("/sdcard/DCIM/Camera/IMG_20151021_113627.jpg", "jpg", true);
+                GetFiles("file:///mnt/sdcard/DCIM/Camera/IMG_20151021_113627.jpg", "jpg", true);
                 for(int j = 0; j < lstPics.size() ; j++){
                     Log.d("qiqi", lstPics.get(j).get("img") + " " + lstPics.get(j).get("name"));
                 }
@@ -134,7 +137,12 @@ public class Launcher extends AppCompatActivity {
     {
         File file1 = new File(Path);
         boolean isD = file1.isDirectory();
-        Log.d("qiqi" , Path + " is Directory :" + isD + " contains item:" + file1.list());
+        Log.d("qiqi", Path + " is Directory :" + isD + " contains item:" + file1.list());
+        ImageLoaderConfiguration config = ImageLoaderConfiguration.createDefault(this);
+        ImageLoader.getInstance().init(config);
+        ImageLoader imageLoader = ImageLoader.getInstance();
+        imageLoader.displayImage(Path, selected_left);
+
 //        File[] files = new File(Path).listFiles();
 //        Map<String , String> map ;
 //        for (int i = 0; i < files.length; i++)
