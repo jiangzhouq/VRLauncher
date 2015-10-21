@@ -25,8 +25,10 @@
         <ListView
             android:id="@+id/explorer_left"
             android:layout_width="200dp"
-            android:layout_height="260dp"
-            android:layout_centerInParent="true"></ListView>
+            android:layout_height="200dp"
+            android:layout_centerInParent="true"
+            android:dividerHeight="0dp"
+            android:divider="@null"></ListView>
         <ImageView
             android:id="@+id/selected_left"
             android:layout_width="36dp"
@@ -46,5 +48,18 @@
             android:layout_width="200dp"
             android:layout_height="wrap_content">
         </GridView>
+        <ListView
+            android:id="@+id/explorer_right"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_centerInParent="true"
+            android:dividerHeight="0dp"
+            android:divider="@null"></ListView>
+        <ImageView
+            android:id="@+id/selected_right"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/explorer_right"/>
     </RelativeLayout>
 </LinearLayout>

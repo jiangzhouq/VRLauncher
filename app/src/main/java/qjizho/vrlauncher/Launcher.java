@@ -1,6 +1,7 @@
 package qjizho.vrlauncher;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -8,15 +9,22 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -33,6 +41,8 @@ public class Launcher extends AppCompatActivity {
     private ImageView selected_right;
     private ListView explorer_left;
     private ListView explorer_right;
+    private ImageLoader imageLoader;
+    private ImageLoaderConfiguration config ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,10 +57,13 @@ public class Launcher extends AppCompatActivity {
         grid_left = (GridView) findViewById(R.id.list_left);
         grid_right = (GridView) findViewById(R.id.list_right);
         selected_left = (ImageView) findViewById(R.id.selected_left);
-
+        selected_right = (ImageView) findViewById(R.id.selected_right);
         explorer_left = (ListView) findViewById(R.id.explorer_left);
-
+        explorer_right = (ListView) findViewById(R.id.explorer_right);
         showLauncher();
+        config = ImageLoaderConfiguration.createDefault(this);
+        imageLoader = ImageLoader.getInstance();
+        imageLoader.init(config);
 
         mapList = getData();
         final SimpleAdapter adapter = new SimpleAdapter(this, mapList,R.layout.list_item,new String[]{"img","title"}, new int[]{R.id.img, R.id.txt});
@@ -62,6 +75,9 @@ public class Launcher extends AppCompatActivity {
                 showExplorer(position);
                 GetFiles("/mnt/sdcard/DCIM/Camera/", "jpg", true);
                 for(int j = 0; j < lstPics.size() ; j++){
+                    ImageSimpleAdater explorerAdapter = new ImageSimpleAdater(Launcher.this,  lstPics);
+                    explorer_left.setAdapter(explorerAdapter);
+                    explorer_right.setAdapter(explorerAdapter);
                     Log.d("qiqi", lstPics.get(j).get("img") + " " + lstPics.get(j).get("name"));
                 }
             }
@@ -81,6 +97,9 @@ public class Launcher extends AppCompatActivity {
         grid_left.setVisibility(View.VISIBLE);
         selected_left.setVisibility(View.GONE);
         explorer_left.setVisibility(View.GONE);
+        grid_right.setVisibility(View.VISIBLE);
+        selected_right.setVisibility(View.GONE);
+        explorer_right.setVisibility(View.GONE);
     }
 
     private void showExplorer(int pos){
@@ -88,6 +107,10 @@ public class Launcher extends AppCompatActivity {
         selected_left.setVisibility(View.VISIBLE);
         selected_left.setImageResource((int) mapList.get(pos).get("img"));
         explorer_left.setVisibility(View.VISIBLE);
+        grid_right.setVisibility(View.GONE);
+        selected_right.setVisibility(View.VISIBLE);
+        selected_right.setImageResource((int) mapList.get(pos).get("img"));
+        explorer_right.setVisibility(View.VISIBLE);
     }
     private List<Map<String, Object>> moveListLeft(List<Map<String, Object>> mList){
         mList.add(mList.get(0));
@@ -142,26 +165,26 @@ public class Launcher extends AppCompatActivity {
         boolean isD = file1.isDirectory();
         Log.d("qiqi", Path + " is Directory :" + isD + " contains item:" + file1.listFiles().length);
 
-//        File[] files = new File(Path).listFiles();
-//        Map<String , String> map ;
-//        for (int i = 0; i < files.length; i++)
-//        {
-//            File f = files[i];
-//            if (f.isFile())
-//            {
-//                if (f.getPath().substring(f.getPath().length() - Extension.length()).equals(Extension))
-//                {
-//                    map = new HashMap<String, String>();
-//                    map.put("img", f.getPath());
-//                    map.put("name", f.getName());
-//                    lstPics.add(map);
-//                }
-//                if (!IsIterative)
-//                    break;
-//            }
-//            else if (f.isDirectory() && f.getPath().indexOf("/.") == -1)
-//                GetFiles(f.getPath(), Extension, IsIterative);
-//        }
+        File[] files = new File(Path).listFiles();
+        Map<String , String> map ;
+        for (int i = 0; i < files.length; i++)
+        {
+            File f = files[i];
+            if (f.isFile())
+            {
+                if (f.getPath().substring(f.getPath().length() - Extension.length()).equals(Extension))
+                {
+                    map = new HashMap<String, String>();
+                    map.put("img", "file://" + f.getPath());
+                    map.put("name", f.getName());
+                    lstPics.add(map);
+                }
+                if (!IsIterative)
+                    break;
+            }
+            else if (f.isDirectory() && f.getPath().indexOf("/.") == -1)
+                GetFiles(f.getPath(), Extension, IsIterative);
+        }
     }
 
     private void hideSystemUI() {
@@ -234,4 +257,56 @@ public class Launcher extends AppCompatActivity {
             }
         }
     }
+    public class ImageSimpleAdater extends BaseAdapter{
+
+        private Context mContext;
+        private List<Map<String, String>> mDataList;
+        private ImageLoaderConfiguration config;
+        private ImageLoader imageLoader;
+        public ImageSimpleAdater(Context context, List<Map<String, String>> dataList){
+            mContext = context;
+            mDataList = dataList;
+            config = ImageLoaderConfiguration.createDefault(mContext);
+            imageLoader = ImageLoader.getInstance();
+            imageLoader.init(config);
+        }
+
+        @Override
+        public int getCount() {
+            return mDataList.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return mDataList.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            ViewHolder holder = null;
+            if(convertView == null){
+                holder = new ViewHolder();
+                convertView = LayoutInflater.from(mContext).inflate(R.layout.explorer_list_item, null);
+                holder.image = (ImageView) convertView.findViewById(R.id.img);
+                holder.name = (TextView) convertView.findViewById(R.id.txt);
+                convertView.setTag(holder);
+            }else{
+                holder = (ViewHolder) convertView.getTag();
+            }
+            imageLoader.displayImage(mDataList.get(position).get("img"),  holder.image);
+            holder.name.setText(mDataList.get(position).get("name"));
+            return convertView;
+        }
+
+    }
+    final class ViewHolder{
+        ImageView image;
+        TextView name;
+    }
+
 }
