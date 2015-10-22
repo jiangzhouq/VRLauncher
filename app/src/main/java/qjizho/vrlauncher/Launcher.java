@@ -5,10 +5,13 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,6 +45,20 @@ public class Launcher extends AppCompatActivity {
     private ListView explorer_right;
     private ImageLoader imageLoader;
     private ImageLoaderConfiguration config ;
+    private int[] imageResources = new int[]{R.mipmap.setting, R.mipmap.store, R.mipmap.movies, R.mipmap.pictures, R.mipmap.games};
+    private int[] imageResources_focus = new int[]{R.mipmap.setting_focus, R.mipmap.store_focus, R.mipmap.movies_focus, R.mipmap.pictures_focus, R.mipmap.games_focus};
+    private int cur_selected = 2;
+    private Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            switch(msg.what){
+                case 0:
+                    ((ImageView) ((ViewGroup) grid_left.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected]);
+                    ((ImageView)((ViewGroup) grid_right.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected]);
+                    break;
+            }
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +69,8 @@ public class Launcher extends AppCompatActivity {
         }
         setContentView(R.layout.activity_launcher);
         mDecorView = getWindow().getDecorView();
+        TextView to_focus = (TextView) findViewById(R.id.to_focus);
+        to_focus.requestFocus();
         hideSystemUI();
         grid_left = (GridView) findViewById(R.id.list_left);
         grid_right = (GridView) findViewById(R.id.list_right);
@@ -73,16 +92,54 @@ public class Launcher extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 showExplorer(position);
                 GetFiles("/mnt/sdcard/DCIM/Camera/", "jpg", true);
-                for(int j = 0; j < lstPics.size() ; j++){
-                    ImageSimpleAdater explorerAdapter = new ImageSimpleAdater(Launcher.this,  lstPics);
+                for (int j = 0; j < lstPics.size(); j++) {
+                    ImageSimpleAdater explorerAdapter = new ImageSimpleAdater(Launcher.this, lstPics);
                     explorer_left.setAdapter(explorerAdapter);
                     explorer_right.setAdapter(explorerAdapter);
                     Log.d("qiqi", lstPics.get(j).get("img") + " " + lstPics.get(j).get("name"));
                 }
             }
         });
+        handler.sendEmptyMessageDelayed(0, 1000);
 
         requestPermission();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        switch(keyCode){
+            case KeyEvent.KEYCODE_DPAD_LEFT:
+                ((ImageView)((ViewGroup) grid_left.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources[cur_selected]);
+                ((ImageView)((ViewGroup) grid_right.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources[cur_selected]);
+                cur_selected --;
+                if(cur_selected == -1){
+                    cur_selected = 4;
+                }
+                Log.d("qiqi", "" + cur_selected);
+                ((ImageView)((ViewGroup) grid_left.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected]);
+                ((ImageView)((ViewGroup) grid_right.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected]);
+                break;
+            case KeyEvent.KEYCODE_DPAD_RIGHT:
+                ((ImageView)((ViewGroup) grid_left.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources[cur_selected]);
+                ((ImageView)((ViewGroup) grid_right.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources[cur_selected]);
+                cur_selected ++ ;
+                if(cur_selected == 5){
+                    cur_selected = 0;
+                }
+                ((ImageView)((ViewGroup) grid_left.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected]);
+                ((ImageView)((ViewGroup) grid_right.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected]);
+                Log.d("qiqi", "" + cur_selected);
+                break;
+            case KeyEvent.KEYCODE_DPAD_CENTER:
+            case KeyEvent.KEYCODE_BUTTON_A:
+                break;
+            case KeyEvent.KEYCODE_BACK:
+            case KeyEvent.KEYCODE_BUTTON_B:
+                break;
+            default:
+                break;
+        }
+        return true;
     }
 
     private void showLauncher(){
