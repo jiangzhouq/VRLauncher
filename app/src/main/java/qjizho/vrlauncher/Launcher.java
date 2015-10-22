@@ -15,7 +15,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -82,14 +81,7 @@ public class Launcher extends AppCompatActivity {
                 }
             }
         });
-        Button hello = (Button) findViewById(R.id.hello);
-        hello.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mapList = moveListLeft(mapList);
-                adapter.notifyDataSetChanged();
-            }
-        });
+
         requestPermission();
     }
 
