@@ -16,7 +16,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -93,19 +92,7 @@ public class Launcher extends AppCompatActivity {
         final SimpleAdapter adapter = new SimpleAdapter(this, mapList,R.layout.list_item,new String[]{"img","title"}, new int[]{R.id.img, R.id.txt});
         grid_left.setAdapter(adapter);
         grid_right.setAdapter(adapter);
-        grid_left.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                showExplorer(position);
-                GetFiles("/mnt/sdcard/DCIM/Camera/", "jpg", true);
-                for (int j = 0; j < lstPics.size(); j++) {
-                    ImageSimpleAdater explorerAdapter = new ImageSimpleAdater(Launcher.this, lstPics);
-                    explorer_left.setAdapter(explorerAdapter);
-                    explorer_right.setAdapter(explorerAdapter);
-                    Log.d("qiqi", lstPics.get(j).get("img") + " " + lstPics.get(j).get("name"));
-                }
-            }
-        });
+        
         handler.sendEmptyMessageDelayed(0, 1000);
 
         requestPermission();
