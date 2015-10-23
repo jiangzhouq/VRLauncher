@@ -41,6 +41,8 @@ public class Launcher extends AppCompatActivity {
     private GridView grid_right;
     private ImageView selected_left;
     private ImageView selected_right;
+    private ImageView arrow_left;
+    private ImageView arrow_right;
     private ListView explorer_left;
     private ListView explorer_right;
     private ImageLoader imageLoader;
@@ -80,6 +82,8 @@ public class Launcher extends AppCompatActivity {
         selected_right = (ImageView) findViewById(R.id.selected_right);
         explorer_left = (ListView) findViewById(R.id.explorer_left);
         explorer_right = (ListView) findViewById(R.id.explorer_right);
+        arrow_left = (ImageView) findViewById(R.id.arrow_left);
+        arrow_right = (ImageView) findViewById(R.id.arrow_right);
         showLauncher();
         config = ImageLoaderConfiguration.createDefault(this);
         imageLoader = ImageLoader.getInstance();
@@ -195,9 +199,11 @@ public class Launcher extends AppCompatActivity {
         grid_left.setVisibility(View.VISIBLE);
         selected_left.setVisibility(View.GONE);
         explorer_left.setVisibility(View.GONE);
+        arrow_left.setVisibility(View.GONE);
         grid_right.setVisibility(View.VISIBLE);
         selected_right.setVisibility(View.GONE);
         explorer_right.setVisibility(View.GONE);
+        arrow_right.setVisibility(View.GONE);
     }
 
     private void showExplorer(int pos){
@@ -205,10 +211,12 @@ public class Launcher extends AppCompatActivity {
         selected_left.setVisibility(View.VISIBLE);
         selected_left.setImageResource((int) mapList.get(pos).get("img"));
         explorer_left.setVisibility(View.VISIBLE);
+        arrow_left.setVisibility(View.VISIBLE);
         grid_right.setVisibility(View.GONE);
         selected_right.setVisibility(View.VISIBLE);
         selected_right.setImageResource((int) mapList.get(pos).get("img"));
         explorer_right.setVisibility(View.VISIBLE);
+        arrow_right.setVisibility(View.VISIBLE);
         switch (pos){
             case 3:
                 GetFiles("/mnt/sdcard/DCIM/Camera/", "jpg", true);
