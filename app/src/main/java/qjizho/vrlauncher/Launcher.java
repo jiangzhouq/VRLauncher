@@ -48,6 +48,8 @@ public class Launcher extends AppCompatActivity {
     private int[] imageResources = new int[]{R.mipmap.setting, R.mipmap.store, R.mipmap.movies, R.mipmap.pictures, R.mipmap.games};
     private int[] imageResources_focus = new int[]{R.mipmap.setting_focus, R.mipmap.store_focus, R.mipmap.movies_focus, R.mipmap.pictures_focus, R.mipmap.games_focus};
     private int cur_selected = 2;
+    private int cur_mode = 5;
+
     private Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -109,40 +111,87 @@ public class Launcher extends AppCompatActivity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch(keyCode){
             case KeyEvent.KEYCODE_DPAD_LEFT:
-                ((ImageView)((ViewGroup) grid_left.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources[cur_selected]);
-                ((ImageView)((ViewGroup) grid_right.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources[cur_selected]);
-                cur_selected --;
-                if(cur_selected == -1){
-                    cur_selected = 4;
+                if(cur_mode >= 5){
+                    ((ImageView)((ViewGroup) grid_left.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources[cur_selected]);
+                    ((ImageView)((ViewGroup) grid_right.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources[cur_selected]);
+                    cur_selected --;
+                    if(cur_selected == -1){
+                        cur_selected = 4;
+                    }
+                    Log.d("qiqi", "" + cur_selected);
+                    ((ImageView)((ViewGroup) grid_left.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected]);
+                    ((ImageView)((ViewGroup) grid_right.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected]);
+                }else if (cur_mode <= 4){
+
                 }
-                Log.d("qiqi", "" + cur_selected);
-                ((ImageView)((ViewGroup) grid_left.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected]);
-                ((ImageView)((ViewGroup) grid_right.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected]);
                 break;
             case KeyEvent.KEYCODE_DPAD_RIGHT:
-                ((ImageView)((ViewGroup) grid_left.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources[cur_selected]);
-                ((ImageView)((ViewGroup) grid_right.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources[cur_selected]);
-                cur_selected ++ ;
-                if(cur_selected == 5){
-                    cur_selected = 0;
+                if(cur_mode >= 5){
+                    ((ImageView)((ViewGroup) grid_left.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources[cur_selected]);
+                    ((ImageView)((ViewGroup) grid_right.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources[cur_selected]);
+                    cur_selected ++ ;
+                    if(cur_selected == 5){
+                        cur_selected = 0;
+                    }
+                    ((ImageView)((ViewGroup) grid_left.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected]);
+                    ((ImageView)((ViewGroup) grid_right.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected]);
+                    Log.d("qiqi", "" + cur_selected);
+                }else if (cur_mode <= 4){
+
                 }
-                ((ImageView)((ViewGroup) grid_left.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected]);
-                ((ImageView)((ViewGroup) grid_right.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected]);
-                Log.d("qiqi", "" + cur_selected);
+                break;
+            case KeyEvent.KEYCODE_DPAD_UP:
+                if(cur_mode <= 4){
+
+                }else if (cur_mode >=5){
+
+                }
+                break;
+            case KeyEvent.KEYCODE_DPAD_DOWN:
+                if(cur_mode <= 4){
+
+                }else if (cur_mode >=5){
+
+                }
                 break;
             case KeyEvent.KEYCODE_DPAD_CENTER:
             case KeyEvent.KEYCODE_BUTTON_A:
+                if(cur_mode >= 5){
+                    cur_mode = cur_selected;
+                    controlMode(cur_mode);
+                }else if (cur_mode <=4){
+
+                }
+
                 break;
             case KeyEvent.KEYCODE_BACK:
             case KeyEvent.KEYCODE_BUTTON_B:
+                if(cur_mode <= 4){
+                    cur_mode = 5;
+                    controlMode(cur_mode);
+                }else if(cur_mode >= 5){
+
+                }
+
                 break;
             default:
                 break;
         }
         return true;
     }
+    private void controlMode(int mode){
+        switch(mode){
+            case 5:
+                showLauncher();
+                break;
+            default:
+                showExplorer(mode);
+        }
 
+    }
     private void showLauncher(){
+        explorer_left.setAdapter(null);
+        explorer_right.setAdapter(null);
         grid_left.setVisibility(View.VISIBLE);
         selected_left.setVisibility(View.GONE);
         explorer_left.setVisibility(View.GONE);
@@ -160,6 +209,16 @@ public class Launcher extends AppCompatActivity {
         selected_right.setVisibility(View.VISIBLE);
         selected_right.setImageResource((int) mapList.get(pos).get("img"));
         explorer_right.setVisibility(View.VISIBLE);
+        switch (pos){
+            case 3:
+                GetFiles("/mnt/sdcard/DCIM/Camera/", "jpg", true);
+                for (int j = 0; j < lstPics.size(); j++) {
+                    ImageSimpleAdater explorerAdapter = new ImageSimpleAdater(Launcher.this, lstPics);
+                    explorer_left.setAdapter(explorerAdapter);
+                    explorer_right.setAdapter(explorerAdapter);
+                    Log.d("qiqi", lstPics.get(j).get("img") + " " + lstPics.get(j).get("name"));
+                }
+        }
     }
     private List<Map<String, Object>> moveListLeft(List<Map<String, Object>> mList){
         mList.add(mList.get(0));
