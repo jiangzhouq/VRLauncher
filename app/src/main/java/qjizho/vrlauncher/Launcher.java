@@ -11,6 +11,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,11 +20,11 @@ import android.view.WindowManager;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
@@ -36,29 +37,35 @@ import java.util.Map;
 public class Launcher extends AppCompatActivity {
     private View mDecorView;
     private List<Map<String, Object>> mapList;
+    private List<Map<String, String>> lstPics = new ArrayList<Map<String, String>>();
     private GridView grid_left;
     private GridView grid_right;
     private ImageView selected_left;
     private ImageView selected_right;
     private ImageView arrow_left;
     private ImageView arrow_right;
-    private ListView explorer_left;
-    private ListView explorer_right;
+    private GridView explorer_left;
+    private GridView explorer_right;
     private ImageLoader imageLoader;
     private ImageLoaderConfiguration config ;
+    private ImageSimpleAdater explorerAdapter;
     private int[] imageResources = new int[]{R.mipmap.setting, R.mipmap.store, R.mipmap.movies, R.mipmap.pictures, R.mipmap.games};
     private int[] imageResources_focus = new int[]{R.mipmap.setting_focus, R.mipmap.store_focus, R.mipmap.movies_focus, R.mipmap.pictures_focus, R.mipmap.games_focus};
-    private int cur_selected = 2;
+    private int cur_selected_launcher = 2;
+    //5 = lancuer mode ; 0 - 4 explorer mode
     private int cur_mode = 5;
-
+    private int cur_selected_explorer = 0;
+    private int cur_page_explorer = 0;
+    private DisplayImageOptions options;
     private Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
             switch(msg.what){
                 case 0:
-                    ((ImageView) ((ViewGroup) grid_left.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected]);
-                    ((ImageView)((ViewGroup) grid_right.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected]);
+                    ((ImageView) ((ViewGroup) grid_left.getChildAt(cur_selected_launcher)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected_launcher]);
+                    ((ImageView)((ViewGroup) grid_right.getChildAt(cur_selected_launcher)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected_launcher]);
                     break;
+
             }
         }
     };
@@ -79,12 +86,19 @@ public class Launcher extends AppCompatActivity {
         grid_right = (GridView) findViewById(R.id.list_right);
         selected_left = (ImageView) findViewById(R.id.selected_left);
         selected_right = (ImageView) findViewById(R.id.selected_right);
-        explorer_left = (ListView) findViewById(R.id.explorer_left);
-        explorer_right = (ListView) findViewById(R.id.explorer_right);
+        explorer_left = (GridView) findViewById(R.id.explorer_left);
+        explorer_right = (GridView) findViewById(R.id.explorer_right);
         arrow_left = (ImageView) findViewById(R.id.arrow_left);
         arrow_right = (ImageView) findViewById(R.id.arrow_right);
         showLauncher();
         config = ImageLoaderConfiguration.createDefault(this);
+        options = new DisplayImageOptions.Builder()
+                .showStubImage(R.mipmap.pictures)          // 设置图片下载期间显示的图片
+                .showImageForEmptyUri(R.mipmap.pictures)  // 设置图片Uri为空或是错误的时候显示的图片
+                .showImageOnFail(R.mipmap.pictures)       // 设置图片加载或解码过程中发生错误显示的图片
+                .cacheInMemory(true)                        // 设置下载的图片是否缓存在内存中
+                .cacheOnDisc(true)                          // 设置下载的图片是否缓存在SD卡中
+                .build();
         imageLoader = ImageLoader.getInstance();
         imageLoader.init(config);
 
@@ -92,7 +106,7 @@ public class Launcher extends AppCompatActivity {
         final SimpleAdapter adapter = new SimpleAdapter(this, mapList,R.layout.list_item,new String[]{"img","title"}, new int[]{R.id.img, R.id.txt});
         grid_left.setAdapter(adapter);
         grid_right.setAdapter(adapter);
-        
+
         handler.sendEmptyMessageDelayed(0, 1000);
 
         requestPermission();
@@ -103,36 +117,83 @@ public class Launcher extends AppCompatActivity {
         switch(keyCode){
             case KeyEvent.KEYCODE_DPAD_LEFT:
                 if(cur_mode >= 5){
-                    ((ImageView)((ViewGroup) grid_left.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources[cur_selected]);
-                    ((ImageView)((ViewGroup) grid_right.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources[cur_selected]);
-                    cur_selected --;
-                    if(cur_selected == -1){
-                        cur_selected = 4;
+                    ((ImageView)((ViewGroup) grid_left.getChildAt(cur_selected_launcher)).getChildAt(0)).setImageResource(imageResources[cur_selected_launcher]);
+                    ((ImageView)((ViewGroup) grid_right.getChildAt(cur_selected_launcher)).getChildAt(0)).setImageResource(imageResources[cur_selected_launcher]);
+                    cur_selected_launcher --;
+                    if(cur_selected_launcher == -1){
+                        cur_selected_launcher = 4;
                     }
-                    Log.d("qiqi", "" + cur_selected);
-                    ((ImageView)((ViewGroup) grid_left.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected]);
-                    ((ImageView)((ViewGroup) grid_right.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected]);
+                    Log.d("qiqi", "" + cur_selected_launcher);
+                    ((ImageView)((ViewGroup) grid_left.getChildAt(cur_selected_launcher)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected_launcher]);
+                    ((ImageView)((ViewGroup) grid_right.getChildAt(cur_selected_launcher)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected_launcher]);
                 }else if (cur_mode <= 4){
-
+                    if((cur_selected_explorer > 0 && cur_selected_explorer < (lstPics.size()))){
+//                        (explorer_left.getChildAt(cur_selected_explorer)).setBackgroundColor(getResources().getColor(android.R.color.black));
+                        cur_selected_explorer -- ;
+//                        (explorer_left.getChildAt(cur_selected_explorer)).setBackgroundColor(getResources().getColor(android.R.color.holo_red_dark));
+                        Log.d("qiqi", "cur_selected_explorer :" + cur_selected_explorer);
+                        if((cur_selected_explorer)/9 != cur_page_explorer ){
+                            cur_page_explorer = (cur_selected_explorer)/9;
+                            explorer_left.setSelection(cur_page_explorer*9);
+                            explorer_right.setSelection(cur_page_explorer*9);
+                        }
+                        explorerAdapter.notifyDataSetChanged();
+                    }
                 }
                 break;
             case KeyEvent.KEYCODE_DPAD_RIGHT:
                 if(cur_mode >= 5){
-                    ((ImageView)((ViewGroup) grid_left.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources[cur_selected]);
-                    ((ImageView)((ViewGroup) grid_right.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources[cur_selected]);
-                    cur_selected ++ ;
-                    if(cur_selected == 5){
-                        cur_selected = 0;
+                    ((ImageView)((ViewGroup) grid_left.getChildAt(cur_selected_launcher)).getChildAt(0)).setImageResource(imageResources[cur_selected_launcher]);
+                    ((ImageView)((ViewGroup) grid_right.getChildAt(cur_selected_launcher)).getChildAt(0)).setImageResource(imageResources[cur_selected_launcher]);
+                    cur_selected_launcher ++ ;
+                    if(cur_selected_launcher == 5){
+                        cur_selected_launcher = 0;
                     }
-                    ((ImageView)((ViewGroup) grid_left.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected]);
-                    ((ImageView)((ViewGroup) grid_right.getChildAt(cur_selected)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected]);
-                    Log.d("qiqi", "" + cur_selected);
-                }else if (cur_mode <= 4){
+                    ((ImageView)((ViewGroup) grid_left.getChildAt(cur_selected_launcher)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected_launcher]);
+                    ((ImageView)((ViewGroup) grid_right.getChildAt(cur_selected_launcher)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected_launcher]);
+                    Log.d("qiqi", "" + cur_selected_launcher);
 
+                }else if (cur_mode <= 4){
+                    if((cur_selected_explorer >= 0 && cur_selected_explorer < (lstPics.size() -1))){
+//                        (explorer_left.getChildAt(cur_selected_explorer)).setBackgroundColor(getResources().getColor(android.R.color.black));
+                        cur_selected_explorer ++ ;
+//                        (explorer_left.getChildAt(cur_selected_explorer)).setBackgroundColor(getResources().getColor(android.R.color.holo_red_dark));
+                        Log.d("qiqi", "cur_selected_explorer :" + cur_selected_explorer);
+                        if((cur_selected_explorer)/9 != cur_page_explorer ){
+                            cur_page_explorer = (cur_selected_explorer)/9;
+                            explorer_left.setSelection(cur_page_explorer*9);
+                            explorer_right.setSelection(cur_page_explorer*9);
+                        }
+                        explorerAdapter.notifyDataSetChanged();
+                    }
                 }
                 break;
             case KeyEvent.KEYCODE_DPAD_UP:
                 if(cur_mode <= 4){
+                    if(cur_selected_explorer/3 > 0){
+//                        (explorer_left.getChildAt(cur_selected_explorer)).setBackgroundColor(getResources().getColor(android.R.color.black));
+                        cur_selected_explorer = cur_selected_explorer - 3 ;
+                        Log.d("qiqi", "cur_selected_explorer :" + cur_selected_explorer);
+                        if((cur_selected_explorer)/9 != cur_page_explorer ){
+                            cur_page_explorer = (cur_selected_explorer)/9;
+                            explorer_left.setSelection(cur_page_explorer*9);
+                            explorer_right.setSelection(cur_page_explorer*9);
+                            Log.d("qiqi", "setSelection:" + cur_page_explorer * 9);
+                        }
+
+                        explorerAdapter.notifyDataSetChanged();
+//                        int aaa = cur_selected_explorer - cur_visible_explorer*3;
+//                        Log.d("qiqi", "explorer_left.getchildcount:" + explorer_left.getChildCount() + "  cur_selected_explorer - cur_visible_explorer*3 :" + aaa );
+//                        ((RelativeLayout)explorer_left.getChildAt(cur_selected_explorer - cur_visible_explorer*3)).setBackgroundColor(getResources().getColor(android.R.color.holo_red_dark));
+                    }
+
+
+//                    if(cur_selected_explorer > 0){
+//                        cur_selected_explorer -- ;
+//                        explorer_left.smoothScrollBy(-dp2px(this, 40), 10);
+//                        Log.d("qiqi", "cur_selected_explorer :" + cur_selected_explorer );
+//                    }
+
 
                 }else if (cur_mode >=5){
 
@@ -140,6 +201,22 @@ public class Launcher extends AppCompatActivity {
                 break;
             case KeyEvent.KEYCODE_DPAD_DOWN:
                 if(cur_mode <= 4){
+                    if(cur_selected_explorer/3 < lstPics.size()/3){
+                        cur_selected_explorer = cur_selected_explorer + 3;
+                        if(cur_selected_explorer >= lstPics.size())
+                            cur_selected_explorer = lstPics.size() -1;
+
+                        Log.d("qiqi", "cur_selected_explorer :" + cur_selected_explorer);
+                        if((cur_selected_explorer)/9 != cur_page_explorer ){
+                            cur_page_explorer = (cur_selected_explorer)/9;
+                            explorer_left.setSelection(cur_page_explorer*9);
+                            explorer_right.setSelection(cur_page_explorer*9);
+                            Log.d("qiqi", "setSelection:" +cur_page_explorer*9);
+                        }
+
+                        explorerAdapter.notifyDataSetChanged();
+                    }
+
 
                 }else if (cur_mode >=5){
 
@@ -148,7 +225,7 @@ public class Launcher extends AppCompatActivity {
             case KeyEvent.KEYCODE_DPAD_CENTER:
             case KeyEvent.KEYCODE_BUTTON_A:
                 if(cur_mode >= 5){
-                    cur_mode = cur_selected;
+                    cur_mode = cur_selected_launcher;
                     controlMode(cur_mode);
                 }else if (cur_mode <=4){
 
@@ -204,14 +281,13 @@ public class Launcher extends AppCompatActivity {
         selected_right.setImageResource((int) mapList.get(pos).get("img"));
         explorer_right.setVisibility(View.VISIBLE);
         arrow_right.setVisibility(View.VISIBLE);
-        switch (pos){
+        switch (pos) {
             case 3:
                 GetFiles("/mnt/sdcard/DCIM/Camera/", "jpg", true);
                 for (int j = 0; j < lstPics.size(); j++) {
-                    ImageSimpleAdater explorerAdapter = new ImageSimpleAdater(Launcher.this, lstPics);
+                    explorerAdapter = new ImageSimpleAdater(Launcher.this, lstPics);
                     explorer_left.setAdapter(explorerAdapter);
                     explorer_right.setAdapter(explorerAdapter);
-                    Log.d("qiqi", lstPics.get(j).get("img") + " " + lstPics.get(j).get("name"));
                 }
         }
     }
@@ -260,7 +336,7 @@ public class Launcher extends AppCompatActivity {
 
         return list;
     }
-    private List<Map<String, String>> lstPics = new ArrayList<Map<String, String>>();
+
 
     public void GetFiles(String Path, String Extension, boolean IsIterative)
     {
@@ -391,25 +467,33 @@ public class Launcher extends AppCompatActivity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
+//            Log.d("qiqi", "position:" + position + " " + convertView);
             ViewHolder holder = null;
             if(convertView == null){
                 holder = new ViewHolder();
                 convertView = LayoutInflater.from(mContext).inflate(R.layout.explorer_list_item, parent, false);
                 holder.image = (ImageView) convertView.findViewById(R.id.img);
-                holder.name = (TextView) convertView.findViewById(R.id.txt);
                 convertView.setTag(holder);
             }else{
                 holder = (ViewHolder) convertView.getTag();
             }
-            imageLoader.displayImage(mDataList.get(position).get("img"),  holder.image);
-            holder.name.setText(mDataList.get(position).get("name"));
+            imageLoader.displayImage(mDataList.get(position).get("img"),  holder.image ,options);
+            if(position == cur_selected_explorer){
+                convertView.setBackgroundResource(R.drawable.explorer_item_background);
+            }else{
+                convertView.setBackground(null);
+            }
             return convertView;
         }
 
     }
     final class ViewHolder{
         ImageView image;
-        TextView name;
     }
 
+    public static int dp2px(Context context, float dpVal)
+    {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                dpVal, context.getResources().getDisplayMetrics());
+    }
 }
