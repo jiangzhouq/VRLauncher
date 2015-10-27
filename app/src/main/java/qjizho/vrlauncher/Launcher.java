@@ -2,6 +2,7 @@ package qjizho.vrlauncher;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -38,6 +39,7 @@ public class Launcher extends AppCompatActivity {
     private View mDecorView;
     private List<Map<String, Object>> mapList;
     private List<Map<String, String>> lstPics = new ArrayList<Map<String, String>>();
+    private List<Map<String, String>> lstSettings;
     private GridView grid_left;
     private GridView grid_right;
     private ImageView selected_left;
@@ -49,6 +51,7 @@ public class Launcher extends AppCompatActivity {
     private ImageLoader imageLoader;
     private ImageLoaderConfiguration config ;
     private ImageSimpleAdater explorerAdapter;
+    private ImageSimpleAdater settingAdapter;
     private int[] imageResources = new int[]{R.mipmap.setting, R.mipmap.store, R.mipmap.movies, R.mipmap.pictures, R.mipmap.games};
     private int[] imageResources_focus = new int[]{R.mipmap.setting_focus, R.mipmap.store_focus, R.mipmap.movies_focus, R.mipmap.pictures_focus, R.mipmap.games_focus};
     private int cur_selected_launcher = 2;
@@ -102,7 +105,7 @@ public class Launcher extends AppCompatActivity {
         imageLoader = ImageLoader.getInstance();
         imageLoader.init(config);
 
-        mapList = getData();
+        mapList = getLauncherList();
         final SimpleAdapter adapter = new SimpleAdapter(this, mapList,R.layout.list_item,new String[]{"img","title"}, new int[]{R.id.img, R.id.txt});
         grid_left.setAdapter(adapter);
         grid_right.setAdapter(adapter);
@@ -224,13 +227,16 @@ public class Launcher extends AppCompatActivity {
                 break;
             case KeyEvent.KEYCODE_DPAD_CENTER:
             case KeyEvent.KEYCODE_BUTTON_A:
-                if(cur_mode >= 5){
-                    cur_mode = cur_selected_launcher;
-                    controlMode(cur_mode);
-                }else if (cur_mode <=4){
+                switch(cur_mode){
+                    case 0:
+                        startActivity(new Intent( lstSettings.get(cur_selected_explorer).get("action")));
+                        break;
+                    case 5:
+                        cur_mode = cur_selected_launcher;
+                        controlMode(cur_mode);
+                        break;
 
                 }
-
                 break;
             case KeyEvent.KEYCODE_BACK:
             case KeyEvent.KEYCODE_BUTTON_B:
@@ -251,6 +257,7 @@ public class Launcher extends AppCompatActivity {
         switch(mode){
             case 5:
                 showLauncher();
+                cur_selected_explorer = 0;
                 break;
             default:
                 showExplorer(mode);
@@ -284,11 +291,16 @@ public class Launcher extends AppCompatActivity {
         switch (pos) {
             case 3:
                 GetFiles("/mnt/sdcard/DCIM/Camera/", "jpg", true);
-                for (int j = 0; j < lstPics.size(); j++) {
-                    explorerAdapter = new ImageSimpleAdater(Launcher.this, lstPics);
-                    explorer_left.setAdapter(explorerAdapter);
-                    explorer_right.setAdapter(explorerAdapter);
-                }
+                explorerAdapter = new ImageSimpleAdater(Launcher.this, lstPics, true);
+                explorer_left.setAdapter(explorerAdapter);
+                explorer_right.setAdapter(explorerAdapter);
+                break;
+            case 0:
+                lstSettings = getSettingList();
+                settingAdapter = new ImageSimpleAdater(Launcher.this, lstSettings, false);
+                explorer_left.setAdapter(settingAdapter);
+                explorer_right.setAdapter(settingAdapter);
+                break;
         }
     }
     private List<Map<String, Object>> moveListLeft(List<Map<String, Object>> mList){
@@ -302,7 +314,17 @@ public class Launcher extends AppCompatActivity {
         mList.remove(5);
         return mList;
     }
-    private List<Map<String, Object>> getData() {
+    private List<Map<String, String>> getSettingList() {
+        List<Map<String, String>> list = new ArrayList<Map<String, String>>();
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("img", "" + R.mipmap.wifi);
+        map.put("title", "Wifi");
+        map.put("action", "com.qjizho.vrlauncher.WIFIACTIVITY");
+        list.add(map);
+
+        return list;
+    }
+    private List<Map<String, Object>> getLauncherList() {
         List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("img", R.mipmap.setting);
@@ -442,12 +464,14 @@ public class Launcher extends AppCompatActivity {
         private List<Map<String, String>> mDataList;
         private ImageLoaderConfiguration config;
         private ImageLoader imageLoader;
-        public ImageSimpleAdater(Context context, List<Map<String, String>> dataList){
+        private boolean mUserLoader;
+        public ImageSimpleAdater(Context context, List<Map<String, String>> dataList, boolean useLoader){
             mContext = context;
             mDataList = dataList;
             config = ImageLoaderConfiguration.createDefault(mContext);
             imageLoader = ImageLoader.getInstance();
             imageLoader.init(config);
+            mUserLoader = useLoader;
         }
 
         @Override
@@ -477,7 +501,11 @@ public class Launcher extends AppCompatActivity {
             }else{
                 holder = (ViewHolder) convertView.getTag();
             }
-            imageLoader.displayImage(mDataList.get(position).get("img"),  holder.image ,options);
+            if(mUserLoader){
+                imageLoader.displayImage(mDataList.get(position).get("img"),  holder.image ,options);
+            }else{
+                holder.image.setImageResource(Integer.parseInt(mDataList.get(position).get("img")));
+            }
             if(position == cur_selected_explorer){
                 convertView.setBackgroundResource(R.drawable.explorer_item_background);
             }else{
