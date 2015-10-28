@@ -16,13 +16,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import qjizho.vrlauncher.wifi.WFSearchProcess;
+import qjizho.vrlauncher.wifi.WTAdapter;
 import qjizho.vrlauncher.wifi.WifiAdmin;
 import qjizho.vrlauncher.wifi.WifiBroadcastReceiver;
 
 
-/**
- * Created by qjizho on 15/10/27.
- */
+
 
 public class WifiActivity extends Activity implements WifiBroadcastReceiver.EventHandler{
 
@@ -33,6 +32,9 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
     public static final int m_nCreateAPResult = 3;// 创建热点结果
     public static final int m_nUserResult = 4;// 用户上线人数更新命令(待定)
     public static final int m_nWTConnected = 5;// 点击连接后断开wifi，3.5秒后刷新adapter
+
+    public static final String WIFI_AP_HEADER = "zhf_";
+    public static final String WIFI_AP_PASSWORD ="zhf12345";
 
     private ImageView selected_left;
     private ImageView selected_right;
@@ -49,11 +51,11 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
     public WifiAdmin m_wiFiAdmin; //Wifi管理类
     private WifiManager.WifiLock mWifiLock;
     ArrayList<ScanResult> m_listWifi = new ArrayList();//检测到热点信息列表
-//    private WTAdapter m_wTAdapter; //网络列表适配器
-
+    private WTAdapter m_wTAdapter; //网络列表适配器
+    private ListView m_listVWT;
     private String mPasswd = "";
     private String mSSID = "";
-    public Handler mHandler = new Handler() {
+    public  Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             switch(msg.what){
@@ -83,10 +85,12 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
 //                            m_FrameLWTSearchAnimation.stopAnimation();
 //                            m_textVWTPrompt.setVisibility(View.GONE);
                             //更新列表，显示出搜索到的热点
-//                            m_wTAdapter.setData(m_listWifi);
-//                            m_wTAdapter.notifyDataSetChanged();
+                            m_wTAdapter.setData(m_listWifi);
+                            m_wTAdapter.notifyDataSetChanged();
                         }
                     }
+                    break;
+                default:
                     break;
             }
             super.handleMessage(msg);
@@ -98,7 +102,7 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
         setContentView(R.layout.wifi_layout);
         selected_left = (ImageView) findViewById(R.id.selected_left);
         selected_right = (ImageView) findViewById(R.id.selected_right);
-        explorer_left = (ListView) findViewById(R.id.explorer_left);
+        m_listVWT = (ListView) findViewById(R.id.explorer_left);
         explorer_right = (ListView) findViewById(R.id.explorer_right);
         WifiBroadcastReceiver.ehList.add(this);
        m_wtSearchProcess = new WFSearchProcess(this);
@@ -131,6 +135,8 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
             m_wiFiAdmin.startScan(); 	//开始搜索wifi
             m_wtSearchProcess.start();
         }
+        m_wTAdapter = new WTAdapter(this, m_listWifi);
+        m_listVWT.setAdapter(m_wTAdapter);
     }
 
     private void enableWifi(){
