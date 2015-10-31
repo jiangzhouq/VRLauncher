@@ -1,6 +1,7 @@
 package qjizho.vrlauncher;
 
 import android.app.Activity;
+import android.content.res.Configuration;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
@@ -9,6 +10,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.ListView;
 
@@ -25,6 +28,7 @@ import qjizho.vrlauncher.wifi.WifiBroadcastReceiver;
 
 public class WifiActivity extends Activity implements WifiBroadcastReceiver.EventHandler{
 
+    private View mDecorView;
     //消息事件
     public static final int m_nWifiSearchTimeOut = 0;// 搜索超时
     public static final int m_nWTScanResult = 1;// 搜索到wifi返回结果
@@ -99,7 +103,14 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }else{
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
         setContentView(R.layout.wifi_layout);
+        mDecorView = getWindow().getDecorView();
+        hideSystemUI();
         selected_left = (ImageView) findViewById(R.id.selected_left);
         selected_right = (ImageView) findViewById(R.id.selected_right);
         m_listVWT = (ListView) findViewById(R.id.explorer_left);
@@ -161,4 +172,37 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
     public void wifiStatusNotification() {
         m_wiFiAdmin.mWifiManager.getWifiState(); //获取当前wifi状态
     }
+
+    private void hideSystemUI() {
+        // Set the IMMERSIVE flag.
+        // Set the content to appear under the system bars so that the content
+        // doesn't resize when the system bars hide and show.
+        Log.d("qiqi", "hideSystemUI");
+        mDecorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE);
+
+    }
+
+    // This snippet shows the system bars. It does this by removing all the flags
+    // except for the ones that make the content appear under the system bars.
+    private void showSystemUI() {
+        Log.d("qiqi", "showSystemUI");
+        mDecorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+
+    }
+    Runnable hideUIRun = new Runnable() {
+
+        @Override
+        public void run() {
+            hideSystemUI();
+        }
+    };
 }
