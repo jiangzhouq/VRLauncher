@@ -21,7 +21,7 @@ public class WTAdapter extends BaseAdapter {
     private LayoutInflater mInflater;
     private List<ScanResult> mList;  //扫描到的网络结果列表
     private WifiActivity mContext;
-
+    private int cur_selected_pos;
     public WTAdapter(WifiActivity context, List<ScanResult> list) {
         // TODO Auto-generated constructor stub
         this.mContext = context;
@@ -34,7 +34,10 @@ public class WTAdapter extends BaseAdapter {
         this.mList = list;
         notifyDataSetChanged();
     }
-
+    public void setCurPosition(int pos){
+        cur_selected_pos = pos;
+        notifyDataSetChanged();
+    }
     @Override
     public int getCount() {
         return mList.size();
@@ -100,6 +103,11 @@ public class WTAdapter extends BaseAdapter {
         //初始化布局
         viewHolder.progressBConnecting.setVisibility(View.GONE);
         viewHolder.textVName.setText(localScanResult.SSID); //显示热点名称
+        if(position == cur_selected_pos){
+            viewHolder.textVName.setTextColor(mContext.getResources().getColor(R.color.drap_bar_word_color));
+        }else{
+            viewHolder.textVName.setTextColor(mContext.getResources().getColor(R.color.white));
+        }
 
         // 正连接的wifi信息
 //        WifiInfo localWifiInfo = wifiAdmin.getWifiInfo();

@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -58,6 +59,9 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
     private WTAdapter m_wTAdapter; //网络列表适配器
     private String mPasswd = "";
     private String mSSID = "";
+
+    private int cur_selected_explorer = 0;
+    private boolean scanResultReceived = false;
     public  Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -73,23 +77,24 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
 
                 case m_nWTScanResult:  //扫描到结果
                     m_listWifi.clear();
-                    Log.d("qiqi",m_wiFiAdmin.mWifiManager.getScanResults().size() + " --- size");
+                    Log.d("qiqi", m_wiFiAdmin.mWifiManager.getScanResults().size() + " --- size");
                     if(m_wiFiAdmin.mWifiManager.getScanResults() != null) {
-                        for (int i = 0; i < m_wiFiAdmin.mWifiManager.getScanResults().size(); i++) {
-                            ScanResult scanResult = m_wiFiAdmin.mWifiManager.getScanResults().get(i);
-                            //和指定连接热点比较，将其他的过滤掉！
+                        if(!scanResultReceived){
+                            for (int i = 0; i < m_wiFiAdmin.mWifiManager.getScanResults().size(); i++) {
+                                ScanResult scanResult = m_wiFiAdmin.mWifiManager.getScanResults().get(i);
+                                //和指定连接热点比较，将其他的过滤掉！
 //                            if(scanResult.SSID.startsWith(WIFI_AP_HEADER)) {
-                            m_listWifi.add(scanResult);
-                            Log.d("qiqi", "wifi:" + scanResult.SSID);
+                                m_listWifi.add(scanResult);
 //                            }
-                        }
-                        if(m_listWifi.size() > 0) {
-                            m_wtSearchProcess.stop();
+                            }
+                            if(m_listWifi.size() > 0) {
+                                m_wtSearchProcess.stop();
 //                            m_FrameLWTSearchAnimation.stopAnimation();
 //                            m_textVWTPrompt.setVisibility(View.GONE);
-                            //更新列表，显示出搜索到的热点
-                            m_wTAdapter.setData(m_listWifi);
-                            m_wTAdapter.notifyDataSetChanged();
+                                //更新列表，显示出搜索到的热点
+                                m_wTAdapter.setData(m_listWifi);
+                                m_wTAdapter.notifyDataSetChanged();
+                            }
                         }
                     }
                     break;
@@ -115,7 +120,7 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
         explorer_left = (ListView) findViewById(R.id.explorer_left);
         explorer_right = (ListView) findViewById(R.id.explorer_right);
         WifiBroadcastReceiver.ehList.add(this);
-       m_wtSearchProcess = new WFSearchProcess(this);
+        m_wtSearchProcess = new WFSearchProcess(this);
         //wifi管理类
         m_wiFiAdmin  = WifiAdmin.getInstance(this);
         if(!m_wtSearchProcess.running) { //搜索线程没有开启
@@ -148,6 +153,44 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
         m_wTAdapter = new WTAdapter(this, m_listWifi);
         explorer_left.setAdapter(m_wTAdapter);
         explorer_right.setAdapter(m_wTAdapter);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        switch(keyCode){
+            case KeyEvent.KEYCODE_DPAD_UP:
+                if(cur_selected_explorer > 0){
+                    cur_selected_explorer -- ;
+                    m_wTAdapter.setCurPosition(cur_selected_explorer);
+                    if(cur_selected_explorer < explorer_left.getSelectedItemPosition()){
+                        explorer_left.setSelection(cur_selected_explorer );
+                        explorer_right.setSelection(cur_selected_explorer );
+                    }
+                }
+                break;
+            case KeyEvent.KEYCODE_DPAD_DOWN:
+                if(cur_selected_explorer < m_wTAdapter.getCount() - 1){
+                    cur_selected_explorer ++ ;
+                    m_wTAdapter.setCurPosition(cur_selected_explorer);
+                    if(cur_selected_explorer - explorer_left.getSelectedItemPosition() > 5){
+                        explorer_left.setSelection(cur_selected_explorer - 5);
+                        explorer_right.setSelection(cur_selected_explorer - 5);
+                    }
+                    Log.d("qiqi", cur_selected_explorer + " ---now " + " " + explorer_left.getSelectedItemPosition() + " --- selected");
+                }
+                break;
+            case KeyEvent.KEYCODE_DPAD_LEFT:
+                break;
+            case KeyEvent.KEYCODE_DPAD_RIGHT:
+                break;
+            case KeyEvent.KEYCODE_BUTTON_A:
+                break;
+            case KeyEvent.KEYCODE_BUTTON_B:
+                break;
+            case KeyEvent.KEYCODE_BUTTON_Y:
+                break;
+        }
+        return true;
     }
 
     private void enableWifi(){
