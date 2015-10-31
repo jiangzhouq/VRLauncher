@@ -56,7 +56,6 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
     private WifiManager.WifiLock mWifiLock;
     ArrayList<ScanResult> m_listWifi = new ArrayList();//检测到热点信息列表
     private WTAdapter m_wTAdapter; //网络列表适配器
-    private ListView m_listVWT;
     private String mPasswd = "";
     private String mSSID = "";
     public  Handler mHandler = new Handler() {
@@ -113,7 +112,7 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
         hideSystemUI();
         selected_left = (ImageView) findViewById(R.id.selected_left);
         selected_right = (ImageView) findViewById(R.id.selected_right);
-        m_listVWT = (ListView) findViewById(R.id.explorer_left);
+        explorer_left = (ListView) findViewById(R.id.explorer_left);
         explorer_right = (ListView) findViewById(R.id.explorer_right);
         WifiBroadcastReceiver.ehList.add(this);
        m_wtSearchProcess = new WFSearchProcess(this);
@@ -147,7 +146,8 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
             m_wtSearchProcess.start();
         }
         m_wTAdapter = new WTAdapter(this, m_listWifi);
-        m_listVWT.setAdapter(m_wTAdapter);
+        explorer_left.setAdapter(m_wTAdapter);
+        explorer_right.setAdapter(m_wTAdapter);
     }
 
     private void enableWifi(){
