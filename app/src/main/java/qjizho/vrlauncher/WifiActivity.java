@@ -13,10 +13,12 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,16 +69,29 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
     private WifiManager.WifiLock mWifiLock;
     ArrayList<ScanResult> m_listWifi = new ArrayList();//检测到热点信息列表
     private WTAdapter m_wTAdapter; //网络列表适配器
-    private String mPasswd = "";
+
     private String mSSID = "";
 
     private int cur_selected_explorer = 0;
     private boolean scanResultReceived = false;
+
+    private ArrayList<char[]> mEditPaswdArray;
+    private ArrayList<Integer> mEditPaswdCPos;
+    private StringBuilder mEditPasswd;
+    private char[]  mEditPaswdCHARS = new char[]{'*','0','1','2','3','4','5','6','7','8','9','a','A',
+            'b','B','c','C','d','D','e','E','f','F','g','G','h','H','i','I','j','J',
+            'k','K','l','L','m','M','n','N','o','O','p','P','q','Q','r','R','s','S',
+            't','T','u','U','v','V','w','W','x','X','y','Y','z','Z'};
     //The views
     private ProgressBar mLoadingPBLeft;
     private ProgressBar mLoadingPBRight;
     private LinearLayout mPasswdLayoutLeft;
     private LinearLayout mPasswdLayoutRight;
+    private TextView mWifiSSIDLeft;
+    private TextView mWifiSSIDRight;
+    private EditText mWifiPasswdLeft;
+    private EditText mWifiPasswdRight;
+
     public  Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -95,6 +110,9 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
                     Log.d("qiqi", m_wiFiAdmin.mWifiManager.getScanResults().size() + " --- size");
                     if(m_wiFiAdmin.mWifiManager.getScanResults() != null) {
                         if(!scanResultReceived){
+                            scanResultReceived = true;
+                            mCurState = state_wifilist;
+                            Log.d("qiqi", "set mCurState:" + state_wifilist);
                             mLoadingPBLeft.setVisibility(View.GONE);
                             mLoadingPBRight.setVisibility(View.GONE);
                             for (int i = 0; i < m_wiFiAdmin.mWifiManager.getScanResults().size(); i++) {
@@ -140,6 +158,12 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
         mLoadingPBRight = (ProgressBar) findViewById(R.id.loading_progressbar_right);
         mPasswdLayoutLeft = (LinearLayout) findViewById(R.id.passwd_layout_left);
         mPasswdLayoutRight = (LinearLayout) findViewById(R.id.passwd_layout_right);
+        mWifiSSIDLeft = (TextView) findViewById(R.id.wifi_ssid_left);
+        mWifiSSIDRight = (TextView) findViewById(R.id.wifi_ssid_right);
+        mWifiPasswdLeft = (EditText) findViewById(R.id.wifi_passwd_left);
+        mWifiPasswdRight = (EditText) findViewById(R.id.wifi_passwd_right);
+
+
         WifiBroadcastReceiver.ehList.add(this);
         m_wtSearchProcess = new WFSearchProcess(this);
         //wifi管理类
@@ -180,33 +204,120 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch(keyCode){
             case KeyEvent.KEYCODE_DPAD_UP:
-                if(cur_selected_explorer > 0){
-                    cur_selected_explorer -- ;
-                    m_wTAdapter.setCurPosition(cur_selected_explorer);
-                    if(cur_selected_explorer < explorer_left.getSelectedItemPosition()){
-                        explorer_left.setSelection(cur_selected_explorer );
-                        explorer_right.setSelection(cur_selected_explorer );
+                if(mCurState == state_wifilist){
+                    if(cur_selected_explorer > 0){
+                        cur_selected_explorer -- ;
+                        m_wTAdapter.setCurPosition(cur_selected_explorer);
+                        if(cur_selected_explorer < explorer_left.getSelectedItemPosition()){
+                            explorer_left.setSelection(cur_selected_explorer );
+                            explorer_right.setSelection(cur_selected_explorer );
+                        }
+                    }
+                }else if (mCurState == state_keyboard){
+                    if(mEditPaswdCPos.get(mEditPaswdCPos.size() -1) > 0){
+                        mEditPaswdCPos.set(mEditPaswdCPos.size() -1, mEditPaswdCPos.get(mEditPaswdCPos.size() -1) - 1 );
+                        mEditPasswd = new StringBuilder();
+                        for ( int i = 0; i < mEditPaswdArray.size(); i ++){
+                            mEditPasswd.append(mEditPaswdArray.get(i)[mEditPaswdCPos.get(i)]);
+                        }
+                        mWifiPasswdLeft.setText(mEditPasswd);
+                        mWifiPasswdRight.setText(mEditPasswd);
                     }
                 }
+
+
                 break;
             case KeyEvent.KEYCODE_DPAD_DOWN:
-                if(cur_selected_explorer < m_wTAdapter.getCount() - 1){
-                    cur_selected_explorer ++ ;
-                    m_wTAdapter.setCurPosition(cur_selected_explorer);
-                    if(cur_selected_explorer - explorer_left.getSelectedItemPosition() > 5){
-                        explorer_left.setSelection(cur_selected_explorer - 5);
-                        explorer_right.setSelection(cur_selected_explorer - 5);
+                if(mCurState == state_wifilist){
+                    if(cur_selected_explorer < m_wTAdapter.getCount() - 1){
+                        cur_selected_explorer ++ ;
+                        m_wTAdapter.setCurPosition(cur_selected_explorer);
+                        if(cur_selected_explorer - explorer_left.getSelectedItemPosition() > 5){
+                            explorer_left.setSelection(cur_selected_explorer - 5);
+                            explorer_right.setSelection(cur_selected_explorer - 5);
+                        }
+                        Log.d("qiqi", cur_selected_explorer + " --- now " + " " + explorer_left.getSelectedItemPosition() + " --- selected");
                     }
-                    Log.d("qiqi", cur_selected_explorer + " --- now " + " " + explorer_left.getSelectedItemPosition() + " --- selected");
+                }else if (mCurState == state_keyboard){
+                    if(mEditPaswdCPos.get(mEditPaswdCPos.size() -1) < mEditPaswdCHARS.length -1){
+                        mEditPaswdCPos.set(mEditPaswdCPos.size() -1, mEditPaswdCPos.get(mEditPaswdCPos.size() -1) + 1 );
+                        mEditPasswd = new StringBuilder();
+                        for ( int i = 0; i < mEditPaswdArray.size(); i ++){
+                            mEditPasswd.append(mEditPaswdArray.get(i)[mEditPaswdCPos.get(i)]);
+                        }
+                        mWifiPasswdLeft.setText(mEditPasswd);
+                        mWifiPasswdRight.setText(mEditPasswd);
+                    }
                 }
                 break;
             case KeyEvent.KEYCODE_DPAD_LEFT:
+                if(mEditPaswdArray.size() > 1)
+                    mEditPaswdArray.remove(mEditPaswdArray.size() -1);
+                mEditPasswd = new StringBuilder();
+                for ( int i = 0; i < mEditPaswdArray.size(); i ++){
+                    mEditPasswd.append(mEditPaswdArray.get(i)[mEditPaswdCPos.get(i)]);
+                }
+                mWifiPasswdLeft.setText(mEditPasswd);
+                mWifiPasswdRight.setText(mEditPasswd);
                 break;
             case KeyEvent.KEYCODE_DPAD_RIGHT:
+                if(mEditPaswdArray.get(mEditPaswdArray.size() -1)[mEditPaswdCPos.get(mEditPaswdCPos.size() - 1)] == '*')
+                    break;
+                mEditPaswdArray.add(mEditPaswdCHARS);
+                mEditPaswdCPos.add(0);
+                mEditPasswd = new StringBuilder();
+                for ( int i = 0; i < mEditPaswdArray.size(); i ++){
+                    mEditPasswd.append(mEditPaswdArray.get(i)[mEditPaswdCPos.get(i)]);
+                }
+                mWifiPasswdLeft.setText(mEditPasswd);
+                mWifiPasswdRight.setText(mEditPasswd);
                 break;
             case KeyEvent.KEYCODE_BUTTON_A:
+
+                if(mCurState == state_wifilist){
+                    mCurState = state_keyboard;
+                    mEditPasswd = new StringBuilder();
+                    mEditPaswdArray = new ArrayList<char[]>();
+                    mEditPaswdArray.add(mEditPaswdCHARS);
+                    mEditPaswdCPos = new ArrayList<Integer>();
+                    mEditPaswdCPos.add(0);
+
+                    for ( int i = 0; i < mEditPaswdArray.size(); i ++){
+                        mEditPasswd.append(mEditPaswdArray.get(i)[mEditPaswdCPos.get(i)]);
+                    }
+                    mWifiPasswdLeft.setText(mEditPasswd);
+                    mWifiPasswdRight.setText(mEditPasswd);
+
+                    Log.d("qiqi", "set mCurState:" + state_dialog);
+                    mPasswdLayoutLeft.setVisibility(View.VISIBLE);
+                    mPasswdLayoutRight.setVisibility(View.VISIBLE);
+                    mWifiSSIDLeft.setText(m_listWifi.get(cur_selected_explorer).SSID);
+                    mWifiSSIDRight.setText(m_listWifi.get(cur_selected_explorer).SSID);
+
+
+//                WifiConfiguration localWifiConfiguration = wifiAdmin.createWifiInfo(localScanResult.SSID, WifiActivity.WIFI_AP_PASSWORD, 3,"wt");
+//                //添加到网络
+//                wifiAdmin.addNetwork(localWifiConfiguration);
+//                //"点击链接"消失，显示进度条，
+//                viewHolder.textConnect.setVisibility(View.GONE);
+//                viewHolder.progressBConnecting.setVisibility(View.VISIBLE);
+//                viewHolder.linearLConnectOk.setVisibility(View.GONE);
+//                //点击后3.5s发送消息
+//                mContext.mHandler.sendEmptyMessageDelayed(mContext.m_nWTConnected, 3500L);
+                }
                 break;
             case KeyEvent.KEYCODE_BUTTON_B:
+                switch(mCurState){
+                    case state_wifilist:
+                    case state_blocked:
+                        break;
+                    case state_dialog:
+                        break;
+                    case state_keyboard:
+                        mPasswdLayoutLeft.setVisibility(View.GONE);
+                        mPasswdLayoutRight.setVisibility(View.GONE);
+                        break;
+                }
                 break;
             case KeyEvent.KEYCODE_BUTTON_Y:
                 break;
