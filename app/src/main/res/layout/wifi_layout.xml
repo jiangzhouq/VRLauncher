@@ -17,6 +17,11 @@
             android:layout_height="wrap_content"
             android:focusable="true"
             android:focusableInTouchMode="true"/>
+        <ProgressBar
+            android:id="@+id/loading_progressbar_left"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_centerInParent="true"/>
         <ListView
             android:id="@+id/explorer_left"
             android:layout_width="120dp"
@@ -25,6 +30,30 @@
             android:dividerHeight="0dp"
             android:divider="@null"
             android:numColumns="3"></ListView>
+        <LinearLayout
+            android:id="@+id/passwd_layout_left"
+            android:layout_width="80dp"
+            android:layout_height="60dp"
+            android:orientation="vertical"
+            android:layout_centerInParent="true"
+            android:visibility="gone">
+            <TextView
+                android:id="@+id/wifi_ssid_left"
+                android:layout_width="match_parent"
+                android:layout_height="20dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp">
+                <TextView
+                    android:layout_width="20dp"
+                    android:layout_height="match_parent"
+                    android:text="@string/label_passwd"/>
+                <TextView
+                    android:id="@+id/passwd_left"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </LinearLayout>
+        </LinearLayout>
         <ImageView
             android:id="@+id/selected_left"
             android:layout_width="36dp"
@@ -44,12 +73,41 @@
         android:layout_width="0dp"
         android:layout_weight="1"
         android:layout_height="match_parent">
+        <ProgressBar
+            android:id="@+id/loading_progressbar_right"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_centerInParent="true"/>
         <ListView
             android:id="@+id/explorer_right"
             android:layout_width="120dp"
             android:layout_height="120dp"
             android:layout_centerInParent="true"
             android:numColumns="3"></ListView>
+        <LinearLayout
+            android:id="@+id/passwd_layout_right"
+            android:layout_width="80dp"
+            android:layout_height="60dp"
+            android:orientation="vertical"
+            android:layout_centerInParent="true"
+            android:visibility="gone">
+            <TextView
+                android:id="@+id/wifi_ssid_right"
+                android:layout_width="match_parent"
+                android:layout_height="20dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp">
+                <TextView
+                    android:layout_width="20dp"
+                    android:layout_height="match_parent"
+                    android:text="@string/label_passwd"/>
+                <TextView
+                    android:id="@+id/passwd_right"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </LinearLayout>
+        </LinearLayout>
         <ImageView
             android:id="@+id/selected_right"
             android:layout_width="36dp"

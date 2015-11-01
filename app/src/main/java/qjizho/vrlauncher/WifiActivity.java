@@ -14,7 +14,9 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +32,14 @@ import qjizho.vrlauncher.wifi.WifiBroadcastReceiver;
 public class WifiActivity extends Activity implements WifiBroadcastReceiver.EventHandler{
 
     private View mDecorView;
+
+    private static final int state_blocked = 0;
+    private static final int state_wifilist = 1;
+    private static final int state_dialog = 2;
+    private static final int state_keyboard = 3;
+
+    private int mCurState = 0;
+
     //消息事件
     public static final int m_nWifiSearchTimeOut = 0;// 搜索超时
     public static final int m_nWTScanResult = 1;// 搜索到wifi返回结果
@@ -62,6 +72,11 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
 
     private int cur_selected_explorer = 0;
     private boolean scanResultReceived = false;
+    //The views
+    private ProgressBar mLoadingPBLeft;
+    private ProgressBar mLoadingPBRight;
+    private LinearLayout mPasswdLayoutLeft;
+    private LinearLayout mPasswdLayoutRight;
     public  Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -80,6 +95,8 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
                     Log.d("qiqi", m_wiFiAdmin.mWifiManager.getScanResults().size() + " --- size");
                     if(m_wiFiAdmin.mWifiManager.getScanResults() != null) {
                         if(!scanResultReceived){
+                            mLoadingPBLeft.setVisibility(View.GONE);
+                            mLoadingPBRight.setVisibility(View.GONE);
                             for (int i = 0; i < m_wiFiAdmin.mWifiManager.getScanResults().size(); i++) {
                                 ScanResult scanResult = m_wiFiAdmin.mWifiManager.getScanResults().get(i);
                                 //和指定连接热点比较，将其他的过滤掉！
@@ -119,6 +136,10 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
         selected_right = (ImageView) findViewById(R.id.selected_right);
         explorer_left = (ListView) findViewById(R.id.explorer_left);
         explorer_right = (ListView) findViewById(R.id.explorer_right);
+        mLoadingPBLeft = (ProgressBar) findViewById(R.id.loading_progressbar_left);
+        mLoadingPBRight = (ProgressBar) findViewById(R.id.loading_progressbar_right);
+        mPasswdLayoutLeft = (LinearLayout) findViewById(R.id.passwd_layout_left);
+        mPasswdLayoutRight = (LinearLayout) findViewById(R.id.passwd_layout_right);
         WifiBroadcastReceiver.ehList.add(this);
         m_wtSearchProcess = new WFSearchProcess(this);
         //wifi管理类
@@ -176,7 +197,7 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
                         explorer_left.setSelection(cur_selected_explorer - 5);
                         explorer_right.setSelection(cur_selected_explorer - 5);
                     }
-                    Log.d("qiqi", cur_selected_explorer + " ---now " + " " + explorer_left.getSelectedItemPosition() + " --- selected");
+                    Log.d("qiqi", cur_selected_explorer + " --- now " + " " + explorer_left.getSelectedItemPosition() + " --- selected");
                 }
                 break;
             case KeyEvent.KEYCODE_DPAD_LEFT:

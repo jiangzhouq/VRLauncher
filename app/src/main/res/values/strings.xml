@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">VRLauncher</string>
+    <string name="label_passwd">密码:</string>
 </resources>
