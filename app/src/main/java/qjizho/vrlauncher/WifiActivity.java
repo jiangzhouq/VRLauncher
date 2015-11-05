@@ -316,6 +316,7 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
                     case state_keyboard:
                         mPasswdLayoutLeft.setVisibility(View.GONE);
                         mPasswdLayoutRight.setVisibility(View.GONE);
+                        mCurState = state_wifilist;
                         break;
                 }
                 break;
