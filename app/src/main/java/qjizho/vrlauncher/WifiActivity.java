@@ -251,8 +251,10 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
                 }
                 break;
             case KeyEvent.KEYCODE_DPAD_LEFT:
-                if(mEditPaswdArray.size() > 1)
+                if(mEditPaswdArray.size() > 1){
                     mEditPaswdArray.remove(mEditPaswdArray.size() -1);
+                    mEditPaswdCPos.remove(mEditPaswdCPos.size() -1);
+                }
                 mEditPasswd = new StringBuilder();
                 for ( int i = 0; i < mEditPaswdArray.size(); i ++){
                     mEditPasswd.append(mEditPaswdArray.get(i)[mEditPaswdCPos.get(i)]);
