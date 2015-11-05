@@ -99,18 +99,19 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
                 case m_nWifiSearchTimeOut: // 搜索超时
                     m_wtSearchProcess.stop();
 //                    m_FrameLWTSearchAnimation.stopAnimation();
-                    m_listWifi.clear();  //网络列表
+//                    m_listWifi.clear();  //网络列表
                     //设置控件
 //                    m_textVWTPrompt.setVisibility(View.VISIBLE);
 //                    m_textVWTPrompt.setText("需要重新搜索，点右上角重新搜索或创建新的热点...");
                     break;
 
                 case m_nWTScanResult:  //扫描到结果
-                    m_listWifi.clear();
                     Log.d("qiqi", m_wiFiAdmin.mWifiManager.getScanResults().size() + " --- size");
                     if(m_wiFiAdmin.mWifiManager.getScanResults() != null) {
+
                         if(!scanResultReceived){
                             scanResultReceived = true;
+                            m_listWifi.clear();
                             mCurState = state_wifilist;
                             Log.d("qiqi", "set mCurState:" + state_wifilist);
                             mLoadingPBLeft.setVisibility(View.GONE);
@@ -132,6 +133,8 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
                             }
                         }
                     }
+                case m_nWTConnected:  //点击连接后断开wifi，3.5s后刷新
+                    m_wTAdapter.notifyDataSetChanged();
                     break;
                 default:
                     break;
@@ -306,6 +309,17 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
 //                viewHolder.linearLConnectOk.setVisibility(View.GONE);
 //                //点击后3.5s发送消息
 //                mContext.mHandler.sendEmptyMessageDelayed(mContext.m_nWTConnected, 3500L);
+                }else if (mCurState == state_keyboard){
+                    if(mWifiPasswdLeft.getText().length() >= 8){
+                        WifiConfiguration localWifiConfiguration = m_wiFiAdmin.createWifiInfo(m_listWifi.get(cur_selected_explorer).SSID, mWifiPasswdLeft.getText().toString(), 3, "wt");
+                        //添加到网络
+                        m_wiFiAdmin.addNetwork(localWifiConfiguration);
+                        //"点击链接"消失，显示进度条，
+                        //点击后3.5s发送消息
+                        mHandler.sendEmptyMessageDelayed(m_nWTConnected, 3500L);
+                        mPasswdLayoutLeft.setVisibility(View.GONE);
+                        mPasswdLayoutRight.setVisibility(View.GONE);
+                    }
                 }
                 break;
             case KeyEvent.KEYCODE_BUTTON_B:

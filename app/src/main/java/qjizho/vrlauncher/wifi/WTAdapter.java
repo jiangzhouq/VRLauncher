@@ -1,6 +1,8 @@
 package qjizho.vrlauncher.wifi;
 
 import android.net.wifi.ScanResult;
+import android.net.wifi.WifiInfo;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -110,19 +112,20 @@ public class WTAdapter extends BaseAdapter {
         }
 
         // 正连接的wifi信息
-//        WifiInfo localWifiInfo = wifiAdmin.getWifiInfo();
-//        if (localWifiInfo != null) {
-//            try {//正在连接
-//                if ((localWifiInfo.getSSID() != null)&& (localWifiInfo.getSSID().equals(localScanResult.SSID))) {
+        WifiInfo localWifiInfo = wifiAdmin.getWifiInfo();
+        if (localWifiInfo != null) {
+            try {//正在连接
+                if ((localWifiInfo.getSSID() != null)&& (localWifiInfo.getSSID().replace("\"", "").equals(localScanResult.SSID.toString()))) {
+                    Log.d("qiqi","SSID connected:" + localWifiInfo.getSSID() + " local SSID:" + localScanResult.SSID);
 //                    viewHolder.linearLConnectOk.setVisibility(View.VISIBLE);
-//                    return convertView;
-//                }
-//            } catch (NullPointerException e) {
-//                e.printStackTrace();
-//                return convertView;
-//            }
+                    return convertView;
+                }
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+                return convertView;
+            }
 //            viewHolder.textConnect.setVisibility(View.VISIBLE);
-//        }
+        }
         return convertView;
     }
 
