@@ -20,12 +20,14 @@
             android:layout_toLeftOf="@+id/wifi_icon"
             style="@style/loading_small"
             android:visibility="gone" />
-        <ImageView
+        <TextView
             android:id="@+id/connected"
-            android:layout_width="16dp"
+            android:layout_width="24dp"
             android:layout_height="16dp"
             android:layout_toLeftOf="@+id/wifi_icon"
-            android:src="@mipmap/wifi"
+            android:text="@string/wifi_connected"
+            android:textColor="@color/white"
+            android:textSize="8.0sp"
             android:visibility="gone"/>
         <ImageView
             android:id="@+id/wifi_icon"

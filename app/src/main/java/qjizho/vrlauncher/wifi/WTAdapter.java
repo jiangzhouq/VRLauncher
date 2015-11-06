@@ -71,10 +71,12 @@ public class WTAdapter extends BaseAdapter {
             viewHolder.textVName = ((TextView) convertView.findViewById(R.id.name_text_wtitem));
             viewHolder.progressBConnecting = ((ProgressBar) convertView.findViewById(R.id.connecting_progressBar_wtitem));
             viewHolder.wifiIcon = (ImageView ) convertView.findViewById(R.id.wifi_icon);
+            viewHolder.connectOK = (TextView) convertView.findViewById(R.id.connected);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
+        //For the view of wifi locked or unlocked.
         if(localScanResult.capabilities.contains("WPA")
                 || localScanResult.capabilities.contains("wpa")
                 || localScanResult.capabilities.contains("WEP")
@@ -128,7 +130,11 @@ public class WTAdapter extends BaseAdapter {
                 if ((localWifiInfo.getSSID() != null)&& (localWifiInfo.getSSID().replace("\"", "").equals(localScanResult.SSID.toString()))) {
                     Log.d("qiqi","SSID connected:" + localWifiInfo.getSSID() + " local SSID:" + localScanResult.SSID);
 //                    viewHolder.linearLConnectOk.setVisibility(View.VISIBLE);
+                    viewHolder.connectOK.setVisibility(View.VISIBLE);
                     return convertView;
+                }else{
+
+                    viewHolder.connectOK.setVisibility(View.GONE);
                 }
             } catch (NullPointerException e) {
                 e.printStackTrace();
@@ -142,7 +148,7 @@ public class WTAdapter extends BaseAdapter {
     public final class ViewHolder {
         public ProgressBar progressBConnecting;
         public TextView textVName;
-        public ImageView connectOK;
+        public TextView connectOK;
         public ImageView wifiIcon;
         public ViewHolder() {
         }
