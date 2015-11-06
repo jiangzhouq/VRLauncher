@@ -333,6 +333,7 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
                 switch(mCurState){
                     case state_wifilist:
                     case state_blocked:
+                        this.finish();
                         break;
                     case state_dialog:
                         break;
@@ -349,6 +350,7 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
         }
         return true;
     }
+
     private void reScanWifi(){
         scanResultReceived = false;
         m_listWifi.clear();
@@ -439,4 +441,10 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
             hideSystemUI();
         }
     };
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        m_wtSearchProcess.stop();
+    }
 }

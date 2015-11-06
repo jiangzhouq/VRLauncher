@@ -37,7 +37,7 @@ public class WifiAdmin {
             wifiAdmin = new WifiAdmin(context);
             return wifiAdmin;
         }
-        return null;
+        return wifiAdmin;
     }
     private WifiAdmin(Context context) {
         //获取系统Wifi服务   WIFI_SERVICE
