@@ -324,6 +324,8 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
                         mHandler.sendEmptyMessageDelayed(m_nWTConnected, 3500L);
                         mPasswdLayoutLeft.setVisibility(View.GONE);
                         mPasswdLayoutRight.setVisibility(View.GONE);
+                        explorer_left.getChildAt(cur_selected_explorer).findViewById(R.id.connecting_progressBar_wtitem).setVisibility(View.VISIBLE);
+                        explorer_right.getChildAt(cur_selected_explorer).findViewById(R.id.connecting_progressBar_wtitem).setVisibility(View.VISIBLE);
                     }
                 }
                 break;

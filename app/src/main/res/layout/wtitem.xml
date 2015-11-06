@@ -18,7 +18,8 @@
         <ProgressBar
             android:id="@+id/connecting_progressBar_wtitem"
             android:layout_toLeftOf="@+id/wifi_icon"
-            style="@style/loading_small"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
             android:visibility="gone" />
         <TextView
             android:id="@+id/connected"
