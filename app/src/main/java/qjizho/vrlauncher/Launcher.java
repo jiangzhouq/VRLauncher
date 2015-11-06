@@ -317,7 +317,7 @@ public class Launcher extends AppCompatActivity {
     private List<Map<String, String>> getSettingList() {
         List<Map<String, String>> list = new ArrayList<Map<String, String>>();
         Map<String, String> map = new HashMap<String, String>();
-        map.put("img", "" + R.mipmap.wifi);
+        map.put("img", "" + R.mipmap.wifi_setting);
         map.put("title", "Wifi");
         map.put("action", "com.qjizho.vrlauncher.WIFIACTIVITY");
         list.add(map);

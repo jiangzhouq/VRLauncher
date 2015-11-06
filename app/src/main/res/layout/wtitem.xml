@@ -4,12 +4,12 @@
     android:layout_height="20dp"
     android:background="@color/black"
     android:descendantFocusability="blocksDescendants"
+    android:gravity="center_vertical"
     >
-
         <TextView
             android:id="@+id/name_text_wtitem"
             android:layout_width="80dp"
-            android:layout_height="20.0dip"
+            android:layout_height="16dp"
             android:layout_alignParentLeft="true"
             android:singleLine="true"
             android:gravity="left|center"
@@ -22,17 +22,15 @@
             android:visibility="gone" />
         <ImageView
             android:id="@+id/connected"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
             android:layout_toLeftOf="@+id/wifi_icon"
             android:src="@mipmap/wifi"
             android:visibility="gone"/>
-
         <ImageView
             android:id="@+id/wifi_icon"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@mipmap/wifi"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@mipmap/wifi_lock"
             android:layout_alignParentRight="true"/>
-
 </RelativeLayout>

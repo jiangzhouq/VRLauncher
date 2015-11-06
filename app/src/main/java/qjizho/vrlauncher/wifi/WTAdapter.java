@@ -59,6 +59,7 @@ public class WTAdapter extends BaseAdapter {
     public View getView(final int position, View convertView, ViewGroup parent) {
         //获取点击向的扫描结果
         final ScanResult localScanResult = mList.get(position);
+        Log.d("qiqi", "capabilities: " +localScanResult.capabilities);
         //获取wifi类
 //		final WifiAdmin wifiAdmin = WifiAdmin.getInstance(mContext);
         final WifiAdmin wifiAdmin = mContext.m_wiFiAdmin;
@@ -69,9 +70,18 @@ public class WTAdapter extends BaseAdapter {
             //加载布局模板控件
             viewHolder.textVName = ((TextView) convertView.findViewById(R.id.name_text_wtitem));
             viewHolder.progressBConnecting = ((ProgressBar) convertView.findViewById(R.id.connecting_progressBar_wtitem));
+            viewHolder.wifiIcon = (ImageView ) convertView.findViewById(R.id.wifi_icon);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
+        }
+        if(localScanResult.capabilities.contains("WPA")
+                || localScanResult.capabilities.contains("wpa")
+                || localScanResult.capabilities.contains("WEP")
+                || localScanResult.capabilities.contains("wep")){
+            viewHolder.wifiIcon.setImageResource(R.mipmap.wifi_lock);
+        }else{
+            viewHolder.wifiIcon.setImageResource(R.mipmap.wifi);
         }
 //        //点击连接处理事件
 //        viewHolder.textConnect.setOnClickListener(new View.OnClickListener() {
@@ -133,6 +143,7 @@ public class WTAdapter extends BaseAdapter {
         public ProgressBar progressBConnecting;
         public TextView textVName;
         public ImageView connectOK;
+        public ImageView wifiIcon;
         public ViewHolder() {
         }
     }
