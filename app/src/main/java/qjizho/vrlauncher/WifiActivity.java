@@ -280,6 +280,11 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
             case KeyEvent.KEYCODE_BUTTON_A:
 
                 if(mCurState == state_wifilist){
+                    if(m_wiFiAdmin.getWifiInfo().getSSID().replace("\"", "").equals(m_listWifi.get(cur_selected_explorer).SSID)){
+                        m_wiFiAdmin.disconnectWifi(m_wiFiAdmin.getNetworkId());
+                        reScanWifi();
+                        break;
+                    }
                     mCurState = state_keyboard;
                     mEditPasswd = new StringBuilder();
                     mEditPaswdArray = new ArrayList<char[]>();
@@ -337,44 +342,46 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
                 }
                 break;
             case KeyEvent.KEYCODE_BUTTON_Y:
-                scanResultReceived = false;
-                m_listWifi.clear();
-                m_wTAdapter.setData(m_listWifi);
-                m_wTAdapter.notifyDataSetChanged();
-                mLoadingPBLeft.setVisibility(View.VISIBLE);
-                mLoadingPBRight.setVisibility(View.VISIBLE);
-                if(!m_wtSearchProcess.running) { //搜索线程没有开启
-                    //1.当前热点或wifi连接着    WIFI_STATE_ENABLED 3 //WIFI_AP_STATE_ENABLED  13
+                reScanWifi();
+                break;
+        }
+        return true;
+    }
+    private void reScanWifi(){
+        scanResultReceived = false;
+        m_listWifi.clear();
+        m_wTAdapter.setData(m_listWifi);
+        m_wTAdapter.notifyDataSetChanged();
+        mLoadingPBLeft.setVisibility(View.VISIBLE);
+        mLoadingPBRight.setVisibility(View.VISIBLE);
+        if(!m_wtSearchProcess.running) { //搜索线程没有开启
+            //1.当前热点或wifi连接着    WIFI_STATE_ENABLED 3 //WIFI_AP_STATE_ENABLED  13
 //            if(m_wiFiAdmin.getWifiApState() == 3 || m_wiFiAdmin.getWifiApState() == 13) {
 //                wFOperateEnum = WFOperateEnum.SEARCH; //搜索wifi事件
 //                m_LinearLDialog.setVisibility(View.VISIBLE); ///wifi提示对话框显示
 //                m_textVContentDialog.setText("是否关闭当前热点去搜索其他热点？");
 //                return;  //跳出此方法，交由对话框来处理事件
 //            }
-                    //2.当前没有热点或wifi连接着
-                    if(!m_wiFiAdmin.mWifiManager.isWifiEnabled()) { //如果wifi没打开
-                        m_wiFiAdmin.OpenWifi();
-                    }
+            //2.当前没有热点或wifi连接着
+            if(!m_wiFiAdmin.mWifiManager.isWifiEnabled()) { //如果wifi没打开
+                m_wiFiAdmin.OpenWifi();
+            }
 //            m_textVWTPrompt.setVisibility(View.VISIBLE); //中间提示文字
 //            m_textVWTPrompt.setText("正在搜索附近的热点...");
 //            m_linearLCreateAP.setVisibility(View.GONE); //创建wifi热点布局消失
 //            m_gifRadar.setVisibility(View.GONE); //热点连接动画消失
 //            m_btnCreateWF.setBackgroundResource(R.drawable.x_wt_create); //更改按钮文字“创建”
-                    //开始搜索wifi
-                    m_wiFiAdmin.startScan();
-                    m_wtSearchProcess.start(); //开启搜索线程
+            //开始搜索wifi
+            m_wiFiAdmin.startScan();
+            m_wtSearchProcess.start(); //开启搜索线程
 //            m_FrameLWTSearchAnimation.startAnimation(); //开启波纹动画
-                }else {//搜索线程开启着，再次点击按钮
-                    //重新启动
-                    m_wtSearchProcess.stop();
-                    m_wiFiAdmin.startScan(); 	//开始搜索wifi
-                    m_wtSearchProcess.start();
-                }
-                break;
+        }else {//搜索线程开启着，再次点击按钮
+            //重新启动
+            m_wtSearchProcess.stop();
+            m_wiFiAdmin.startScan(); 	//开始搜索wifi
+            m_wtSearchProcess.start();
         }
-        return true;
     }
-
     private void enableWifi(){
         if(!mWifiManager.isWifiEnabled()){
             mWifiManager.setWifiEnabled(true);

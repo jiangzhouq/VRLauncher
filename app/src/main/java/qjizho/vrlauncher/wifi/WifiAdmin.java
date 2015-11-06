@@ -92,6 +92,8 @@ public class WifiAdmin {
     /**端口指定id的wifi**/
     public void disconnectWifi(int paramInt) {
         this.mWifiManager.disableNetwork(paramInt);
+        this.mWifiManager.removeNetwork(paramInt);
+        mWifiManager.saveConfiguration();
     }
 
     /**添加指定网络**/
