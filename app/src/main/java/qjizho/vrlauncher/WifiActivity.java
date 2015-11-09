@@ -123,9 +123,12 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
                             for (int i = 0; i < m_wiFiAdmin.mWifiManager.getScanResults().size(); i++) {
                                 ScanResult scanResult = m_wiFiAdmin.mWifiManager.getScanResults().get(i);
                                 //和指定连接热点比较，将其他的过滤掉！
-//                            if(scanResult.SSID.startsWith(WIFI_AP_HEADER)) {
-                                m_listWifi.add(scanResult);
-//                            }
+                                if(m_wiFiAdmin.getWifiInfo().getSSID().replace("\"", "").equals(scanResult.SSID)) {
+                                    m_listWifi.add(0, scanResult);
+
+                                }else{
+                                    m_listWifi.add(scanResult);
+                                }
                             }
                             if(m_listWifi.size() > 0) {
                                 m_wtSearchProcess.stop();
