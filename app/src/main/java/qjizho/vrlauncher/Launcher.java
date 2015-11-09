@@ -109,10 +109,14 @@ public class Launcher extends AppCompatActivity {
         final SimpleAdapter adapter = new SimpleAdapter(this, mapList,R.layout.list_item,new String[]{"img","title"}, new int[]{R.id.img, R.id.txt});
         grid_left.setAdapter(adapter);
         grid_right.setAdapter(adapter);
-
-        handler.sendEmptyMessageDelayed(0, 1000);
-
         requestPermission();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        handler.postDelayed(hideUIRun, 1000);
+        handler.sendEmptyMessageDelayed(0, 1000);
     }
 
     @Override
