@@ -86,6 +86,10 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
     private ProgressBar mLoadingPBLeft;
     private ProgressBar mLoadingPBRight;
     private LinearLayout mPasswdLayoutLeft;
+    private LinearLayout mAlertDialogLeft;
+    private LinearLayout mALertDialogRight;
+    private TextView mAlertTextLeft;
+    private TextView mAlertTextRight;
     private LinearLayout mPasswdLayoutRight;
     private TextView mWifiSSIDLeft;
     private TextView mWifiSSIDRight;
@@ -165,7 +169,10 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
         mWifiSSIDRight = (TextView) findViewById(R.id.wifi_ssid_right);
         mWifiPasswdLeft = (EditText) findViewById(R.id.wifi_passwd_left);
         mWifiPasswdRight = (EditText) findViewById(R.id.wifi_passwd_right);
-
+        mAlertDialogLeft = (LinearLayout) findViewById(R.id.alert_layout_left);
+        mALertDialogRight = (LinearLayout) findViewById(R.id.alert_layout_right);
+        mAlertTextLeft = (TextView)findViewById(R.id.alert_txt_left);
+        mAlertTextRight = (TextView) findViewById(R.id.alert_txt_right);
 
         WifiBroadcastReceiver.ehList.add(this);
         m_wtSearchProcess = new WFSearchProcess(this);
@@ -201,6 +208,12 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
         m_wTAdapter = new WTAdapter(this, m_listWifi);
         explorer_left.setAdapter(m_wTAdapter);
         explorer_right.setAdapter(m_wTAdapter);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mHandler.postDelayed(hideUIRun, 1000);
     }
 
     @Override
@@ -281,8 +294,11 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
 
                 if(mCurState == state_wifilist){
                     if(m_wiFiAdmin.getWifiInfo().getSSID().replace("\"", "").equals(m_listWifi.get(cur_selected_explorer).SSID)){
-                        m_wiFiAdmin.disconnectWifi(m_wiFiAdmin.getNetworkId());
-                        reScanWifi();
+                        mAlertDialogLeft.setVisibility(View.VISIBLE);
+                        mALertDialogRight.setVisibility(View.VISIBLE);
+                        mAlertTextRight.setText(R.string.alert_text);
+                        mAlertTextLeft.setText(R.string.alert_text);
+                        mCurState = state_dialog;
                         break;
                     }
                     mCurState = state_keyboard;
@@ -327,6 +343,13 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
                         explorer_left.getChildAt(cur_selected_explorer).findViewById(R.id.connecting_progressBar_wtitem).setVisibility(View.VISIBLE);
                         explorer_right.getChildAt(cur_selected_explorer).findViewById(R.id.connecting_progressBar_wtitem).setVisibility(View.VISIBLE);
                     }
+                }else if (mCurState == state_dialog){
+                        mAlertDialogLeft.setVisibility(View.GONE);
+                        mALertDialogRight.setVisibility(View.GONE);
+                        m_wiFiAdmin.disconnectWifi(m_wiFiAdmin.getNetworkId());
+                        reScanWifi();
+                        mCurState = state_wifilist;
+                        break;
                 }
                 break;
             case KeyEvent.KEYCODE_BUTTON_B:
@@ -336,6 +359,9 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
                         this.finish();
                         break;
                     case state_dialog:
+                        mAlertDialogLeft.setVisibility(View.GONE);
+                        mALertDialogRight.setVisibility(View.GONE);
+                        mCurState = state_wifilist;
                         break;
                     case state_keyboard:
                         mPasswdLayoutLeft.setVisibility(View.GONE);
