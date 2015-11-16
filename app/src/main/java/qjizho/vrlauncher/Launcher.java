@@ -367,6 +367,8 @@ public class Launcher extends AppCompatActivity {
     public void GetFiles(String Path, String Extension, boolean IsIterative)
     {
         File file1 = new File(Path);
+        if (file1 == null || file1.listFiles() == null)
+            return ;
         boolean isD = file1.isDirectory();
         Log.d("qiqi", Path + " is Directory :" + isD + " contains item:" + file1.listFiles().length);
 
