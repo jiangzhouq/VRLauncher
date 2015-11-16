@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="60dp"
+    android:background="@color/black"
+    android:descendantFocusability="blocksDescendants"
+    android:gravity="center_vertical"
+    >
+        <TextView
+            android:id="@+id/name_text_wtitem"
+            android:layout_width="240dp"
+            android:layout_height="40dp"
+            android:layout_alignParentLeft="true"
+            android:singleLine="true"
+            android:gravity="left|center"
+            android:textColor="@color/white"
+            android:textSize="22.0sp" />
+        <ProgressBar
+            android:id="@+id/connecting_progressBar_wtitem"
+            android:layout_toLeftOf="@+id/wifi_icon"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:visibility="gone" />
+        <TextView
+            android:id="@+id/connected"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_toLeftOf="@+id/wifi_icon"
+            android:text="@string/wifi_connected"
+            android:textColor="@color/white"
+            android:textSize="16.0sp"
+            android:gravity="center"
+            android:visibility="gone"/>
+        <ImageView
+            android:id="@+id/wifi_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@mipmap/wifi_lock"
+            android:layout_alignParentRight="true"/>
+</RelativeLayout>

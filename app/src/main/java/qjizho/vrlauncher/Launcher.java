@@ -22,7 +22,6 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.SimpleAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -82,8 +81,6 @@ public class Launcher extends AppCompatActivity {
         }
         setContentView(R.layout.activity_launcher);
         mDecorView = getWindow().getDecorView();
-        TextView to_focus = (TextView) findViewById(R.id.to_focus);
-        to_focus.requestFocus();
         hideSystemUI();
         grid_left = (GridView) findViewById(R.id.list_left);
         grid_right = (GridView) findViewById(R.id.list_right);
