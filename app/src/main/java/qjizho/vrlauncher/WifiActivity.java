@@ -177,6 +177,8 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
         mAlertTextLeft = (TextView)findViewById(R.id.alert_txt_left);
         mAlertTextRight = (TextView) findViewById(R.id.alert_txt_right);
 
+        selected_left.setImageResource(R.mipmap.setting);
+        selected_right.setImageResource(R.mipmap.setting);
         WifiBroadcastReceiver.ehList.add(this);
         m_wtSearchProcess = new WFSearchProcess(this);
         //wifi管理类
