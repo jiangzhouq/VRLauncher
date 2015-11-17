@@ -66,7 +66,7 @@
         <LinearLayout
             android:id="@+id/passwd_layout_left"
             android:layout_width="240dp"
-            android:layout_height="80dp"
+            android:layout_height="110dp"
             android:orientation="vertical"
             android:layout_centerInParent="true"
             android:visibility="gone"
