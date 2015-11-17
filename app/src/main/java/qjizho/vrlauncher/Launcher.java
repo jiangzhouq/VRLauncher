@@ -236,7 +236,6 @@ public class Launcher extends AppCompatActivity {
                         cur_mode = cur_selected_launcher;
                         controlMode(cur_mode);
                         break;
-
                 }
                 break;
             case KeyEvent.KEYCODE_BACK:
@@ -244,6 +243,7 @@ public class Launcher extends AppCompatActivity {
                 if(cur_mode <= 4){
                     cur_mode = 5;
                     controlMode(cur_mode);
+                    lstPics.clear();
                 }else if(cur_mode >= 5){
 
                 }
@@ -291,7 +291,7 @@ public class Launcher extends AppCompatActivity {
         arrow_right.setVisibility(View.VISIBLE);
         switch (pos) {
             case 3:
-                GetFiles("/mnt/sdcard/DCIM/Camera/", "jpg", true);
+                GetFiles("/mnt/sdcard/vrpics/", "jpg", true);
                 explorerAdapter = new ImageSimpleAdater(Launcher.this, lstPics, true);
                 explorer_left.setAdapter(explorerAdapter);
                 explorer_right.setAdapter(explorerAdapter);
