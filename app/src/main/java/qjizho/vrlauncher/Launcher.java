@@ -59,6 +59,7 @@ public class Launcher extends AppCompatActivity {
     private int cur_selected_explorer = 0;
     private int cur_page_explorer = 0;
     private DisplayImageOptions options;
+    private int realListPicCount = 0;
     private Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -160,6 +161,8 @@ public class Launcher extends AppCompatActivity {
                     if((cur_selected_explorer >= 0 && cur_selected_explorer < (lstPics.size() -1))){
 //                        (explorer_left.getChildAt(cur_selected_explorer)).setBackgroundColor(getResources().getColor(android.R.color.black));
                         cur_selected_explorer ++ ;
+                        if(cur_selected_explorer >= realListPicCount)
+                            cur_selected_explorer = realListPicCount -1;
 //                        (explorer_left.getChildAt(cur_selected_explorer)).setBackgroundColor(getResources().getColor(android.R.color.holo_red_dark));
                         Log.d("qiqi", "cur_selected_explorer :" + cur_selected_explorer);
                         if((cur_selected_explorer)/9 != cur_page_explorer ){
@@ -206,8 +209,8 @@ public class Launcher extends AppCompatActivity {
                 if(cur_mode <= 4){
                     if(cur_selected_explorer/3 < lstPics.size()/3){
                         cur_selected_explorer = cur_selected_explorer + 3;
-                        if(cur_selected_explorer >= lstPics.size())
-                            cur_selected_explorer = lstPics.size() -1;
+                        if(cur_selected_explorer >= realListPicCount)
+                            cur_selected_explorer = realListPicCount -1;
 
                         Log.d("qiqi", "cur_selected_explorer :" + cur_selected_explorer);
                         if((cur_selected_explorer)/9 != cur_page_explorer ){
@@ -291,6 +294,7 @@ public class Launcher extends AppCompatActivity {
         switch (pos) {
             case 3:
                 GetFiles("/mnt/sdcard/vrpics/", "jpg", true);
+                realListPicCount = lstPics.size();
                 if(lstPics.size()%9 > 0){
                     while (true){
                         Map<String , String> map = new HashMap<String, String>();
