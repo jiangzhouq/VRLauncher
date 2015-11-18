@@ -292,6 +292,17 @@ public class Launcher extends AppCompatActivity {
         switch (pos) {
             case 3:
                 GetFiles("/mnt/sdcard/vrpics/", "jpg", true);
+                if(lstPics.size()%9 > 0){
+                    while (true){
+                        Map<String , String> map = new HashMap<String, String>();
+                        map.put("img", "");
+                        map.put("name", "");
+                        lstPics.add(map);
+                        if(lstPics.size()%9 == 0){
+                            break;
+                        }
+                    }
+                }
                 explorerAdapter = new ImageSimpleAdater(Launcher.this, lstPics, true);
                 explorer_left.setAdapter(explorerAdapter);
                 explorer_right.setAdapter(explorerAdapter);
