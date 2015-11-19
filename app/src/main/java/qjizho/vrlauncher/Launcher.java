@@ -275,6 +275,10 @@ public class Launcher extends AppCompatActivity {
                         Log.d("qiqi","set cur_mode:" + cur_mode);
                         controlMode(cur_mode);
                         break;
+                    case 4:
+                        Intent launchIntent = getPackageManager().getLaunchIntentForPackage(appList.get(cur_selected_explorer).packageName);
+                        startActivity(launchIntent);
+                        break;
                 }
                 break;
             case KeyEvent.KEYCODE_BACK:
