@@ -3,8 +3,11 @@ package qjizho.vrlauncher;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -22,6 +25,7 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.SimpleAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -49,8 +53,9 @@ public class Launcher extends AppCompatActivity {
     private GridView explorer_right;
     private ImageLoader imageLoader;
     private ImageLoaderConfiguration config ;
-    private ImageSimpleAdater explorerAdapter;
-    private ImageSimpleAdater settingAdapter;
+    private PicsAdapter mPicAdapter;
+    private AppsAdapter mAppAdapter;
+    private PicsAdapter settingAdapter;
     private int[] imageResources = new int[]{R.mipmap.setting, R.mipmap.store, R.mipmap.movies, R.mipmap.pictures, R.mipmap.games};
     private int[] imageResources_focus = new int[]{R.mipmap.setting_focus, R.mipmap.store_focus, R.mipmap.movies_focus, R.mipmap.pictures_focus, R.mipmap.games_focus};
     private int cur_selected_launcher = 2;
@@ -60,6 +65,8 @@ public class Launcher extends AppCompatActivity {
     private int cur_page_explorer = 0;
     private DisplayImageOptions options;
     private int realListPicCount = 0;
+    private int realListAppCount = 0;
+    private ArrayList<AppInfo> appList;
     private Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -131,7 +138,7 @@ public class Launcher extends AppCompatActivity {
                     ((ImageView)((ViewGroup) grid_left.getChildAt(cur_selected_launcher)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected_launcher]);
                     ((ImageView)((ViewGroup) grid_right.getChildAt(cur_selected_launcher)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected_launcher]);
                 }else if (cur_mode <= 4){
-                    if((cur_selected_explorer > 0 && cur_selected_explorer < (lstPics.size()))){
+                    if((cur_selected_explorer > 0 && cur_selected_explorer < (cur_mode == 3 ?lstPics.size():appList.size()))){
 //                        (explorer_left.getChildAt(cur_selected_explorer)).setBackgroundColor(getResources().getColor(android.R.color.black));
                         cur_selected_explorer -- ;
 //                        (explorer_left.getChildAt(cur_selected_explorer)).setBackgroundColor(getResources().getColor(android.R.color.holo_red_dark));
@@ -141,7 +148,14 @@ public class Launcher extends AppCompatActivity {
                             explorer_left.setSelection(cur_page_explorer*9);
                             explorer_right.setSelection(cur_page_explorer*9);
                         }
-                        explorerAdapter.notifyDataSetChanged();
+                        switch(cur_mode){
+                            case 3:
+                                mPicAdapter.notifyDataSetChanged();
+                                break;
+                            case 4:
+                                mAppAdapter.notifyDataSetChanged();
+                                break;
+                        }
                     }
                 }
                 break;
@@ -158,11 +172,11 @@ public class Launcher extends AppCompatActivity {
                     Log.d("qiqi", "" + cur_selected_launcher);
 
                 }else if (cur_mode <= 4){
-                    if((cur_selected_explorer >= 0 && cur_selected_explorer < (lstPics.size() -1))){
+                    if((cur_selected_explorer >= 0 && cur_selected_explorer < (cur_mode == 3 ?lstPics.size():appList.size() -1))){
 //                        (explorer_left.getChildAt(cur_selected_explorer)).setBackgroundColor(getResources().getColor(android.R.color.black));
                         cur_selected_explorer ++ ;
-                        if(cur_selected_explorer >= realListPicCount)
-                            cur_selected_explorer = realListPicCount -1;
+                        if(cur_selected_explorer >= (cur_mode == 3 ? realListPicCount:realListAppCount))
+                            cur_selected_explorer = cur_mode == 3 ? (realListPicCount -1):(realListAppCount -1);
 //                        (explorer_left.getChildAt(cur_selected_explorer)).setBackgroundColor(getResources().getColor(android.R.color.holo_red_dark));
                         Log.d("qiqi", "cur_selected_explorer :" + cur_selected_explorer);
                         if((cur_selected_explorer)/9 != cur_page_explorer ){
@@ -170,7 +184,15 @@ public class Launcher extends AppCompatActivity {
                             explorer_left.setSelection(cur_page_explorer*9);
                             explorer_right.setSelection(cur_page_explorer*9);
                         }
-                        explorerAdapter.notifyDataSetChanged();
+                        switch(cur_mode){
+                            case 3:
+                                mPicAdapter.notifyDataSetChanged();
+                                break;
+                            case 4:
+                                mAppAdapter.notifyDataSetChanged();
+                                Log.d("qiqi","app adapter notified cur_selected_explorer:" + cur_selected_explorer);
+                                break;
+                        }
                     }
                 }
                 break;
@@ -187,7 +209,14 @@ public class Launcher extends AppCompatActivity {
                             Log.d("qiqi", "setSelection:" + cur_page_explorer * 9);
                         }
 
-                        explorerAdapter.notifyDataSetChanged();
+                        switch(cur_mode){
+                            case 3:
+                                mPicAdapter.notifyDataSetChanged();
+                                break;
+                            case 4:
+                                mAppAdapter.notifyDataSetChanged();
+                                break;
+                        }
 //                        int aaa = cur_selected_explorer - cur_visible_explorer*3;
 //                        Log.d("qiqi", "explorer_left.getchildcount:" + explorer_left.getChildCount() + "  cur_selected_explorer - cur_visible_explorer*3 :" + aaa );
 //                        ((RelativeLayout)explorer_left.getChildAt(cur_selected_explorer - cur_visible_explorer*3)).setBackgroundColor(getResources().getColor(android.R.color.holo_red_dark));
@@ -207,10 +236,10 @@ public class Launcher extends AppCompatActivity {
                 break;
             case KeyEvent.KEYCODE_DPAD_DOWN:
                 if(cur_mode <= 4){
-                    if(cur_selected_explorer/3 < lstPics.size()/3){
+                    if(cur_selected_explorer/3 < (cur_mode == 3 ?lstPics.size():appList.size())/3){
                         cur_selected_explorer = cur_selected_explorer + 3;
-                        if(cur_selected_explorer >= realListPicCount)
-                            cur_selected_explorer = realListPicCount -1;
+                        if(cur_selected_explorer >= (cur_mode == 3 ?realListPicCount:realListAppCount))
+                            cur_selected_explorer = cur_mode == 3 ?(realListPicCount -1):(realListAppCount -1);
 
                         Log.d("qiqi", "cur_selected_explorer :" + cur_selected_explorer);
                         if((cur_selected_explorer)/9 != cur_page_explorer ){
@@ -220,7 +249,14 @@ public class Launcher extends AppCompatActivity {
                             Log.d("qiqi", "setSelection:" +cur_page_explorer*9);
                         }
 
-                        explorerAdapter.notifyDataSetChanged();
+                        switch(cur_mode){
+                            case 3:
+                                mPicAdapter.notifyDataSetChanged();
+                                break;
+                            case 4:
+                                mAppAdapter.notifyDataSetChanged();
+                                break;
+                        }
                     }
 
 
@@ -236,6 +272,7 @@ public class Launcher extends AppCompatActivity {
                         break;
                     case 5:
                         cur_mode = cur_selected_launcher;
+                        Log.d("qiqi","set cur_mode:" + cur_mode);
                         controlMode(cur_mode);
                         break;
                 }
@@ -245,7 +282,6 @@ public class Launcher extends AppCompatActivity {
                 if(cur_mode <= 4){
                     cur_mode = 5;
                     controlMode(cur_mode);
-                    lstPics.clear();
                 }else if(cur_mode >= 5){
 
                 }
@@ -306,13 +342,29 @@ public class Launcher extends AppCompatActivity {
                         }
                     }
                 }
-                explorerAdapter = new ImageSimpleAdater(Launcher.this, lstPics, true);
-                explorer_left.setAdapter(explorerAdapter);
-                explorer_right.setAdapter(explorerAdapter);
+                mPicAdapter = new PicsAdapter(Launcher.this, lstPics, true);
+                explorer_left.setAdapter(mPicAdapter);
+                explorer_right.setAdapter(mPicAdapter);
+                break;
+            case 4:
+                getApps();
+                realListAppCount = appList.size();
+                if(appList.size()%9 > 0){
+                    while (true){
+                        AppInfo info = new AppInfo();
+                        appList.add(info);
+                        if(appList.size()%9 == 0){
+                            break;
+                        }
+                    }
+                }
+                mAppAdapter = new AppsAdapter(Launcher.this, appList);
+                explorer_left.setAdapter(mAppAdapter);
+                explorer_right.setAdapter(mAppAdapter);
                 break;
             case 0:
                 lstSettings = getSettingList();
-                settingAdapter = new ImageSimpleAdater(Launcher.this, lstSettings, false);
+                settingAdapter = new PicsAdapter(Launcher.this, lstSettings, false);
                 explorer_left.setAdapter(settingAdapter);
                 explorer_right.setAdapter(settingAdapter);
                 break;
@@ -374,7 +426,26 @@ public class Launcher extends AppCompatActivity {
         return list;
     }
 
+    public void getApps(){
+        appList = new ArrayList<AppInfo>(); //用来存储获取的应用信息数据
+        List<PackageInfo> packages = getPackageManager().getInstalledPackages(0);
+        for(int i=0;i<packages.size();i++) {
+            PackageInfo packageInfo = packages.get(i);
+            AppInfo tmpInfo =new AppInfo();
+            tmpInfo.appName = packageInfo.applicationInfo.loadLabel(getPackageManager()).toString();
+            tmpInfo.packageName = packageInfo.packageName;
+            tmpInfo.versionName = packageInfo.versionName;
+            tmpInfo.versionCode = packageInfo.versionCode;
+            tmpInfo.appIcon = packageInfo.applicationInfo.loadIcon(getPackageManager());
+            //Only display the non-system app info
+            if((packageInfo.applicationInfo.flags& ApplicationInfo.FLAG_SYSTEM)==0 && !tmpInfo.appIcon.equals("VRLauncher"))
+            {
+                appList.add(tmpInfo);//如果非系统应用，则添加至appList
+                Log.d("qiqi", "app:" + tmpInfo.appName);
+            }
 
+        }
+    }
     public void GetFiles(String Path, String Extension, boolean IsIterative)
     {
         File file1 = new File(Path);
@@ -390,6 +461,7 @@ public class Launcher extends AppCompatActivity {
             File f = files[i];
             if (f.isFile())
             {
+                Log.d("qiqi" , i + " " + f.getPath());
                 if (f.getPath().substring(f.getPath().length() - Extension.length()).equals(Extension))
                 {
                     map = new HashMap<String, String>();
@@ -475,14 +547,14 @@ public class Launcher extends AppCompatActivity {
             }
         }
     }
-    public class ImageSimpleAdater extends BaseAdapter{
+    public class PicsAdapter extends BaseAdapter{
 
         private Context mContext;
         private List<Map<String, String>> mDataList;
         private ImageLoaderConfiguration config;
         private ImageLoader imageLoader;
         private boolean mUserLoader;
-        public ImageSimpleAdater(Context context, List<Map<String, String>> dataList, boolean useLoader){
+        public PicsAdapter(Context context, List<Map<String, String>> dataList, boolean useLoader){
             mContext = context;
             mDataList = dataList;
             config = ImageLoaderConfiguration.createDefault(mContext);
@@ -532,13 +604,84 @@ public class Launcher extends AppCompatActivity {
         }
 
     }
+
+    public class AppsAdapter extends BaseAdapter{
+
+        private Context mContext;
+        private ArrayList<AppInfo> mDataList;
+        private ImageLoaderConfiguration config;
+        private ImageLoader imageLoader;
+        private boolean mUserLoader;
+        public AppsAdapter(Context context,ArrayList<AppInfo> dataList){
+            mContext = context;
+            mDataList = dataList;
+            config = ImageLoaderConfiguration.createDefault(mContext);
+            imageLoader = ImageLoader.getInstance();
+            imageLoader.init(config);
+        }
+
+        @Override
+        public int getCount() {
+            return mDataList.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return mDataList.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+//            Log.d("qiqi", "position:" + position + " " + convertView);
+            ViewHolder holder = null;
+            if(convertView == null){
+                holder = new ViewHolder();
+                convertView = LayoutInflater.from(mContext).inflate(R.layout.explorer_list_item_with_name, parent, false);
+                holder.image = (ImageView) convertView.findViewById(R.id.img);
+                holder.text = (TextView) convertView.findViewById(R.id.txt);
+                convertView.setTag(holder);
+            }else{
+                holder = (ViewHolder) convertView.getTag();
+            }
+                holder.image.setImageDrawable(mDataList.get(position).appIcon);
+                holder.text.setText(mDataList.get(position).appName);
+            if(position == cur_selected_explorer){
+                convertView.setBackgroundResource(R.drawable.explorer_item_background);
+            }else{
+                convertView.setBackground(null);
+            }
+            return convertView;
+        }
+
+    }
+    
     final class ViewHolder{
         ImageView image;
+        TextView text;
     }
 
     public static int dp2px(Context context, float dpVal)
     {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                 dpVal, context.getResources().getDisplayMetrics());
+    }
+    public class AppInfo {
+        public String appName="";
+        public String packageName="";
+        public String versionName="";
+        public int versionCode=0;
+        public Drawable appIcon=null;
+        public void print()
+        {
+            Log.v("app","Name:"+appName+" Package:"+packageName);
+            Log.v("app","Name:"+appName+" versionName:"+versionName);
+            Log.v("app","Name:"+appName+" versionCode:"+versionCode);
+        }
+
     }
 }
