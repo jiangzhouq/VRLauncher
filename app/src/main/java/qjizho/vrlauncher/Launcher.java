@@ -3,6 +3,7 @@ package qjizho.vrlauncher;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -121,6 +122,10 @@ public class Launcher extends AppCompatActivity {
         super.onResume();
         handler.postDelayed(hideUIRun, 1000);
         handler.sendEmptyMessageDelayed(0, 1000);
+        Log.d("qiqi", "getRequestedOrientation():" + getRequestedOrientation());
+        if(getRequestedOrientation()!= ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE){
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
     }
 
     @Override
