@@ -438,10 +438,12 @@ public class Launcher extends AppCompatActivity {
             tmpInfo.versionCode = packageInfo.versionCode;
             tmpInfo.appIcon = packageInfo.applicationInfo.loadIcon(getPackageManager());
             //Only display the non-system app info
-            if((packageInfo.applicationInfo.flags& ApplicationInfo.FLAG_SYSTEM)==0 && !tmpInfo.appIcon.equals("VRLauncher"))
+            if((packageInfo.applicationInfo.flags& ApplicationInfo.FLAG_SYSTEM)==0)
             {
-                appList.add(tmpInfo);//如果非系统应用，则添加至appList
-                Log.d("qiqi", "app:" + tmpInfo.appName);
+                if(!tmpInfo.appName.equals(getApplicationInfo().loadLabel(this.getPackageManager()).toString())){
+                    appList.add(tmpInfo);//如果非系统应用，则添加至appList
+                    Log.d("qiqi", tmpInfo.appName + " " + getApplicationInfo().loadLabel(this.getPackageManager()).toString());
+                }
             }
 
         }
