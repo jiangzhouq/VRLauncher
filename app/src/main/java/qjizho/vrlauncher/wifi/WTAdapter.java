@@ -34,7 +34,6 @@ public class WTAdapter extends BaseAdapter {
     //新加的一个函数，用来更新数据
     public void setData(List<ScanResult> list) {
         this.mList = list;
-        notifyDataSetChanged();
     }
     public void setCurPosition(int pos){
         cur_selected_pos = pos;

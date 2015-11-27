@@ -49,7 +49,7 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
     public static final int m_nCreateAPResult = 3;// 创建热点结果
     public static final int m_nUserResult = 4;// 用户上线人数更新命令(待定)
     public static final int m_nWTConnected = 5;// 点击连接后断开wifi，3.5秒后刷新adapter
-
+    public static final int m_reScanWifi = 6;// 点击连接后断开wifi，3.5秒后刷新adapter
     public static final String WIFI_AP_HEADER = "zhf_";
     public static final String WIFI_AP_PASSWORD ="zhf12345";
 
@@ -143,6 +143,9 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
                     }
                 case m_nWTConnected:  //点击连接后断开wifi，3.5s后刷新
                     m_wTAdapter.notifyDataSetChanged();
+                    break;
+                case m_reScanWifi:  //点击连接后断开wifi，3.5s后刷新
+                    reScanWifi();
                     break;
                 default:
                     break;
@@ -347,7 +350,7 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
                         m_wiFiAdmin.addNetwork(localWifiConfiguration);
                         //"点击链接"消失，显示进度条，
                         //点击后3.5s发送消息
-                        mHandler.sendEmptyMessageDelayed(m_nWTConnected, 3500L);
+                        mHandler.sendEmptyMessageDelayed(m_nWTConnectResult, 3500L);
                         mPasswdLayoutLeft.setVisibility(View.GONE);
                         mPasswdLayoutRight.setVisibility(View.GONE);
                         explorer_left.getChildAt(cur_selected_explorer).findViewById(R.id.connecting_progressBar_wtitem).setVisibility(View.VISIBLE);
