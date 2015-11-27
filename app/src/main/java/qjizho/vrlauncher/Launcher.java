@@ -284,6 +284,10 @@ public class Launcher extends AppCompatActivity {
                         Intent launchIntent = getPackageManager().getLaunchIntentForPackage(appList.get(cur_selected_explorer).packageName);
                         startActivity(launchIntent);
                         break;
+                    case 3:
+                        Intent intent = new Intent("com.qjizho.pps.VIEW");
+                        intent.putExtra("url", lstPics.get(cur_selected_explorer).get("img"));
+                        startActivity(intent);
                 }
                 break;
             case KeyEvent.KEYCODE_BACK:
