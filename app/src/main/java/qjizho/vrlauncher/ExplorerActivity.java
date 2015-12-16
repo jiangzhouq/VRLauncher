@@ -7,6 +7,7 @@ import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -19,19 +20,18 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import qjizho.vrlauncher.wifi.WFSearchProcess;
 import qjizho.vrlauncher.wifi.WTAdapter;
 import qjizho.vrlauncher.wifi.WifiAdmin;
-import qjizho.vrlauncher.wifi.WifiBroadcastReceiver;
 
 
-
-
-public class WifiActivity extends Activity implements WifiBroadcastReceiver.EventHandler{
+public class ExplorerActivity extends Activity{
 
     private View mDecorView;
 
@@ -41,17 +41,6 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
     private static final int state_keyboard = 3;
 
     private int mCurState = 0;
-
-    //消息事件
-    public static final int m_nWifiSearchTimeOut = 0;// 搜索超时
-    public static final int m_nWTScanResult = 1;// 搜索到wifi返回结果
-    public static final int m_nWTConnectResult = 2;// 连接上wifi热点
-    public static final int m_nCreateAPResult = 3;// 创建热点结果
-    public static final int m_nUserResult = 4;// 用户上线人数更新命令(待定)
-    public static final int m_nWTConnected = 5;// 点击连接后断开wifi，3.5秒后刷新adapter
-    public static final int m_reScanWifi = 6;// 点击连接后断开wifi，3.5秒后刷新adapter
-    public static final String WIFI_AP_HEADER = "zhf_";
-    public static final String WIFI_AP_PASSWORD ="zhf12345";
 
     private ImageView selected_left;
     private ImageView selected_right;
@@ -97,59 +86,11 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
     private EditText mWifiPasswdLeft;
     private EditText mWifiPasswdRight;
 
-    public  Handler mHandler = new Handler() {
+    private QueryRun mQueryRun = new QueryRun(null);
+    private File mSDPath = null;
+    Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
-            switch(msg.what){
-                case m_nWifiSearchTimeOut: // 搜索超时
-                    m_wtSearchProcess.stop();
-//                    m_FrameLWTSearchAnimation.stopAnimation();
-//                    m_listWifi.clear();  //网络列表
-                    //设置控件
-//                    m_textVWTPrompt.setVisibility(View.VISIBLE);
-//                    m_textVWTPrompt.setText("需要重新搜索，点右上角重新搜索或创建新的热点...");
-                    break;
-
-                case m_nWTScanResult:  //扫描到结果
-                    Log.d("qiqi", m_wiFiAdmin.mWifiManager.getScanResults().size() + " --- size");
-                    if(m_wiFiAdmin.mWifiManager.getScanResults() != null) {
-
-                        if(!scanResultReceived){
-                            scanResultReceived = true;
-                            m_listWifi.clear();
-                            mCurState = state_wifilist;
-                            Log.d("qiqi", "set mCurState:" + state_wifilist);
-                            mLoadingPBLeft.setVisibility(View.GONE);
-                            mLoadingPBRight.setVisibility(View.GONE);
-                            for (int i = 0; i < m_wiFiAdmin.mWifiManager.getScanResults().size(); i++) {
-                                ScanResult scanResult = m_wiFiAdmin.mWifiManager.getScanResults().get(i);
-                                //和指定连接热点比较，将其他的过滤掉！
-                                if(m_wiFiAdmin.getWifiInfo().getSSID().replace("\"", "").equals(scanResult.SSID)) {
-                                    m_listWifi.add(0, scanResult);
-
-                                }else{
-                                    m_listWifi.add(scanResult);
-                                }
-                            }
-                            if(m_listWifi.size() > 0) {
-                                m_wtSearchProcess.stop();
-//                            m_FrameLWTSearchAnimation.stopAnimation();
-//                            m_textVWTPrompt.setVisibility(View.GONE);
-                                //更新列表，显示出搜索到的热点
-                                m_wTAdapter.setData(m_listWifi);
-                                m_wTAdapter.notifyDataSetChanged();
-                            }
-                        }
-                    }
-                case m_nWTConnected:  //点击连接后断开wifi，3.5s后刷新
-                    m_wTAdapter.notifyDataSetChanged();
-                    break;
-                case m_reScanWifi:  //点击连接后断开wifi，3.5s后刷新
-                    reScanWifi();
-                    break;
-                default:
-                    break;
-            }
             super.handleMessage(msg);
         }
     };
@@ -183,46 +124,26 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
 
         selected_left.setImageResource(R.mipmap.setting);
         selected_right.setImageResource(R.mipmap.setting);
-        WifiBroadcastReceiver.ehList.add(this);
-        m_wtSearchProcess = new WFSearchProcess(this);
         //wifi管理类
         m_wiFiAdmin  = WifiAdmin.getInstance(this);
-        if(!m_wtSearchProcess.running) { //搜索线程没有开启
-            //1.当前热点或wifi连接着    WIFI_STATE_ENABLED 3 //WIFI_AP_STATE_ENABLED  13
-//            if(m_wiFiAdmin.getWifiApState() == 3 || m_wiFiAdmin.getWifiApState() == 13) {
-//                wFOperateEnum = WFOperateEnum.SEARCH; //搜索wifi事件
-//                m_LinearLDialog.setVisibility(View.VISIBLE); ///wifi提示对话框显示
-//                m_textVContentDialog.setText("是否关闭当前热点去搜索其他热点？");
-//                return;  //跳出此方法，交由对话框来处理事件
-//            }
-            //2.当前没有热点或wifi连接着
-            if(!m_wiFiAdmin.mWifiManager.isWifiEnabled()) { //如果wifi没打开
-                m_wiFiAdmin.OpenWifi();
-            }
-//            m_textVWTPrompt.setVisibility(View.VISIBLE); //中间提示文字
-//            m_textVWTPrompt.setText("正在搜索附近的热点...");
-//            m_linearLCreateAP.setVisibility(View.GONE); //创建wifi热点布局消失
-//            m_gifRadar.setVisibility(View.GONE); //热点连接动画消失
-//            m_btnCreateWF.setBackgroundResource(R.drawable.x_wt_create); //更改按钮文字“创建”
-            //开始搜索wifi
-            m_wiFiAdmin.startScan();
-            m_wtSearchProcess.start(); //开启搜索线程
-//            m_FrameLWTSearchAnimation.startAnimation(); //开启波纹动画
-        }else {//搜索线程开启着，再次点击按钮
-            //重新启动
-            m_wtSearchProcess.stop();
-            m_wiFiAdmin.startScan(); 	//开始搜索wifi
-            m_wtSearchProcess.start();
-        }
-        m_wTAdapter = new WTAdapter(this, m_listWifi);
         explorer_left.setAdapter(m_wTAdapter);
         explorer_right.setAdapter(m_wTAdapter);
+
+        if (Environment.getExternalStorageState().equals(
+                Environment.MEDIA_MOUNTED)) {
+            mSDPath = Environment.getExternalStorageDirectory();
+        }else{
+            Toast.makeText(this, "没有SD卡", Toast.LENGTH_LONG).show();
+            finish();
+        }
+
+        mQueryRun.setPath(mSDPath);
+        mQueryRun.run();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        mHandler.postDelayed(hideUIRun, 1000);
     }
 
     @Override
@@ -353,7 +274,6 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
                         m_wiFiAdmin.addNetwork(localWifiConfiguration);
                         //"点击链接"消失，显示进度条，
                         //点击后3.5s发送消息
-                        mHandler.sendEmptyMessageDelayed(m_nWTConnectResult, 5000L);
                         mPasswdLayoutLeft.setVisibility(View.GONE);
                         mPasswdLayoutRight.setVisibility(View.GONE);
                         explorer_left.getChildAt(cur_selected_explorer - explorer_left.getFirstVisiblePosition()).findViewById(R.id.connecting_progressBar_wtitem).setVisibility(View.VISIBLE);
@@ -363,7 +283,6 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
                         mAlertDialogLeft.setVisibility(View.GONE);
                         mALertDialogRight.setVisibility(View.GONE);
                         m_wiFiAdmin.disconnectWifi(m_wiFiAdmin.getNetworkId());
-                        reScanWifi();
                         mCurState = state_wifilist;
                         break;
                 }
@@ -387,69 +306,12 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
                 }
                 break;
             case KeyEvent.KEYCODE_BUTTON_Y:
-                reScanWifi();
                 break;
         }
         return true;
     }
 
-    private void reScanWifi(){
-        scanResultReceived = false;
-        m_listWifi.clear();
-        m_wTAdapter.setData(m_listWifi);
-        m_wTAdapter.notifyDataSetChanged();
-        mLoadingPBLeft.setVisibility(View.VISIBLE);
-        mLoadingPBRight.setVisibility(View.VISIBLE);
-        if(!m_wtSearchProcess.running) { //搜索线程没有开启
-            //1.当前热点或wifi连接着    WIFI_STATE_ENABLED 3 //WIFI_AP_STATE_ENABLED  13
-//            if(m_wiFiAdmin.getWifiApState() == 3 || m_wiFiAdmin.getWifiApState() == 13) {
-//                wFOperateEnum = WFOperateEnum.SEARCH; //搜索wifi事件
-//                m_LinearLDialog.setVisibility(View.VISIBLE); ///wifi提示对话框显示
-//                m_textVContentDialog.setText("是否关闭当前热点去搜索其他热点？");
-//                return;  //跳出此方法，交由对话框来处理事件
-//            }
-            //2.当前没有热点或wifi连接着
-            if(!m_wiFiAdmin.mWifiManager.isWifiEnabled()) { //如果wifi没打开
-                m_wiFiAdmin.OpenWifi();
-            }
-//            m_textVWTPrompt.setVisibility(View.VISIBLE); //中间提示文字
-//            m_textVWTPrompt.setText("正在搜索附近的热点...");
-//            m_linearLCreateAP.setVisibility(View.GONE); //创建wifi热点布局消失
-//            m_gifRadar.setVisibility(View.GONE); //热点连接动画消失
-//            m_btnCreateWF.setBackgroundResource(R.drawable.x_wt_create); //更改按钮文字“创建”
-            //开始搜索wifi
-            m_wiFiAdmin.startScan();
-            m_wtSearchProcess.start(); //开启搜索线程
-//            m_FrameLWTSearchAnimation.startAnimation(); //开启波纹动画
-        }else {//搜索线程开启着，再次点击按钮
-            //重新启动
-            m_wtSearchProcess.stop();
-            m_wiFiAdmin.startScan(); 	//开始搜索wifi
-            m_wtSearchProcess.start();
-        }
-    }
-    private void enableWifi(){
-        if(!mWifiManager.isWifiEnabled()){
-            mWifiManager.setWifiEnabled(true);
-        }
-    }
 
-    @Override
-    public void handleConnectChange() {
-        Message msg = mHandler.obtainMessage(m_nWTConnectResult);
-        mHandler.sendMessage(msg);
-    }
-
-    @Override
-    public void scanResultsAvaiable() {
-        Message msg = mHandler.obtainMessage(m_nWTScanResult);
-        mHandler.sendMessage(msg);
-    }
-
-    @Override
-    public void wifiStatusNotification() {
-        m_wiFiAdmin.mWifiManager.getWifiState(); //获取当前wifi状态
-    }
 
     private void hideSystemUI() {
         // Set the IMMERSIVE flag.
@@ -488,5 +350,22 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
     protected void onDestroy() {
         super.onDestroy();
         m_wtSearchProcess.stop();
+    }
+
+    class QueryRun implements  Runnable{
+        private File queryPath = null;
+        public void setPath(File path){
+            this.queryPath = path;
+        }
+        public QueryRun(File path) {
+            this.queryPath = path;
+        }
+
+        @Override
+        public void run() {
+            if(queryPath != null){
+                File files[] = queryPath.listFiles();
+            }
+        }
     }
 }

@@ -12,6 +12,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -114,7 +115,16 @@ public class Launcher extends AppCompatActivity {
         final SimpleAdapter adapter = new SimpleAdapter(this, mapList,R.layout.list_item,new String[]{"img","title"}, new int[]{R.id.img, R.id.txt});
         grid_left.setAdapter(adapter);
         grid_right.setAdapter(adapter);
+        TextView to_launcher = (TextView) findViewById(R.id.to_launcher);
+        to_launcher.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent mIntent = new Intent(Settings.ACTION_BLUETOOTH_SETTINGS);
+                startActivity(mIntent);
+            }
+        });
         requestPermission();
+
     }
 
     @Override
@@ -276,9 +286,12 @@ public class Launcher extends AppCompatActivity {
                         startActivity(new Intent( lstSettings.get(cur_selected_explorer).get("action")));
                         break;
                     case 5:
-                        cur_mode = cur_selected_launcher;
-                        Log.d("qiqi","set cur_mode:" + cur_mode);
-                        controlMode(cur_mode);
+                        if(cur_selected_launcher == 0 || cur_selected_launcher == 4){
+                            cur_mode = cur_selected_launcher;
+                            Log.d("qiqi","set cur_mode:" + cur_mode);
+                            controlMode(cur_mode);
+                        }
+
                         break;
                     case 4:
                         Intent launchIntent = getPackageManager().getLaunchIntentForPackage(appList.get(cur_selected_explorer).packageName);
@@ -313,6 +326,7 @@ public class Launcher extends AppCompatActivity {
                 break;
             default:
                 showExplorer(mode);
+                break;
         }
 
     }

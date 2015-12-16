@@ -79,5 +79,12 @@
             android:src="@mipmap/arrow"
             android:layout_centerVertical="true"
             android:layout_toLeftOf="@+id/explorer_right"/>
+        <TextView
+            android:id="@+id/to_launcher"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:background="@android:color/transparent"/>
     </RelativeLayout>
 </LinearLayout>
