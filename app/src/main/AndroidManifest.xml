@@ -44,6 +44,14 @@
                 <category android:name="android.intent.category.DEFAULT"></category>
             </intent-filter>
         </activity>
+        <activity android:name=".ExplorerActivity"
+            android:screenOrientation="landscape"
+            >
+            <intent-filter>
+                <action android:name="com.qjizho.vrlauncher.EXPLORERACTIVITY"></action>
+                <category android:name="android.intent.category.DEFAULT"></category>
+            </intent-filter>
+        </activity>
         <receiver android:name=".wifi.WifiBroadcastReceiver">
             <intent-filter>
                     <action android:name="android.net.wifi.WIFI_STATE_CHANGED" />

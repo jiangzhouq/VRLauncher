@@ -1,7 +1,9 @@
 package qjizho.vrlauncher;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.drawable.Drawable;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
@@ -12,18 +14,25 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import qjizho.vrlauncher.wifi.WFSearchProcess;
@@ -35,8 +44,8 @@ public class ExplorerActivity extends Activity{
 
     private View mDecorView;
 
-    private static final int state_blocked = 0;
-    private static final int state_wifilist = 1;
+    private static final int state_loading = 0;
+    private static final int state_explorer = 1;
     private static final int state_dialog = 2;
     private static final int state_keyboard = 3;
 
@@ -44,8 +53,8 @@ public class ExplorerActivity extends Activity{
 
     private ImageView selected_left;
     private ImageView selected_right;
-    private ListView explorer_left;
-    private ListView explorer_right;
+    private GridView explorer_left;
+    private GridView explorer_right;
 
     private WifiManager mWifiManager;
     private WifiInfo mWifiInfo;
@@ -62,16 +71,8 @@ public class ExplorerActivity extends Activity{
     private String mSSID = "";
 
     private int cur_selected_explorer = 0;
+    private int cur_page_explorer = 0;
     private boolean scanResultReceived = false;
-
-    private ArrayList<char[]> mEditPaswdArray;
-    private ArrayList<Integer> mEditPaswdCPos;
-    private StringBuilder mEditPasswd;
-    private char[]  mEditPaswdCHARS = new char[]{'*','0','1','2','3','4','5','6','7','8','9','a','A',
-            'b','B','c','C','d','D','e','E','f','F','g','G','h','H','i','I','j','J',
-            'k','K','l','L','m','M','n','N','o','O','p','P','q','Q','r','R','s','S',
-            't','T','u','U','v','V','w','W','x','X','y','Y','z','Z','`','~','!','@','#','$','%','^','&','*','(',')','_','-','+',
-            '=','{','}','[',']','<','>',',','|','\\',':',';','"','\'','.','?','/'};
     //The views
     private ProgressBar mLoadingPBLeft;
     private ProgressBar mLoadingPBRight;
@@ -85,12 +86,30 @@ public class ExplorerActivity extends Activity{
     private TextView mWifiSSIDRight;
     private EditText mWifiPasswdLeft;
     private EditText mWifiPasswdRight;
-
+    private TextView to_focus;
     private QueryRun mQueryRun = new QueryRun(null);
     private File mSDPath = null;
+    private ArrayList<File> cFiles = null;
+    private FilesAdapter mFilesAdapter;
+    private int realFilesCount;
+    private ArrayList<File> mControlPath = new ArrayList<File>();
     Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
+            switch (msg.what){
+                case 0:
+                    mLoadingPBLeft.setVisibility(View.GONE);
+                    mLoadingPBRight.setVisibility(View.GONE);
+                    mCurState = state_explorer;
+                    if(mFilesAdapter == null){
+                        mFilesAdapter = new FilesAdapter(ExplorerActivity.this, cFiles);
+                        explorer_left.setAdapter(mFilesAdapter);
+                        explorer_right.setAdapter(mFilesAdapter);
+                    }else{
+                        mFilesAdapter.setData(cFiles);
+                    }
+                    break;
+            }
             super.handleMessage(msg);
         }
     };
@@ -102,13 +121,13 @@ public class ExplorerActivity extends Activity{
         }else{
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
-        setContentView(R.layout.wifi_layout);
+        setContentView(R.layout.explorer_layout);
         mDecorView = getWindow().getDecorView();
         hideSystemUI();
         selected_left = (ImageView) findViewById(R.id.selected_left);
         selected_right = (ImageView) findViewById(R.id.selected_right);
-        explorer_left = (ListView) findViewById(R.id.explorer_left);
-        explorer_right = (ListView) findViewById(R.id.explorer_right);
+        explorer_left = (GridView) findViewById(R.id.explorer_left);
+        explorer_right = (GridView) findViewById(R.id.explorer_right);
         mLoadingPBLeft = (ProgressBar) findViewById(R.id.loading_progressbar_left);
         mLoadingPBRight = (ProgressBar) findViewById(R.id.loading_progressbar_right);
         mPasswdLayoutLeft = (LinearLayout) findViewById(R.id.passwd_layout_left);
@@ -121,9 +140,8 @@ public class ExplorerActivity extends Activity{
         mALertDialogRight = (LinearLayout) findViewById(R.id.alert_layout_right);
         mAlertTextLeft = (TextView)findViewById(R.id.alert_txt_left);
         mAlertTextRight = (TextView) findViewById(R.id.alert_txt_right);
-
-        selected_left.setImageResource(R.mipmap.setting);
-        selected_right.setImageResource(R.mipmap.setting);
+        selected_left.setImageResource(R.mipmap.movies);
+        selected_right.setImageResource(R.mipmap.movies);
         //wifi管理类
         m_wiFiAdmin  = WifiAdmin.getInstance(this);
         explorer_left.setAdapter(m_wTAdapter);
@@ -132,13 +150,31 @@ public class ExplorerActivity extends Activity{
         if (Environment.getExternalStorageState().equals(
                 Environment.MEDIA_MOUNTED)) {
             mSDPath = Environment.getExternalStorageDirectory();
+            mSDPath = new File("/sdcard/");
+            mControlPath.add(mSDPath);
+            QueryRun queryRun = new QueryRun(mSDPath);
+            queryRun.run();
+            Log.d("qiqi","mSDPath:" + mSDPath);
         }else{
+            Log.d("qiqi","sdcard null");
             Toast.makeText(this, "没有SD卡", Toast.LENGTH_LONG).show();
+            enableDialog("未检测到SD卡");
             finish();
         }
 
         mQueryRun.setPath(mSDPath);
         mQueryRun.run();
+    }
+
+    private void enableDialog(String str){
+        mAlertTextLeft.setText(str);
+        mAlertTextRight.setText(str);
+        mAlertDialogLeft.setVisibility(View.VISIBLE);
+        mALertDialogRight.setVisibility(View.VISIBLE);
+    }
+    private void disableDialog(){
+        mAlertDialogLeft.setVisibility(View.GONE);
+        mALertDialogRight.setVisibility(View.GONE);
     }
 
     @Override
@@ -149,163 +185,102 @@ public class ExplorerActivity extends Activity{
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch(keyCode){
-            case KeyEvent.KEYCODE_DPAD_UP:
-                if(mCurState == state_wifilist){
-                    if(cur_selected_explorer > 0){
-                        cur_selected_explorer -- ;
-                        m_wTAdapter.setCurPosition(cur_selected_explorer);
-                        if(cur_selected_explorer < explorer_left.getSelectedItemPosition()){
-                            explorer_left.setSelection(cur_selected_explorer );
-                            explorer_right.setSelection(cur_selected_explorer );
-                        }
-                    }
-                }else if (mCurState == state_keyboard){
-                    if(mEditPaswdCPos.get(mEditPaswdCPos.size() -1) > 0){
-                        mEditPaswdCPos.set(mEditPaswdCPos.size() -1, mEditPaswdCPos.get(mEditPaswdCPos.size() -1) - 1 );
-                        mEditPasswd = new StringBuilder();
-                        for ( int i = 0; i < mEditPaswdArray.size(); i ++){
-                            mEditPasswd.append(mEditPaswdArray.get(i)[mEditPaswdCPos.get(i)]);
-                        }
-                        mWifiPasswdLeft.setText(mEditPasswd);
-                        mWifiPasswdRight.setText(mEditPasswd);
-                    }
-                }
-
-
-                break;
-            case KeyEvent.KEYCODE_DPAD_DOWN:
-                if(mCurState == state_wifilist){
-                    if(cur_selected_explorer < m_wTAdapter.getCount() - 1){
-                        cur_selected_explorer ++ ;
-                        m_wTAdapter.setCurPosition(cur_selected_explorer);
-                        if(cur_selected_explorer - explorer_left.getSelectedItemPosition() > 5){
-                            explorer_left.setSelection(cur_selected_explorer - 5);
-                            explorer_right.setSelection(cur_selected_explorer - 5);
-                        }
-                        Log.d("qiqi", cur_selected_explorer + " --- now " + " " + explorer_left.getSelectedItemPosition() + " --- selected");
-                    }
-                }else if (mCurState == state_keyboard){
-                    if(mEditPaswdCPos.get(mEditPaswdCPos.size() -1) < mEditPaswdCHARS.length -1){
-                        mEditPaswdCPos.set(mEditPaswdCPos.size() -1, mEditPaswdCPos.get(mEditPaswdCPos.size() -1) + 1 );
-                        mEditPasswd = new StringBuilder();
-                        for ( int i = 0; i < mEditPaswdArray.size(); i ++){
-                            mEditPasswd.append(mEditPaswdArray.get(i)[mEditPaswdCPos.get(i)]);
-                        }
-                        mWifiPasswdLeft.setText(mEditPasswd);
-                        mWifiPasswdRight.setText(mEditPasswd);
-                    }
-                }
-                break;
             case KeyEvent.KEYCODE_DPAD_LEFT:
-                if(mCurState == state_keyboard){
-                    if(mEditPaswdArray.size() > 1){
-                        mEditPaswdArray.remove(mEditPaswdArray.size() -1);
-                        mEditPaswdCPos.remove(mEditPaswdCPos.size() -1);
+                if(mCurState == state_explorer){
+                    if((cur_selected_explorer > 0 && cur_selected_explorer < cFiles.size())){
+//                        (explorer_left.getChildAt(cur_selected_explorer)).setBackgroundColor(getResources().getColor(android.R.color.black));
+                        cur_selected_explorer -- ;
+//                        (explorer_left.getChildAt(cur_selected_explorer)).setBackgroundColor(getResources().getColor(android.R.color.holo_red_dark));
+                        Log.d("qiqi", "cur_selected_explorer :" + cur_selected_explorer);
+                        if((cur_selected_explorer)/9 != cur_page_explorer ){
+                            cur_page_explorer = (cur_selected_explorer)/9;
+                            explorer_left.setSelection(cur_page_explorer*9);
+                            explorer_right.setSelection(cur_page_explorer*9);
+                        }
+                        mFilesAdapter.notifyDataSetChanged();
                     }
-                    mEditPasswd = new StringBuilder();
-                    for ( int i = 0; i < mEditPaswdArray.size(); i ++){
-                        mEditPasswd.append(mEditPaswdArray.get(i)[mEditPaswdCPos.get(i)]);
-                    }
-                    mWifiPasswdLeft.setText(mEditPasswd);
-                    mWifiPasswdRight.setText(mEditPasswd);
                 }
                 break;
             case KeyEvent.KEYCODE_DPAD_RIGHT:
-                if(mCurState == state_keyboard) {
-                    if (mEditPaswdArray.get(mEditPaswdArray.size() - 1)[mEditPaswdCPos.get(mEditPaswdCPos.size() - 1)] == '*')
-                        break;
-                    mEditPaswdArray.add(mEditPaswdCHARS);
-                    mEditPaswdCPos.add(0);
-                    mEditPasswd = new StringBuilder();
-                    for (int i = 0; i < mEditPaswdArray.size(); i++) {
-                        mEditPasswd.append(mEditPaswdArray.get(i)[mEditPaswdCPos.get(i)]);
+                if(mCurState == state_explorer){
+                    if((cur_selected_explorer >= 0 && cur_selected_explorer < cFiles.size())){
+//                        (explorer_left.getChildAt(cur_selected_explorer)).setBackgroundColor(getResources().getColor(android.R.color.black));
+                        cur_selected_explorer ++ ;
+                        if(cur_selected_explorer >= realFilesCount)
+                            cur_selected_explorer = realFilesCount -1;
+//                        (explorer_left.getChildAt(cur_selected_explorer)).setBackgroundColor(getResources().getColor(android.R.color.holo_red_dark));
+                        Log.d("qiqi", "cur_selected_explorer :" + cur_selected_explorer);
+                        if((cur_selected_explorer)/9 != cur_page_explorer ){
+                            cur_page_explorer = (cur_selected_explorer)/9;
+                            explorer_left.setSelection(cur_page_explorer*9);
+                            explorer_right.setSelection(cur_page_explorer*9);
+                        }
+                        mFilesAdapter.notifyDataSetChanged();
                     }
-                    mWifiPasswdLeft.setText(mEditPasswd);
-                    mWifiPasswdRight.setText(mEditPasswd);
                 }
                 break;
+            case KeyEvent.KEYCODE_DPAD_UP:
+                if(mCurState == state_explorer) {
+                    if (cur_selected_explorer / 3 > 0) {
+                        cur_selected_explorer = cur_selected_explorer - 3;
+                        Log.d("qiqi", "cur_selected_explorer :" + cur_selected_explorer);
+                        if ((cur_selected_explorer) / 9 != cur_page_explorer) {
+                            cur_page_explorer = (cur_selected_explorer) / 9;
+                            explorer_left.setSelection(cur_page_explorer * 9);
+                            explorer_right.setSelection(cur_page_explorer * 9);
+                            Log.d("qiqi", "setSelection:" + cur_page_explorer * 9);
+                        }
+                        mFilesAdapter.notifyDataSetChanged();
+                    }
+                }
+                break;
+            case KeyEvent.KEYCODE_DPAD_DOWN:
+                if(mCurState == state_explorer) {
+                    if (cur_selected_explorer / 3 < cFiles.size()) {
+                        cur_selected_explorer = cur_selected_explorer + 3;
+                        if (cur_selected_explorer >= realFilesCount)
+                            cur_selected_explorer = realFilesCount - 1;
+
+                        Log.d("qiqi", "cur_selected_explorer :" + cur_selected_explorer);
+                        if ((cur_selected_explorer) / 9 != cur_page_explorer) {
+                            cur_page_explorer = (cur_selected_explorer) / 9;
+                            explorer_left.setSelection(cur_page_explorer * 9);
+                            explorer_right.setSelection(cur_page_explorer * 9);
+                            Log.d("qiqi", "setSelection:" + cur_page_explorer * 9);
+                        }
+                        mFilesAdapter.notifyDataSetChanged();
+                    }
+                }
+
+                break;
+            case KeyEvent.KEYCODE_DPAD_CENTER:
             case KeyEvent.KEYCODE_BUTTON_A:
-                Log.d("qiqi", "mCurState:" + mCurState);
-                if(mCurState == state_wifilist){
-                    if(m_wiFiAdmin.getWifiInfo().getSSID().replace("\"", "").equals(m_listWifi.get(cur_selected_explorer).SSID)){
-                        Log.d("qiqi", "connected");
-                        mAlertDialogLeft.setVisibility(View.VISIBLE);
-                        mALertDialogRight.setVisibility(View.VISIBLE);
-                        mAlertTextRight.setText(R.string.alert_text);
-                        mAlertTextLeft.setText(R.string.alert_text);
-                        mCurState = state_dialog;
-                        break;
-                    }else{
-                        Log.d("qiqi", "no connected");
+                if(mCurState == state_explorer) {
+                    if(cFiles.get(cur_selected_explorer).isDirectory()){
+                        mControlPath.add(cFiles.get(cur_selected_explorer));
+                        cur_selected_explorer = 0;
+                        QueryRun mQueryRun = new QueryRun(cFiles.get(cur_selected_explorer));
+                        mQueryRun.run();
                     }
-                    mCurState = state_keyboard;
-                    mEditPasswd = new StringBuilder();
-                    mEditPaswdArray = new ArrayList<char[]>();
-                    mEditPaswdArray.add(mEditPaswdCHARS);
-                    mEditPaswdCPos = new ArrayList<Integer>();
-                    mEditPaswdCPos.add(0);
-
-                    for ( int i = 0; i < mEditPaswdArray.size(); i ++){
-                        mEditPasswd.append(mEditPaswdArray.get(i)[mEditPaswdCPos.get(i)]);
-                    }
-                    mWifiPasswdLeft.setText(mEditPasswd);
-                    mWifiPasswdRight.setText(mEditPasswd);
-
-                    Log.d("qiqi", "set mCurState:" + state_dialog);
-                    mPasswdLayoutLeft.setVisibility(View.VISIBLE);
-                    mPasswdLayoutRight.setVisibility(View.VISIBLE);
-                    mWifiSSIDLeft.setText(m_listWifi.get(cur_selected_explorer).SSID);
-                    mWifiSSIDRight.setText(m_listWifi.get(cur_selected_explorer).SSID);
-
-
-//                WifiConfiguration localWifiConfiguration = wifiAdmin.createWifiInfo(localScanResult.SSID, WifiActivity.WIFI_AP_PASSWORD, 3,"wt");
-//                //添加到网络
-//                wifiAdmin.addNetwork(localWifiConfiguration);
-//                //"点击链接"消失，显示进度条，
-//                viewHolder.textConnect.setVisibility(View.GONE);
-//                viewHolder.progressBConnecting.setVisibility(View.VISIBLE);
-//                viewHolder.linearLConnectOk.setVisibility(View.GONE);
-//                //点击后3.5s发送消息
-//                mContext.mHandler.sendEmptyMessageDelayed(mContext.m_nWTConnected, 3500L);
-                }else if (mCurState == state_keyboard){
-                    if(mWifiPasswdLeft.getText().length() >= 8){
-                        WifiConfiguration localWifiConfiguration = m_wiFiAdmin.createWifiInfo(m_listWifi.get(cur_selected_explorer).SSID, mWifiPasswdLeft.getText().toString(), 3, "wt");
-                        //添加到网络
-                        m_wiFiAdmin.addNetwork(localWifiConfiguration);
-                        //"点击链接"消失，显示进度条，
-                        //点击后3.5s发送消息
-                        mPasswdLayoutLeft.setVisibility(View.GONE);
-                        mPasswdLayoutRight.setVisibility(View.GONE);
-                        explorer_left.getChildAt(cur_selected_explorer - explorer_left.getFirstVisiblePosition()).findViewById(R.id.connecting_progressBar_wtitem).setVisibility(View.VISIBLE);
-                        explorer_right.getChildAt(cur_selected_explorer - explorer_left.getFirstVisiblePosition()).findViewById(R.id.connecting_progressBar_wtitem).setVisibility(View.VISIBLE);
-                    }
-                }else if (mCurState == state_dialog){
-                        mAlertDialogLeft.setVisibility(View.GONE);
-                        mALertDialogRight.setVisibility(View.GONE);
-                        m_wiFiAdmin.disconnectWifi(m_wiFiAdmin.getNetworkId());
-                        mCurState = state_wifilist;
-                        break;
                 }
                 break;
+            case KeyEvent.KEYCODE_BACK:
             case KeyEvent.KEYCODE_BUTTON_B:
                 switch(mCurState){
-                    case state_wifilist:
-                    case state_blocked:
-                        this.finish();
-                        break;
-                    case state_dialog:
-                        mAlertDialogLeft.setVisibility(View.GONE);
-                        mALertDialogRight.setVisibility(View.GONE);
-                        mCurState = state_wifilist;
-                        break;
-                    case state_keyboard:
-                        mPasswdLayoutLeft.setVisibility(View.GONE);
-                        mPasswdLayoutRight.setVisibility(View.GONE);
-                        mCurState = state_wifilist;
+                    case state_explorer:
+                        if(mControlPath.size() > 1){
+                            mControlPath.remove(mControlPath.size() -1);
+                            cur_selected_explorer = 0;
+                            QueryRun mQueryRun = new QueryRun(mControlPath.get(mControlPath.size() -1));
+                            mQueryRun.run();
+                        }else{
+                            this.finish();
+                        }
                         break;
                 }
+
                 break;
-            case KeyEvent.KEYCODE_BUTTON_Y:
+            default:
                 break;
         }
         return true;
@@ -349,7 +324,6 @@ public class ExplorerActivity extends Activity{
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        m_wtSearchProcess.stop();
     }
 
     class QueryRun implements  Runnable{
@@ -364,8 +338,129 @@ public class ExplorerActivity extends Activity{
         @Override
         public void run() {
             if(queryPath != null){
-                File files[] = queryPath.listFiles();
+                File[] files = queryPath.listFiles();
+                cFiles = new ArrayList<File>(Arrays.asList(files));
+                realFilesCount = cFiles.size();
+                if(cFiles.size()%9 > 0){
+                    while (true){
+                        cFiles.add(new File(""));
+                        if(cFiles.size()%9 == 0){
+                            break;
+                        }
+                    }
+                }
+                Message msg = new Message();
+                msg.what = 0;
+                handler.sendMessage(msg);
             }
         }
+    }
+    public class FilesAdapter extends BaseAdapter {
+
+        private Context mContext;
+        private ArrayList<File> mFiles ;
+        private ImageLoaderConfiguration config;
+        private ImageLoader imageLoader;
+        private boolean mUserLoader;
+        public FilesAdapter(Context context,ArrayList<File> data){
+            mContext = context;
+            mFiles = data;
+            config = ImageLoaderConfiguration.createDefault(mContext);
+            imageLoader = ImageLoader.getInstance();
+            imageLoader.init(config);
+            Log.d("qiqi", mFiles.size() + "");
+            for(File f : mFiles){
+                Log.d("qiqi",f.getName());
+            }
+        }
+        public void setData(ArrayList<File> data){
+            mFiles = data;
+            this.notifyDataSetChanged();
+        }
+        @Override
+        public int getCount() {
+            return mFiles.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return mFiles.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+//            Log.d("qiqi", "position:" + position + " " + convertView);
+            ViewHolder holder = null;
+            if(convertView == null){
+                holder = new ViewHolder();
+                convertView = LayoutInflater.from(mContext).inflate(R.layout.explorer_list_item_with_name, parent, false);
+                holder.image = (ImageView) convertView.findViewById(R.id.img);
+                holder.text = (TextView) convertView.findViewById(R.id.txt);
+                convertView.setTag(holder);
+            }else{
+                holder = (ViewHolder) convertView.getTag();
+            }
+            if(mFiles.get(position).isDirectory()){
+                holder.image.setImageDrawable(getResources().getDrawable(R.drawable.easyicon_folder));
+            }else if (mFiles.get(position).isFile()){
+                holder.image.setImageDrawable(calFileType(mFiles.get(position).getName()));
+            }else{
+                holder.image.setImageDrawable(null);
+            }
+            holder.text.setText(mFiles.get(position).getName());
+            if(position == cur_selected_explorer){
+                convertView.setBackgroundResource(R.drawable.explorer_item_background);
+            }else{
+                convertView.setBackground(null);
+            }
+            return convertView;
+        }
+
+    }
+    final class ViewHolder{
+        ImageView image;
+        TextView text;
+    }
+    private Drawable calFileType(String str){
+        if(str.toLowerCase().endsWith("bmp")
+                || str.toLowerCase().endsWith("dib")
+                || str.toLowerCase().endsWith("emf")
+                || str.toLowerCase().endsWith("gif")
+                || str.toLowerCase().endsWith("icb")
+                || str.toLowerCase().endsWith("ico")
+                || str.toLowerCase().endsWith("jpg")
+                || str.toLowerCase().endsWith("jpeg")
+                || str.toLowerCase().endsWith("pbm")
+                || str.toLowerCase().endsWith("pcd")
+                || str.toLowerCase().endsWith("pcx")
+                || str.toLowerCase().endsWith("pgm")
+                || str.toLowerCase().endsWith("png")
+                || str.toLowerCase().endsWith("ppm")
+                || str.toLowerCase().endsWith("psp")
+                || str.toLowerCase().endsWith("tif")
+                || str.toLowerCase().endsWith("sgi")){
+            return getResources().getDrawable(R.drawable.easyicon_file_image);
+        }else if (str.toLowerCase().endsWith("avi")
+                || str.toLowerCase().endsWith("rmvb")
+                || str.toLowerCase().endsWith("rm")
+                || str.toLowerCase().endsWith("asf")
+                || str.toLowerCase().endsWith("divx")
+                || str.toLowerCase().endsWith("mpg")
+                || str.toLowerCase().endsWith("mpeg")
+                || str.toLowerCase().endsWith("mpe")
+                || str.toLowerCase().endsWith("wmv")
+                || str.toLowerCase().endsWith("mp4")
+                || str.toLowerCase().endsWith("mkv")
+                || str.toLowerCase().endsWith("vob")) {
+            return getResources().getDrawable(R.drawable.easyicon_file_video);
+        }else if (str.toLowerCase().endsWith("apk")){
+            return getResources().getDrawable(R.drawable.easyicon_file_apk);
+        }
+        return getResources().getDrawable(R.drawable.easyicon_file);
     }
 }

@@ -286,12 +286,9 @@ public class Launcher extends AppCompatActivity {
                         startActivity(new Intent( lstSettings.get(cur_selected_explorer).get("action")));
                         break;
                     case 5:
-                        if(cur_selected_launcher == 0 || cur_selected_launcher == 4){
-                            cur_mode = cur_selected_launcher;
-                            Log.d("qiqi","set cur_mode:" + cur_mode);
-                            controlMode(cur_mode);
-                        }
-
+                        cur_mode = cur_selected_launcher;
+                        Log.d("qiqi","set cur_mode:" + cur_mode);
+                        controlMode(cur_mode);
                         break;
                     case 4:
                         Intent launchIntent = getPackageManager().getLaunchIntentForPackage(appList.get(cur_selected_explorer).packageName);
@@ -323,6 +320,10 @@ public class Launcher extends AppCompatActivity {
             case 5:
                 showLauncher();
                 cur_selected_explorer = 0;
+                break;
+            case 2:
+                cur_mode = 5;
+                startActivity(new Intent("com.qjizho.vrlauncher.EXPLORERACTIVITY"));
                 break;
             default:
                 showExplorer(mode);
@@ -613,7 +614,7 @@ public class Launcher extends AppCompatActivity {
             ViewHolder holder = null;
             if(convertView == null){
                 holder = new ViewHolder();
-                convertView = LayoutInflater.from(mContext).inflate(R.layout.explorer_list_item, parent, false);
+                convertView = LayoutInflater.from(mContext).inflate(R.layout.explorer_list_item_with_name, parent, false);
                 holder.image = (ImageView) convertView.findViewById(R.id.img);
                 convertView.setTag(holder);
             }else{
