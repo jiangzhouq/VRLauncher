@@ -151,8 +151,8 @@ public class ExplorerActivity extends Activity{
         mAlertTextRight = (TextView) findViewById(R.id.alert_txt_right);
         mAlertConfirmLeft = (TextView) findViewById(R.id.alert_confirm_left);
         mAlertConfirmRight = (TextView) findViewById(R.id.alert_confirm_right);
-        selected_left.setImageResource(R.mipmap.movies);
-        selected_right.setImageResource(R.mipmap.movies);
+        selected_left.setImageResource(R.drawable.easyicon_sd);
+        selected_right.setImageResource(R.drawable.easyicon_sd);
         //wifi管理类
         m_wiFiAdmin  = WifiAdmin.getInstance(this);
         explorer_left.setAdapter(m_wTAdapter);

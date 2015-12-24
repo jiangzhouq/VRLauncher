@@ -58,8 +58,8 @@ public class Launcher extends AppCompatActivity {
     private PicsAdapter mPicAdapter;
     private AppsAdapter mAppAdapter;
     private PicsAdapter settingAdapter;
-    private int[] imageResources = new int[]{R.mipmap.setting, R.mipmap.store, R.mipmap.movies, R.mipmap.pictures, R.mipmap.games};
-    private int[] imageResources_focus = new int[]{R.mipmap.setting_focus, R.mipmap.store_focus, R.mipmap.movies_focus, R.mipmap.pictures_focus, R.mipmap.games_focus};
+    private int[] imageResources = new int[]{R.mipmap.setting, R.drawable.easyicon_sd, R.mipmap.movies, R.mipmap.pictures, R.mipmap.games};
+    private int[] imageResources_focus = new int[]{R.mipmap.setting_focus, R.drawable.easyicon_sd_pressed, R.mipmap.movies_focus, R.mipmap.pictures_focus, R.mipmap.games_focus};
     private int cur_selected_launcher = 2;
     //5 = lancuer mode ; 0 - 4 explorer mode
     private int cur_mode = 5;
@@ -321,7 +321,7 @@ public class Launcher extends AppCompatActivity {
                 showLauncher();
                 cur_selected_explorer = 0;
                 break;
-            case 2:
+            case 1:
                 cur_mode = 5;
                 startActivity(new Intent("com.qjizho.vrlauncher.EXPLORERACTIVITY"));
                 break;
@@ -428,7 +428,7 @@ public class Launcher extends AppCompatActivity {
         list.add(map);
 
         map = new HashMap<String, Object>();
-        map.put("img", R.mipmap.store);
+        map.put("img", R.drawable.easyicon_sd);
         map.put("title", "Store");
         map.put("info", "");
         list.add(map);
