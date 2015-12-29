@@ -57,6 +57,8 @@ public class ExplorerActivity extends Activity implements BatteryReceiver.Batter
     private static final int state_dialog_video = 5;
     private static final int state_dialog_pic = 6;
     private static final int state_dialog_delete = 7;
+    private static final int state_dialog_deleting = 8;
+    private static final int state_dialog_deleted = 9;
 
     private int mCurState = 0;
 
@@ -134,6 +136,16 @@ public class ExplorerActivity extends Activity implements BatteryReceiver.Batter
                 case 2:
                     mAlertConfirmLeft.setText(R.string.apk_installing);
                     mAlertConfirmRight.setText(R.string.apk_installing);
+                    break;
+                case 3:
+                    mAlertConfirmLeft.setVisibility(View.VISIBLE);
+                    mAlertConfirmRight.setVisibility(View.VISIBLE);
+                    mAlertConfirmLeft.setText(R.string.deleted);
+                    mAlertConfirmRight.setText(R.string.deleted);
+                    break;
+                case 4:
+                    mAlertConfirmLeft.setText(R.string.deleting);
+                    mAlertConfirmRight.setText(R.string.deleting);
                     break;
             }
             super.handleMessage(msg);
@@ -331,6 +343,24 @@ public class ExplorerActivity extends Activity implements BatteryReceiver.Batter
                 }else if (mCurState == state_dialog_apk_installed){
                     disableDialog();
                     mCurState = state_explorer;
+                }else if (mCurState == state_dialog_delete){
+                    mCurState = state_dialog_deleting;
+                    handler.sendEmptyMessage(4);
+                    Thread thread = new Thread(new DeleteRun(cFiles.get(cur_selected_explorer).getAbsoluteFile()) {
+                    });
+                    thread.start();
+
+//                    if(cFiles.get(cur_selected_explorer).isDirectory()){
+//                        deleteMyDirectory(cFiles.get(cur_selected_explorer).getAbsoluteFile());
+//                    }else{
+//                        deleteMyFile(cFiles.get(cur_selected_explorer).getAbsolutePath());
+//                    }
+//                    mCurState = state_explorer;
+                }else if (mCurState == state_dialog_deleted){
+                    disableDialog();
+                    mCurState = state_explorer;
+                    QueryRun mQueryRun = new QueryRun(mControlPath.get(mControlPath.size() -1));
+                    mQueryRun.run();
                 }
                 break;
             case KeyEvent.KEYCODE_BACK:
@@ -353,8 +383,28 @@ public class ExplorerActivity extends Activity implements BatteryReceiver.Batter
                     case state_dialog_video:
                         disableDialog();
                         mCurState = state_explorer;
+                        break;
+                    case state_dialog_deleted:
+                        disableDialog();
+                        QueryRun mQueryRun = new QueryRun(mControlPath.get(mControlPath.size() -1));
+                        mQueryRun.run();
+                        break;
                 }
 
+                break;
+            case KeyEvent.KEYCODE_BUTTON_Y:
+                switch(mCurState) {
+                    case state_explorer:
+                        mCurState = state_dialog_delete;
+                        if(cFiles.get(cur_selected_explorer).isDirectory()){
+                            enableDialog(String.format(getResources().getString(R.string.apk_delete_dir),cFiles.get(cur_selected_explorer).getName()));
+                        }else{
+                            enableDialog(String.format(getResources().getString(R.string.apk_delete_file),cFiles.get(cur_selected_explorer).getName()));
+                        }
+                        mAlertConfirmLeft.setText(R.string.confirm);
+                        mAlertConfirmRight.setText(R.string.confirm);
+                        break;
+                }
                 break;
             default:
                 break;
@@ -362,6 +412,28 @@ public class ExplorerActivity extends Activity implements BatteryReceiver.Batter
         return true;
     }
 
+    private boolean deleteMyDirectory(File path) {
+        if( path.exists() ) {
+            File[] files = path.listFiles();
+            if (files == null) {
+                return true;
+            }
+            for(int i=0; i<files.length; i++) {
+                if(files[i].isDirectory()) {
+                    deleteMyDirectory(files[i]);
+                }
+                else {
+                    files[i].delete();
+                }
+            }
+        }
+        return( path.delete() );
+    }
+    private boolean deleteMyFile(String selectedFilePath){
+        File file = new File(selectedFilePath);
+        boolean deleted = file.delete();
+        return deleted;
+    }
     /**
      * install slient
      *
@@ -515,6 +587,26 @@ public class ExplorerActivity extends Activity implements BatteryReceiver.Batter
             }
         }
     }
+
+    class DeleteRun implements  Runnable {
+        private File toDelete = null;
+
+        public DeleteRun(File toDelete) {
+            this.toDelete = toDelete;
+        }
+
+        @Override
+        public void run() {
+                    if(toDelete.isDirectory()){
+                        deleteMyDirectory(toDelete);
+                    }else{
+                        deleteMyFile(toDelete.getAbsolutePath());
+                    }
+                    mCurState = state_dialog_deleted;
+                    handler.sendEmptyMessage(3);
+        }
+    }
+
     public class FilesAdapter extends BaseAdapter {
 
         private Context mContext;
