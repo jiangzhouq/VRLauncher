@@ -6,6 +6,7 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -31,7 +32,7 @@ import qjizho.vrlauncher.wifi.WifiBroadcastReceiver;
 
 
 
-public class WifiActivity extends Activity implements WifiBroadcastReceiver.EventHandler{
+public class WifiActivity extends Activity implements WifiBroadcastReceiver.EventHandler, BatteryReceiver.BatteryHandler{
 
     private View mDecorView;
 
@@ -96,7 +97,16 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
     private TextView mWifiSSIDRight;
     private EditText mWifiPasswdLeft;
     private EditText mWifiPasswdRight;
-
+    private ImageView battery_left;
+    private ImageView battery_right;
+    private int[] battery_list = new int[]{
+            R.drawable.easyicon_battery_1,
+            R.drawable.easyicon_battery_2,
+            R.drawable.easyicon_battery_3,
+            R.drawable.easyicon_battery_4,
+            R.drawable.easyicon_battery_5,
+            R.drawable.easyicon_battery_charging,
+    };
     public  Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -180,6 +190,8 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
         mALertDialogRight = (LinearLayout) findViewById(R.id.alert_layout_right);
         mAlertTextLeft = (TextView)findViewById(R.id.alert_txt_left);
         mAlertTextRight = (TextView) findViewById(R.id.alert_txt_right);
+        battery_left = (ImageView) findViewById(R.id.battery_left);
+        battery_right = (ImageView) findViewById(R.id.battery_right);
 
         selected_left.setImageResource(R.mipmap.setting);
         selected_right.setImageResource(R.mipmap.setting);
@@ -217,6 +229,7 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
         m_wTAdapter = new WTAdapter(this, m_listWifi);
         explorer_left.setAdapter(m_wTAdapter);
         explorer_right.setAdapter(m_wTAdapter);
+        BatteryReceiver.ehList.add(this);
     }
 
     @Override
@@ -488,5 +501,30 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
     protected void onDestroy() {
         super.onDestroy();
         m_wtSearchProcess.stop();
+    }
+
+    @Override
+    public void handleBatteryChanged(int charging, int level) {
+        if(charging == BatteryManager.BATTERY_STATUS_CHARGING){
+            battery_left.setImageResource(R.drawable.easyicon_battery_charging);
+            battery_right.setImageResource(R.drawable.easyicon_battery_charging);
+        }else{
+            if(level >= 90 && level <= 100){
+                battery_left.setImageResource(R.drawable.easyicon_battery_5);
+                battery_right.setImageResource(R.drawable.easyicon_battery_5);
+            }else if (level >= 50 && level < 90){
+                battery_left.setImageResource(R.drawable.easyicon_battery_4);
+                battery_right.setImageResource(R.drawable.easyicon_battery_4);
+            }else if (level >= 25 && level < 50){
+                battery_left.setImageResource(R.drawable.easyicon_battery_3);
+                battery_right.setImageResource(R.drawable.easyicon_battery_3);
+            }else if (level >= 10 && level < 50){
+                battery_left.setImageResource(R.drawable.easyicon_battery_2);
+                battery_right.setImageResource(R.drawable.easyicon_battery_2);
+            }else if (level >= 0 && level < 10){
+                battery_left.setImageResource(R.drawable.easyicon_battery_1);
+                battery_right.setImageResource(R.drawable.easyicon_battery_1);
+            }
+        }
     }
 }

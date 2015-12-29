@@ -13,6 +13,17 @@
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:descendantFocusability="blocksDescendants">
+        <LinearLayout
+            android:layout_width="360dp"
+            android:layout_height="420dp"
+            android:gravity="center_horizontal"
+            android:layout_centerInParent="true">
+            <ImageView
+                android:id="@+id/battery_left"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/easyicon_battery_5"/>
+        </LinearLayout>
         <ProgressBar
             android:id="@+id/loading_progressbar_left"
             android:layout_width="30dp"
@@ -111,6 +122,17 @@
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:descendantFocusability="blocksDescendants">
+        <LinearLayout
+            android:layout_width="360dp"
+            android:layout_height="420dp"
+            android:gravity="center_horizontal"
+            android:layout_centerInParent="true">
+            <ImageView
+                android:id="@+id/battery_right"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/easyicon_battery_5"/>
+        </LinearLayout>
         <ProgressBar
             android:id="@+id/loading_progressbar_right"
             android:layout_width="30dp"

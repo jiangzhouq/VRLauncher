@@ -9,6 +9,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
+import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -40,7 +41,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Launcher extends AppCompatActivity {
+public class Launcher extends AppCompatActivity implements BatteryReceiver.BatteryHandler{
     private View mDecorView;
     private List<Map<String, Object>> mapList;
     private List<Map<String, String>> lstPics = new ArrayList<Map<String, String>>();
@@ -53,6 +54,16 @@ public class Launcher extends AppCompatActivity {
     private ImageView arrow_right;
     private GridView explorer_left;
     private GridView explorer_right;
+    private ImageView battery_left;
+    private ImageView battery_right;
+    private int[] battery_list = new int[]{
+            R.drawable.easyicon_battery_1,
+            R.drawable.easyicon_battery_2,
+            R.drawable.easyicon_battery_3,
+            R.drawable.easyicon_battery_4,
+            R.drawable.easyicon_battery_5,
+            R.drawable.easyicon_battery_charging,
+    };
     private ImageLoader imageLoader;
     private ImageLoaderConfiguration config ;
     private PicsAdapter mPicAdapter;
@@ -100,6 +111,8 @@ public class Launcher extends AppCompatActivity {
         explorer_right = (GridView) findViewById(R.id.explorer_right);
         arrow_left = (ImageView) findViewById(R.id.arrow_left);
         arrow_right = (ImageView) findViewById(R.id.arrow_right);
+        battery_left = (ImageView) findViewById(R.id.battery_left);
+        battery_right = (ImageView) findViewById(R.id.battery_right);
         showLauncher();
         config = ImageLoaderConfiguration.createDefault(this);
         options = new DisplayImageOptions.Builder()
@@ -124,7 +137,7 @@ public class Launcher extends AppCompatActivity {
             }
         });
         requestPermission();
-
+        BatteryReceiver.ehList.add(this);
     }
 
     @Override
@@ -712,6 +725,30 @@ public class Launcher extends AppCompatActivity {
             Log.v("app","Name:"+appName+" versionName:"+versionName);
             Log.v("app","Name:"+appName+" versionCode:"+versionCode);
         }
+    }
 
+    @Override
+    public void handleBatteryChanged(int charging, int level) {
+        if(charging == BatteryManager.BATTERY_STATUS_CHARGING){
+            battery_left.setImageResource(R.drawable.easyicon_battery_charging);
+            battery_right.setImageResource(R.drawable.easyicon_battery_charging);
+        }else{
+            if(level >= 90 && level <= 100){
+                battery_left.setImageResource(R.drawable.easyicon_battery_5);
+                battery_right.setImageResource(R.drawable.easyicon_battery_5);
+            }else if (level >= 50 && level < 90){
+                battery_left.setImageResource(R.drawable.easyicon_battery_4);
+                battery_right.setImageResource(R.drawable.easyicon_battery_4);
+            }else if (level >= 25 && level < 50){
+                battery_left.setImageResource(R.drawable.easyicon_battery_3);
+                battery_right.setImageResource(R.drawable.easyicon_battery_3);
+            }else if (level >= 10 && level < 50){
+                battery_left.setImageResource(R.drawable.easyicon_battery_2);
+                battery_right.setImageResource(R.drawable.easyicon_battery_2);
+            }else if (level >= 0 && level < 10){
+                battery_left.setImageResource(R.drawable.easyicon_battery_1);
+                battery_right.setImageResource(R.drawable.easyicon_battery_1);
+            }
+        }
     }
 }

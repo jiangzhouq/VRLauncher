@@ -9,6 +9,7 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -44,7 +45,7 @@ import qjizho.vrlauncher.wifi.WTAdapter;
 import qjizho.vrlauncher.wifi.WifiAdmin;
 
 
-public class ExplorerActivity extends Activity{
+public class ExplorerActivity extends Activity implements BatteryReceiver.BatteryHandler{
 
     private View mDecorView;
 
@@ -87,6 +88,17 @@ public class ExplorerActivity extends Activity{
     private LinearLayout mPasswdLayoutLeft;
     private RelativeLayout mAlertDialogLeft;
     private RelativeLayout mALertDialogRight;
+    private ImageView battery_left;
+    private ImageView battery_right;
+    private int[] battery_list = new int[]{
+            R.drawable.easyicon_battery_1,
+            R.drawable.easyicon_battery_2,
+            R.drawable.easyicon_battery_3,
+            R.drawable.easyicon_battery_4,
+            R.drawable.easyicon_battery_5,
+            R.drawable.easyicon_battery_charging,
+    };
+
     private TextView mAlertTextLeft;
     private TextView mAlertTextRight;
     private TextView mAlertConfirmLeft;
@@ -153,11 +165,13 @@ public class ExplorerActivity extends Activity{
         mAlertConfirmRight = (TextView) findViewById(R.id.alert_confirm_right);
         selected_left.setImageResource(R.drawable.easyicon_sd);
         selected_right.setImageResource(R.drawable.easyicon_sd);
+        battery_left = (ImageView) findViewById(R.id.battery_left);
+        battery_right = (ImageView) findViewById(R.id.battery_right);
         //wifi管理类
         m_wiFiAdmin  = WifiAdmin.getInstance(this);
         explorer_left.setAdapter(m_wTAdapter);
         explorer_right.setAdapter(m_wTAdapter);
-
+        BatteryReceiver.ehList.add(this);
         if (Environment.getExternalStorageState().equals(
                 Environment.MEDIA_MOUNTED)) {
             mSDPath = Environment.getExternalStorageDirectory();
@@ -624,5 +638,30 @@ public class ExplorerActivity extends Activity{
             return 3;
         }
         return 4;
+    }
+
+    @Override
+    public void handleBatteryChanged(int charging, int level) {
+        if(charging == BatteryManager.BATTERY_STATUS_CHARGING){
+            battery_left.setImageResource(R.drawable.easyicon_battery_charging);
+            battery_right.setImageResource(R.drawable.easyicon_battery_charging);
+        }else{
+            if(level >= 90 && level <= 100){
+                battery_left.setImageResource(R.drawable.easyicon_battery_5);
+                battery_right.setImageResource(R.drawable.easyicon_battery_5);
+            }else if (level >= 50 && level < 90){
+                battery_left.setImageResource(R.drawable.easyicon_battery_4);
+                battery_right.setImageResource(R.drawable.easyicon_battery_4);
+            }else if (level >= 25 && level < 50){
+                battery_left.setImageResource(R.drawable.easyicon_battery_3);
+                battery_right.setImageResource(R.drawable.easyicon_battery_3);
+            }else if (level >= 10 && level < 50){
+                battery_left.setImageResource(R.drawable.easyicon_battery_2);
+                battery_right.setImageResource(R.drawable.easyicon_battery_2);
+            }else if (level >= 0 && level < 10){
+                battery_left.setImageResource(R.drawable.easyicon_battery_1);
+                battery_right.setImageResource(R.drawable.easyicon_battery_1);
+            }
+        }
     }
 }
