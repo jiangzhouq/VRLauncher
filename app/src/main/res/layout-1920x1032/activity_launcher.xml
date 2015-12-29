@@ -15,8 +15,10 @@
         android:focusableInTouchMode="true"
         android:descendantFocusability="blocksDescendants">
         <LinearLayout
-            android:layout_width="420dp"
-            android:layout_height="wrap_content">
+            android:layout_width="360dp"
+            android:layout_height="450dp"
+            android:gravity="center_horizontal"
+            android:layout_centerInParent="true">
             <ImageView
                 android:id="@+id/battery_left"
                 android:layout_width="40dp"
@@ -61,8 +63,10 @@
         android:focusableInTouchMode="true"
         android:descendantFocusability="blocksDescendants">
         <LinearLayout
-            android:layout_width="420dp"
-            android:layout_height="wrap_content">
+            android:layout_width="360dp"
+            android:layout_height="450dp"
+            android:gravity="center_horizontal"
+            android:layout_centerInParent="true">
             <ImageView
                 android:id="@+id/battery_right"
                 android:layout_width="40dp"
