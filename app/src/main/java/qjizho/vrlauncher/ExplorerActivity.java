@@ -307,13 +307,15 @@ public class ExplorerActivity extends Activity implements BatteryReceiver.Batter
                         mQueryRun.run();
                     }else{
                         switch (indentifyFileType(cFiles.get(cur_selected_explorer).getName())){
+                            //image
                             case 1:
-                                Intent iintent = new Intent("com.qjizho.vrlauncher.SIMPLEPLAYERACTIVITY");
+                                Intent iintent = new Intent(ExplorerActivity.this, SimplePicPlayerActivity.class);
                                 iintent.putExtra("url", cFiles.get(cur_selected_explorer).getAbsolutePath());
                                 startActivity(iintent);
                                 break;
+                            //video
                             case 2:
-                                Intent intent = new Intent("com.qjizho.vrlauncher.SIMPLEPLAYERACTIVITY");
+                                Intent intent = new Intent(ExplorerActivity.this, SimpleStreamPlayerActivity.class);
                                 intent.putExtra("url", cFiles.get(cur_selected_explorer).getAbsolutePath());
                                 startActivity(intent);
                                 break;

@@ -38,6 +38,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".SimpleStreamPlayerActivity"
+            android:configChanges="orientation|screenSize">
+        </activity>
+        <activity android:name=".SimplePicPlayerActivity"
+            android:configChanges="orientation|screenSize">
+        </activity>
         <activity android:name=".WifiActivity"
             android:screenOrientation="landscape"
             >
