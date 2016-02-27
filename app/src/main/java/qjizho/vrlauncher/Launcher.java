@@ -1,8 +1,10 @@
 package qjizho.vrlauncher;
 
 import android.Manifest;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -12,6 +14,7 @@ import android.graphics.drawable.Drawable;
 import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
@@ -80,6 +83,11 @@ public class Launcher extends AppCompatActivity implements BatteryReceiver.Batte
     private int realListPicCount = 0;
     private int realListAppCount = 0;
     private ArrayList<AppInfo> appList;
+
+    private BluetoothService.BlueBinder mBlueBinder;
+    private BluetoothService mBlueService;
+    private ServiceConnection mBlueConn ;
+
     private Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -138,6 +146,45 @@ public class Launcher extends AppCompatActivity implements BatteryReceiver.Batte
         });
         requestPermission();
         BatteryReceiver.ehList.add(this);
+
+        Intent intent = new Intent("com.pascalwelsch.circularprogressbarsample.BLUE_SERVICE");
+        mBlueConn = new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+                mBlueBinder = (BluetoothService.BlueBinder)iBinder;
+                mBlueService = mBlueBinder.getService();
+                mBlueService.setOnBTStateListener(new BluetoothService.OnBTStateListener() {
+                    @Override
+                    public void onStateChanged(int state) {
+                        Log.d("qiqi", "state:" + state);
+                        switch (state){
+                            case BluetoothService.STATE_BT_OFF:
+                                break;
+                            case BluetoothService.STATE_BT_ON:
+                                break;
+                            case BluetoothService.STATE_DISCONNECTED:
+                                break;
+                            case BluetoothService.STATE_CONNECTING:
+                                break;
+                            case BluetoothService.STATE_CONNECTED:
+                                break;
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName componentName) {
+
+            }
+        };
+        bindService(intent, mBlueConn, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbindService(mBlueConn);
     }
 
     @Override
