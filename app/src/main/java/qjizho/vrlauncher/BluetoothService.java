@@ -131,7 +131,7 @@ public class BluetoothService extends Service {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 System.out.println(device.getName());
                 // 如果查找到的设备符合要连接的设备，处理
-                if (device.getName().contains("ATET")) {
+                if (device.getName().contains("Game")) {
                     // 搜索蓝牙设备的过程占用资源比较多，一旦找到需要连接的设备后需要及时关闭搜索
                     bluetoothAdapter.cancelDiscovery();
                     // 获取蓝牙设备的连接状态
@@ -160,7 +160,7 @@ public class BluetoothService extends Service {
             } else if(BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
                 // 状态改变的广播
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if (device.getName().contains("ATET")) {
+                if (device.getName().contains("Game")) {
                     switch (device.getBondState()) {
                         case BluetoothDevice.BOND_NONE:
                             break;
@@ -190,11 +190,11 @@ public class BluetoothService extends Service {
         final String SPP_UUID = "00001101-0000-1000-8000-00805F9B34FB";
         UUID uuid = UUID.fromString(SPP_UUID);
         try{
-//            BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
-            Method method = device.getClass().getMethod("createL2capSocket", new Class[]{int.class});
-            mSocket = (BluetoothSocket) method.invoke(device, 1);
+            BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
+//            Method method = device.getClass().getMethod("createL2capSocket", new Class[]{int.class});
+//            mSocket = (BluetoothSocket) method.invoke(device, 1);
 
-            mSocket.connect();
+            socket.connect();
         }catch (Exception e){
             Log.d("qiqi","connect error:" + e.toString());
         }
