@@ -72,9 +72,9 @@ public class Launcher extends AppCompatActivity implements BatteryReceiver.Batte
     private PicsAdapter mPicAdapter;
     private AppsAdapter mAppAdapter;
     private PicsAdapter settingAdapter;
-    private int[] imageResources = new int[]{R.mipmap.setting, R.drawable.easyicon_sd, R.mipmap.movies, R.mipmap.pictures, R.mipmap.games};
-    private int[] imageResources_focus = new int[]{R.mipmap.setting_focus, R.drawable.easyicon_sd_pressed, R.mipmap.movies_focus, R.mipmap.pictures_focus, R.mipmap.games_focus};
-    private int cur_selected_launcher = 2;
+    private int[] imageResources = new int[]{R.mipmap.setting, R.drawable.easyicon_sd,  R.mipmap.games};
+    private int[] imageResources_focus = new int[]{R.mipmap.setting_focus, R.drawable.easyicon_sd_pressed, R.mipmap.games_focus};
+    private int cur_selected_launcher = 1;
     //5 = lancuer mode ; 0 - 4 explorer mode
     private int cur_mode = 5;
     private int cur_selected_explorer = 0;
@@ -207,7 +207,7 @@ public class Launcher extends AppCompatActivity implements BatteryReceiver.Batte
                     ((ImageView)((ViewGroup) grid_right.getChildAt(cur_selected_launcher)).getChildAt(0)).setImageResource(imageResources[cur_selected_launcher]);
                     cur_selected_launcher --;
                     if(cur_selected_launcher == -1){
-                        cur_selected_launcher = 4;
+                        cur_selected_launcher = 2;
                     }
                     Log.d("qiqi", "" + cur_selected_launcher);
                     ((ImageView)((ViewGroup) grid_left.getChildAt(cur_selected_launcher)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected_launcher]);
@@ -239,7 +239,7 @@ public class Launcher extends AppCompatActivity implements BatteryReceiver.Batte
                     ((ImageView)((ViewGroup) grid_left.getChildAt(cur_selected_launcher)).getChildAt(0)).setImageResource(imageResources[cur_selected_launcher]);
                     ((ImageView)((ViewGroup) grid_right.getChildAt(cur_selected_launcher)).getChildAt(0)).setImageResource(imageResources[cur_selected_launcher]);
                     cur_selected_launcher ++ ;
-                    if(cur_selected_launcher == 5){
+                    if(cur_selected_launcher == 3){
                         cur_selected_launcher = 0;
                     }
                     ((ImageView)((ViewGroup) grid_left.getChildAt(cur_selected_launcher)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected_launcher]);
@@ -493,17 +493,17 @@ public class Launcher extends AppCompatActivity implements BatteryReceiver.Batte
         map.put("info", "");
         list.add(map);
 
-        map = new HashMap<String, Object>();
-        map.put("img", R.mipmap.movies);
-        map.put("title", "Movie");
-        map.put("info", "");
-        list.add(map);
-
-        map = new HashMap<String, Object>();
-        map.put("img", R.mipmap.pictures);
-        map.put("title", "Picture");
-        map.put("info", "");
-        list.add(map);
+//        map = new HashMap<String, Object>();
+//        map.put("img", R.mipmap.movies);
+//        map.put("title", "Movie");
+//        map.put("info", "");
+//        list.add(map);
+//
+//        map = new HashMap<String, Object>();
+//        map.put("img", R.mipmap.pictures);
+//        map.put("title", "Picture");
+//        map.put("info", "");
+//        list.add(map);
 
         map = new HashMap<String, Object>();
         map.put("img", R.mipmap.games);
