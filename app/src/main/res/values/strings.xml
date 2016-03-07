@@ -5,11 +5,14 @@
     <string name="alert_name">警告</string>
     <string name="confirm">确认</string>
     <string name="alert_text">确认要取消当前连接吗？</string>
-    <string name="apk_confirm">Are you sure to install %1$s</string>
-    <string name="apk_delete_dir">Are you sure to delete directory %1$s</string>
-    <string name="apk_delete_file">Are you sure to delete file %1$s</string>
+    <string name="apk_confirm">Are you sure to install %1$s ?</string>
+    <string name="apk_uninstall_confirm">Are you sure to uninstall %1$s ?</string>
+    <string name="apk_delete_dir">Are you sure to delete directory %1$s ?</string>
+    <string name="apk_delete_file">Are you sure to delete file %1$s ?</string>
     <string name="apk_installing">Installing</string>
+    <string name="apk_uninstalling">UnInstalling</string>
     <string name="apk_installed">Installed</string>
+    <string name="apk_uninstalled">UnInstalled</string>
     <string name="deleting">Deleting</string>
     <string name="deleted">Deleted</string>
     <string name="hello_world">Hello world!</string>

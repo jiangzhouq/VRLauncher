@@ -39,6 +39,43 @@
             android:layout_height="360dp"
             android:layout_centerInParent="true"
             android:numColumns="3"></GridView>
+        <RelativeLayout
+            android:id="@+id/alert_layout_left"
+            android:layout_width="360dp"
+            android:layout_height="360dp"
+            android:layout_centerInParent="true"
+            android:visibility="gone"
+            android:background="@drawable/alert_background">
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/easyicon_return"
+                android:layout_marginLeft="30dp"
+                android:layout_marginTop="30dp"/>
+            <TextView
+                android:id="@+id/alert_txt_left"
+                android:layout_width="240dp"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:textSize="16.0sp"
+                android:layout_centerInParent="true"/>
+            <TextView
+                android:id="@+id/alert_confirm_left"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:textColor="@color/black"
+                android:background="@color/white"
+                android:textSize="20.0sp"
+                android:text="@string/confirm"
+                android:textStyle="bold"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:layout_marginRight="30dp"
+                android:layout_marginBottom="30dp"/>
+        </RelativeLayout>
+
         <ImageView
             android:id="@+id/selected_left"
             android:layout_width="80dp"
@@ -86,6 +123,42 @@
             android:layout_height="360dp"
             android:layout_centerInParent="true"
             android:numColumns="3"></GridView>
+        <RelativeLayout
+            android:id="@+id/alert_layout_right"
+            android:layout_width="360dp"
+            android:layout_height="360dp"
+            android:layout_centerInParent="true"
+            android:visibility="gone"
+            android:background="@drawable/alert_background">
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/easyicon_return"
+                android:layout_marginLeft="30dp"
+                android:layout_marginTop="30dp"/>
+            <TextView
+                android:id="@+id/alert_txt_right"
+                android:layout_width="240dp"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:textSize="16.0sp"
+                android:layout_centerInParent="true"/>
+            <TextView
+                android:id="@+id/alert_confirm_right"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:textColor="@color/black"
+                android:background="@color/white"
+                android:textSize="20.0sp"
+                android:text="@string/confirm"
+                android:textStyle="bold"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:layout_marginRight="30dp"
+                android:layout_marginBottom="30dp"/>
+        </RelativeLayout>
         <ImageView
             android:id="@+id/selected_right"
             android:layout_width="80dp"

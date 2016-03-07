@@ -30,6 +30,7 @@ import android.view.WindowManager;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,7 +39,9 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -75,8 +78,8 @@ public class Launcher extends AppCompatActivity implements BatteryReceiver.Batte
     private int[] imageResources = new int[]{R.mipmap.setting, R.drawable.easyicon_sd,  R.mipmap.games};
     private int[] imageResources_focus = new int[]{R.mipmap.setting_focus, R.drawable.easyicon_sd_pressed, R.mipmap.games_focus};
     private int cur_selected_launcher = 1;
-    //5 = lancuer mode ; 0 - 4 explorer mode
-    private int cur_mode = 5;
+    //3 = lancuer mode ; 0 - 2 explorer mode ,4 for uninstall app, 5 for uninstalling, 6 for uninstaled
+    private int cur_mode = 3;
     private int cur_selected_explorer = 0;
     private int cur_page_explorer = 0;
     private DisplayImageOptions options;
@@ -96,10 +99,26 @@ public class Launcher extends AppCompatActivity implements BatteryReceiver.Batte
                     ((ImageView) ((ViewGroup) grid_left.getChildAt(cur_selected_launcher)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected_launcher]);
                     ((ImageView)((ViewGroup) grid_right.getChildAt(cur_selected_launcher)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected_launcher]);
                     break;
+                case 1:
+                    mAlertConfirmLeft.setVisibility(View.VISIBLE);
+                    mAlertConfirmRight.setVisibility(View.VISIBLE);
+                    mAlertConfirmLeft.setText(R.string.apk_uninstalled);
+                    mAlertConfirmRight.setText(R.string.apk_uninstalled);
+                    break;
+                case 2:
+                    mAlertConfirmLeft.setText(R.string.apk_uninstalling);
+                    mAlertConfirmRight.setText(R.string.apk_uninstalling);
+                    break;
 
             }
         }
     };
+    private RelativeLayout mAlertDialogLeft;
+    private RelativeLayout mALertDialogRight;
+    private TextView mAlertTextLeft;
+    private TextView mAlertTextRight;
+    private TextView mAlertConfirmLeft;
+    private TextView mAlertConfirmRight;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,6 +140,13 @@ public class Launcher extends AppCompatActivity implements BatteryReceiver.Batte
         arrow_right = (ImageView) findViewById(R.id.arrow_right);
         battery_left = (ImageView) findViewById(R.id.battery_left);
         battery_right = (ImageView) findViewById(R.id.battery_right);
+        mAlertDialogLeft = (RelativeLayout) findViewById(R.id.alert_layout_left);
+        mALertDialogRight = (RelativeLayout) findViewById(R.id.alert_layout_right);
+        mAlertTextLeft = (TextView)findViewById(R.id.alert_txt_left);
+        mAlertTextRight = (TextView) findViewById(R.id.alert_txt_right);
+        mAlertConfirmLeft = (TextView) findViewById(R.id.alert_confirm_left);
+        mAlertConfirmRight = (TextView) findViewById(R.id.alert_confirm_right);
+
         showLauncher();
         config = ImageLoaderConfiguration.createDefault(this);
         options = new DisplayImageOptions.Builder()
@@ -197,12 +223,22 @@ public class Launcher extends AppCompatActivity implements BatteryReceiver.Batte
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         }
     }
+    private void enableDialog(String str){
+        mAlertTextLeft.setText(str);
+        mAlertTextRight.setText(str);
+        mAlertDialogLeft.setVisibility(View.VISIBLE);
+        mALertDialogRight.setVisibility(View.VISIBLE);
+    }
+    private void disableDialog(){
+        mAlertDialogLeft.setVisibility(View.GONE);
+        mALertDialogRight.setVisibility(View.GONE);
+    }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch(keyCode){
             case KeyEvent.KEYCODE_DPAD_LEFT:
-                if(cur_mode >= 5){
+                if(cur_mode == 3){
                     ((ImageView)((ViewGroup) grid_left.getChildAt(cur_selected_launcher)).getChildAt(0)).setImageResource(imageResources[cur_selected_launcher]);
                     ((ImageView)((ViewGroup) grid_right.getChildAt(cur_selected_launcher)).getChildAt(0)).setImageResource(imageResources[cur_selected_launcher]);
                     cur_selected_launcher --;
@@ -212,8 +248,8 @@ public class Launcher extends AppCompatActivity implements BatteryReceiver.Batte
                     Log.d("qiqi", "" + cur_selected_launcher);
                     ((ImageView)((ViewGroup) grid_left.getChildAt(cur_selected_launcher)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected_launcher]);
                     ((ImageView)((ViewGroup) grid_right.getChildAt(cur_selected_launcher)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected_launcher]);
-                }else if (cur_mode <= 4){
-                    if((cur_selected_explorer > 0 && cur_selected_explorer < (cur_mode == 3 ?lstPics.size():appList.size()))){
+                }else if (cur_mode <= 2){
+                    if((cur_selected_explorer > 0 && cur_selected_explorer < appList.size())){
 //                        (explorer_left.getChildAt(cur_selected_explorer)).setBackgroundColor(getResources().getColor(android.R.color.black));
                         cur_selected_explorer -- ;
 //                        (explorer_left.getChildAt(cur_selected_explorer)).setBackgroundColor(getResources().getColor(android.R.color.holo_red_dark));
@@ -224,10 +260,7 @@ public class Launcher extends AppCompatActivity implements BatteryReceiver.Batte
                             explorer_right.setSelection(cur_page_explorer*9);
                         }
                         switch(cur_mode){
-                            case 3:
-                                mPicAdapter.notifyDataSetChanged();
-                                break;
-                            case 4:
+                            case 2:
                                 mAppAdapter.notifyDataSetChanged();
                                 break;
                         }
@@ -235,7 +268,7 @@ public class Launcher extends AppCompatActivity implements BatteryReceiver.Batte
                 }
                 break;
             case KeyEvent.KEYCODE_DPAD_RIGHT:
-                if(cur_mode >= 5){
+                if(cur_mode == 3){
                     ((ImageView)((ViewGroup) grid_left.getChildAt(cur_selected_launcher)).getChildAt(0)).setImageResource(imageResources[cur_selected_launcher]);
                     ((ImageView)((ViewGroup) grid_right.getChildAt(cur_selected_launcher)).getChildAt(0)).setImageResource(imageResources[cur_selected_launcher]);
                     cur_selected_launcher ++ ;
@@ -246,12 +279,12 @@ public class Launcher extends AppCompatActivity implements BatteryReceiver.Batte
                     ((ImageView)((ViewGroup) grid_right.getChildAt(cur_selected_launcher)).getChildAt(0)).setImageResource(imageResources_focus[cur_selected_launcher]);
                     Log.d("qiqi", "" + cur_selected_launcher);
 
-                }else if (cur_mode <= 4){
-                    if((cur_selected_explorer >= 0 && cur_selected_explorer < (cur_mode == 3 ?lstPics.size():appList.size() -1))){
+                }else if (cur_mode <= 2){
+                    if((cur_selected_explorer >= 0 && cur_selected_explorer < appList.size())){
 //                        (explorer_left.getChildAt(cur_selected_explorer)).setBackgroundColor(getResources().getColor(android.R.color.black));
                         cur_selected_explorer ++ ;
-                        if(cur_selected_explorer >= (cur_mode == 3 ? realListPicCount:realListAppCount))
-                            cur_selected_explorer = cur_mode == 3 ? (realListPicCount -1):(realListAppCount -1);
+                        if(cur_selected_explorer >= realListAppCount)
+                            cur_selected_explorer = realListAppCount -1;
 //                        (explorer_left.getChildAt(cur_selected_explorer)).setBackgroundColor(getResources().getColor(android.R.color.holo_red_dark));
                         Log.d("qiqi", "cur_selected_explorer :" + cur_selected_explorer);
                         if((cur_selected_explorer)/9 != cur_page_explorer ){
@@ -260,10 +293,7 @@ public class Launcher extends AppCompatActivity implements BatteryReceiver.Batte
                             explorer_right.setSelection(cur_page_explorer*9);
                         }
                         switch(cur_mode){
-                            case 3:
-                                mPicAdapter.notifyDataSetChanged();
-                                break;
-                            case 4:
+                            case 2:
                                 mAppAdapter.notifyDataSetChanged();
                                 Log.d("qiqi","app adapter notified cur_selected_explorer:" + cur_selected_explorer);
                                 break;
@@ -272,7 +302,7 @@ public class Launcher extends AppCompatActivity implements BatteryReceiver.Batte
                 }
                 break;
             case KeyEvent.KEYCODE_DPAD_UP:
-                if(cur_mode <= 4){
+                if(cur_mode <= 2){
                     if(cur_selected_explorer/3 > 0){
 //                        (explorer_left.getChildAt(cur_selected_explorer)).setBackgroundColor(getResources().getColor(android.R.color.black));
                         cur_selected_explorer = cur_selected_explorer - 3 ;
@@ -285,10 +315,7 @@ public class Launcher extends AppCompatActivity implements BatteryReceiver.Batte
                         }
 
                         switch(cur_mode){
-                            case 3:
-                                mPicAdapter.notifyDataSetChanged();
-                                break;
-                            case 4:
+                            case 2:
                                 mAppAdapter.notifyDataSetChanged();
                                 break;
                         }
@@ -305,16 +332,16 @@ public class Launcher extends AppCompatActivity implements BatteryReceiver.Batte
 //                    }
 
 
-                }else if (cur_mode >=5){
+                }else if (cur_mode ==3){
 
                 }
                 break;
             case KeyEvent.KEYCODE_DPAD_DOWN:
-                if(cur_mode <= 4){
-                    if(cur_selected_explorer/3 < (cur_mode == 3 ?lstPics.size():appList.size())/3){
+                if(cur_mode <= 2){
+                    if(cur_selected_explorer/3 < appList.size()/3){
                         cur_selected_explorer = cur_selected_explorer + 3;
-                        if(cur_selected_explorer >= (cur_mode == 3 ?realListPicCount:realListAppCount))
-                            cur_selected_explorer = cur_mode == 3 ?(realListPicCount -1):(realListAppCount -1);
+                        if(cur_selected_explorer >= realListAppCount)
+                            cur_selected_explorer = realListAppCount -1;
 
                         Log.d("qiqi", "cur_selected_explorer :" + cur_selected_explorer);
                         if((cur_selected_explorer)/9 != cur_page_explorer ){
@@ -325,17 +352,14 @@ public class Launcher extends AppCompatActivity implements BatteryReceiver.Batte
                         }
 
                         switch(cur_mode){
-                            case 3:
-                                mPicAdapter.notifyDataSetChanged();
-                                break;
-                            case 4:
+                            case 2:
                                 mAppAdapter.notifyDataSetChanged();
                                 break;
                         }
                     }
 
 
-                }else if (cur_mode >=5){
+                }else if (cur_mode ==3){
 
                 }
                 break;
@@ -345,30 +369,92 @@ public class Launcher extends AppCompatActivity implements BatteryReceiver.Batte
                     case 0:
                         startActivity(new Intent( lstSettings.get(cur_selected_explorer).get("action")));
                         break;
-                    case 5:
+                    case 3:
                         cur_mode = cur_selected_launcher;
                         Log.d("qiqi","set cur_mode:" + cur_mode);
                         controlMode(cur_mode);
                         break;
-                    case 4:
+                    case 2:
                         Intent launchIntent = getPackageManager().getLaunchIntentForPackage(appList.get(cur_selected_explorer).packageName);
                         startActivity(launchIntent);
                         break;
-                    case 3:
-                        Intent intent = new Intent("com.qjizho.pps.VIEW");
-                        intent.putExtra("url", lstPics.get(cur_selected_explorer).get("img"));
-                        startActivity(intent);
+                    case 4:
+//                        disableDialog();
+                        handler.sendEmptyMessage(2);
+                        Thread uninstallThread = new Thread(new UnInstallRun(appList.get(cur_selected_explorer).packageName));
+                        uninstallThread.start();
+                        cur_mode = 5;
+                        break;
+                    case 6:
+                        cur_mode = 2;
+                        disableDialog();
+                        getApps();
+                        realListAppCount = appList.size();
+                        if(appList.size()%9 > 0){
+                            while (true){
+                                AppInfo info = new AppInfo();
+                                appList.add(info);
+                                if(appList.size()%9 == 0){
+                                    break;
+                                }
+                            }
+                        }
+                        mAppAdapter = new AppsAdapter(Launcher.this, appList);
+                        if (cur_selected_explorer > 0){
+                            cur_selected_explorer = cur_selected_explorer -1;
+                        }
+                        explorer_left.setAdapter(mAppAdapter);
+                        explorer_right.setAdapter(mAppAdapter);
+                        break;
+//                    case 3:
+//                        Intent intent = new Intent("com.qjizho.pps.VIEW");
+//                        intent.putExtra("url", lstPics.get(cur_selected_explorer).get("img"));
+//                        startActivity(intent);
                 }
                 break;
             case KeyEvent.KEYCODE_BACK:
             case KeyEvent.KEYCODE_BUTTON_B:
-                if(cur_mode <= 4){
-                    cur_mode = 5;
+                if(cur_mode <= 2){
+                    cur_mode = 3;
                     controlMode(cur_mode);
-                }else if(cur_mode >= 5){
+                }else if(cur_mode == 3){
 
+                }else if(cur_mode == 4){
+                    disableDialog();
+                    cur_mode = 2;
+                }else if(cur_mode == 6){
+                    disableDialog();
+                    getApps();
+                    realListAppCount = appList.size();
+                    if(appList.size()%9 > 0){
+                        while (true){
+                            AppInfo info = new AppInfo();
+                            appList.add(info);
+                            if(appList.size()%9 == 0){
+                                break;
+                            }
+                        }
+                    }
+                    mAppAdapter = new AppsAdapter(Launcher.this, appList);
+                    if (cur_selected_explorer > 0){
+                        cur_selected_explorer = cur_selected_explorer -1;
+                    }
+                    explorer_left.setAdapter(mAppAdapter);
+                    explorer_right.setAdapter(mAppAdapter);
+                    cur_mode = 2;
                 }
 
+                break;
+            case KeyEvent.KEYCODE_BUTTON_Y:
+                switch(cur_mode) {
+                    case 2:
+                        cur_mode = 4;
+                        Log.d("qiqi","delete,app");
+                        enableDialog(String.format(getResources().getString(R.string.apk_uninstall_confirm),appList.get(cur_selected_explorer).appName));
+                        mAlertConfirmLeft.setText(R.string.confirm);
+                        mAlertConfirmRight.setText(R.string.confirm);
+                        break;
+                }
                 break;
             default:
                 break;
@@ -377,12 +463,12 @@ public class Launcher extends AppCompatActivity implements BatteryReceiver.Batte
     }
     private void controlMode(int mode){
         switch(mode){
-            case 5:
+            case 3:
                 showLauncher();
                 cur_selected_explorer = 0;
                 break;
             case 1:
-                cur_mode = 5;
+                cur_mode = 3;
                 startActivity(new Intent("com.qjizho.vrlauncher.EXPLORERACTIVITY"));
                 break;
             default:
@@ -416,25 +502,25 @@ public class Launcher extends AppCompatActivity implements BatteryReceiver.Batte
         explorer_right.setVisibility(View.VISIBLE);
         arrow_right.setVisibility(View.VISIBLE);
         switch (pos) {
-            case 3:
-                GetFiles("/mnt/sdcard/vrpics/", "jpg", true);
-                realListPicCount = lstPics.size();
-                if(lstPics.size()%9 > 0){
-                    while (true){
-                        Map<String , String> map = new HashMap<String, String>();
-                        map.put("img", "");
-                        map.put("name", "");
-                        lstPics.add(map);
-                        if(lstPics.size()%9 == 0){
-                            break;
-                        }
-                    }
-                }
-                mPicAdapter = new PicsAdapter(Launcher.this, lstPics, true);
-                explorer_left.setAdapter(mPicAdapter);
-                explorer_right.setAdapter(mPicAdapter);
-                break;
-            case 4:
+//            case 3:
+//                GetFiles("/mnt/sdcard/vrpics/", "jpg", true);
+//                realListPicCount = lstPics.size();
+//                if(lstPics.size()%9 > 0){
+//                    while (true){
+//                        Map<String , String> map = new HashMap<String, String>();
+//                        map.put("img", "");
+//                        map.put("name", "");
+//                        lstPics.add(map);
+//                        if(lstPics.size()%9 == 0){
+//                            break;
+//                        }
+//                    }
+//                }
+//                mPicAdapter = new PicsAdapter(Launcher.this, lstPics, true);
+//                explorer_left.setAdapter(mPicAdapter);
+//                explorer_right.setAdapter(mPicAdapter);
+//                break;
+            case 2:
                 getApps();
                 realListAppCount = appList.size();
                 if(appList.size()%9 > 0){
@@ -465,7 +551,7 @@ public class Launcher extends AppCompatActivity implements BatteryReceiver.Batte
     }
 
     private List<Map<String, Object>> moveListRight(List<Map<String, Object>> mList){
-        mList.add(0,mList.get(4));
+        mList.add(0, mList.get(4));
         mList.remove(5);
         return mList;
     }
@@ -512,6 +598,79 @@ public class Launcher extends AppCompatActivity implements BatteryReceiver.Batte
         list.add(map);
 
         return list;
+    }
+
+    class UnInstallRun implements  Runnable {
+        private String packageName = null;
+
+        public UnInstallRun(String packageName) {
+            this.packageName = packageName;
+        }
+
+        @Override
+        public void run() {
+            if (packageName != null) {
+                int result = uninstallSlient(Launcher.this, packageName);
+                cur_mode = 6;
+                handler.sendEmptyMessage(1);
+            }
+        }
+    }
+
+    /**
+     * install slient
+     *
+     * @param context
+     * @param packageName
+     * @return 0 means normal, 1 means file not exist, 2 means other exception error
+     */
+    public static int uninstallSlient(Context context, String packageName) {
+//      public static String uninstall(String pakage) {
+        Log.d("qiqi","start to uninstall " + packageName);
+        String[] args = { "pm", "uninstall", packageName };
+        String result = null;
+        ProcessBuilder processBuilder = new ProcessBuilder(args);
+        Process process = null;
+        InputStream errIs = null;
+        InputStream inIs = null;
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            int read = -1;
+            process = processBuilder.start();
+            errIs = process.getErrorStream();
+            while ((read = errIs.read()) != -1) {
+                baos.write(read);
+            }
+            baos.write('\n');
+            inIs = process.getInputStream();
+            while ((read = inIs.read()) != -1) {
+                baos.write(read);
+            }
+            byte[] data = baos.toByteArray();
+            result = new String(data);
+        } catch (Exception e) {
+            Log.d("qiqi","error:" + e.toString());
+            e.printStackTrace();
+        } finally {
+            try {
+                if (errIs != null) {
+                    errIs.close();
+                }
+                if (inIs != null) {
+                    inIs.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (process != null) {
+                process.destroy();
+            }
+        }
+        Log.d("qiqi", result);
+        if (result.contains("Success")){
+            return 0;
+        }
+        return 1;
     }
 
     public void getApps(){
