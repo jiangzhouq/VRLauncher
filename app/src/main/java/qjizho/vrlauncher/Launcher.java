@@ -569,13 +569,13 @@ public class Launcher extends AppCompatActivity implements BatteryReceiver.Batte
         List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("img", R.mipmap.setting);
-        map.put("title", "Setting");
+        map.put("title", "设置");
         map.put("action", "");
         list.add(map);
 
         map = new HashMap<String, Object>();
         map.put("img", R.drawable.easyicon_sd);
-        map.put("title", "Store");
+        map.put("title", "文件夹");
         map.put("info", "");
         list.add(map);
 
@@ -593,7 +593,7 @@ public class Launcher extends AppCompatActivity implements BatteryReceiver.Batte
 
         map = new HashMap<String, Object>();
         map.put("img", R.mipmap.games);
-        map.put("title", "Games");
+        map.put("title", "应用");
         map.put("info", "");
         list.add(map);
 

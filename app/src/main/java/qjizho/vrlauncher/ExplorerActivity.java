@@ -299,6 +299,9 @@ public class ExplorerActivity extends Activity implements BatteryReceiver.Batter
             case KeyEvent.KEYCODE_DPAD_CENTER:
             case KeyEvent.KEYCODE_BUTTON_A:
                 if(mCurState == state_explorer) {
+                    if(cFiles.size() <= cur_selected_explorer){
+                        break;
+                    }
                     if(cFiles.get(cur_selected_explorer).isDirectory()){
                         mControlPath.add(cFiles.get(cur_selected_explorer));
                         cur_selected_explorer = 0;
@@ -413,6 +416,10 @@ public class ExplorerActivity extends Activity implements BatteryReceiver.Batter
             case KeyEvent.KEYCODE_BUTTON_Y:
                 switch(mCurState) {
                     case state_explorer:
+                        Log.d("qiqi", "start to delet pos:" + cur_selected_explorer);
+                        if(cFiles.size() <= cur_selected_explorer){
+                            break;
+                        }
                         mCurState = state_dialog_delete;
                         if(cFiles.get(cur_selected_explorer).isDirectory()){
                             enableDialog(String.format(getResources().getString(R.string.apk_delete_dir),cFiles.get(cur_selected_explorer).getName()));
