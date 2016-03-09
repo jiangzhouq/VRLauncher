@@ -120,12 +120,14 @@ public class ExplorerActivity extends Activity implements BatteryReceiver.Batter
                     mLoadingPBLeft.setVisibility(View.GONE);
                     mLoadingPBRight.setVisibility(View.GONE);
                     mCurState = state_explorer;
+                    Log.d("qiqi", "cFiles.length:" + cFiles.size());
                     if(mFilesAdapter == null){
                         mFilesAdapter = new FilesAdapter(ExplorerActivity.this, cFiles);
                         explorer_left.setAdapter(mFilesAdapter);
                         explorer_right.setAdapter(mFilesAdapter);
                     }else{
                         mFilesAdapter.setData(cFiles);
+                        mFilesAdapter.notifyDataSetChanged();
                     }
                     break;
                 case 1:
@@ -304,10 +306,43 @@ public class ExplorerActivity extends Activity implements BatteryReceiver.Batter
                     }
                     if(cFiles.get(cur_selected_explorer).isDirectory()){
                         mControlPath.add(cFiles.get(cur_selected_explorer));
-                        cur_selected_explorer = 0;
-                        mControlPosition.add(0);
+
+                        Log.d("qiqi", "cfile:" + cFiles.get(cur_selected_explorer));
                         QueryRun mQueryRun = new QueryRun(cFiles.get(cur_selected_explorer));
                         mQueryRun.run();
+                        cur_selected_explorer = 0;
+                        mControlPosition.add(0);
+
+                        if((cur_selected_explorer >= 0 && cur_selected_explorer < cFiles.size())) {
+//                        (explorer_left.getChildAt(cur_selected_explorer)).setBackgroundColor(getResources().getColor(android.R.color.black));
+                            cur_selected_explorer++;
+                            mControlPosition.set(mControlPosition.size() - 1, cur_selected_explorer);
+                            if (cur_selected_explorer >= realFilesCount)
+                                cur_selected_explorer = realFilesCount - 1;
+//                        (explorer_left.getChildAt(cur_selected_explorer)).setBackgroundColor(getResources().getColor(android.R.color.holo_red_dark));
+                            Log.d("qiqi", "cur_selected_explorer :" + cur_selected_explorer);
+                            if ((cur_selected_explorer) / 9 != cur_page_explorer) {
+                                cur_page_explorer = (cur_selected_explorer) / 9;
+                                explorer_left.setSelection(cur_page_explorer * 9);
+                                explorer_right.setSelection(cur_page_explorer * 9);
+                            }
+                            mFilesAdapter.notifyDataSetChanged();
+                        }
+
+                        if((cur_selected_explorer > 0 && cur_selected_explorer < cFiles.size())){
+//                        (explorer_left.getChildAt(cur_selected_explorer)).setBackgroundColor(getResources().getColor(android.R.color.black));
+                            cur_selected_explorer -- ;
+                            mControlPosition.set(mControlPosition.size()-1, cur_selected_explorer);
+//                        (explorer_left.getChildAt(cur_selected_explorer)).setBackgroundColor(getResources().getColor(android.R.color.holo_red_dark));
+                            Log.d("qiqi", "cur_selected_explorer :" + cur_selected_explorer);
+                            if((cur_selected_explorer)/9 != cur_page_explorer ){
+                                cur_page_explorer = (cur_selected_explorer)/9;
+                                explorer_left.setSelection(cur_page_explorer*9);
+                                explorer_right.setSelection(cur_page_explorer*9);
+                            }
+                            mFilesAdapter.notifyDataSetChanged();
+                        }
+
                     }else{
                         switch (indentifyFileType(cFiles.get(cur_selected_explorer).getName())){
                             //image
@@ -380,19 +415,31 @@ public class ExplorerActivity extends Activity implements BatteryReceiver.Batter
                 switch(mCurState){
                     case state_explorer:
                         if(mControlPath.size() > 1){
-                            mControlPath.remove(mControlPath.size() -1);
-                            mControlPosition.remove(mControlPosition.size()-1);
+                            mControlPath.remove(mControlPath.size() - 1);
+                            mControlPosition.remove(mControlPosition.size() - 1);
 
                             QueryRun mQueryRun = new QueryRun(mControlPath.get(mControlPath.size() -1));
                             mQueryRun.run();
+
                             cur_selected_explorer = mControlPosition.get(mControlPosition.size()-1);
                             cur_page_explorer = 0;
+
+//                            if(mFilesAdapter == null){
+//                                mFilesAdapter = new FilesAdapter(ExplorerActivity.this, cFiles);
+//                                explorer_left.setAdapter(mFilesAdapter);
+//                                explorer_right.setAdapter(mFilesAdapter);
+//                            }else{
+//                                mFilesAdapter.setData(cFiles);
+//                                mFilesAdapter.notifyDataSetChanged();
+//                            }
+
                             if ((cur_selected_explorer) / 9 != cur_page_explorer) {
                                 cur_page_explorer = (cur_selected_explorer) / 9;
+                                explorer_left.requestFocus();
                                 explorer_left.setSelection(cur_page_explorer * 9);
                                 explorer_right.setSelection(cur_page_explorer * 9);
-                                Log.d("qiqi", "setSelection:" + cur_page_explorer * 9);
                             }
+                            mFilesAdapter.notifyDataSetChanged();
                         }else{
                             this.finish();
                         }
@@ -576,6 +623,7 @@ public class ExplorerActivity extends Activity implements BatteryReceiver.Batter
 
         @Override
         public void run() {
+            Log.d("qiqi","queryPath:" + queryPath);
             if(queryPath != null){
                 File[] files = queryPath.listFiles();
                 cFiles = new ArrayList<File>(Arrays.asList(files));

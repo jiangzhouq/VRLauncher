@@ -3,6 +3,7 @@ package qjizho.vrlauncher;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -34,6 +35,7 @@ public class BluetoothService extends Service {
     private OnBTStateListener onBTStateListener = null;
     private BluetoothSocket mSocket = null;
     private BluetoothAdapter bluetoothAdapter;
+    private BluetoothDevice mmmDevice;
     public BluetoothService() {
     }
     public void setOnBTStateListener( OnBTStateListener listener){
@@ -131,7 +133,7 @@ public class BluetoothService extends Service {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 System.out.println(device.getName());
                 // 如果查找到的设备符合要连接的设备，处理
-                if (device.getName().contains("ATET")) {
+                if (device.getName().contains("小米")) {
                     // 搜索蓝牙设备的过程占用资源比较多，一旦找到需要连接的设备后需要及时关闭搜索
                     bluetoothAdapter.cancelDiscovery();
                     // 获取蓝牙设备的连接状态
@@ -160,7 +162,7 @@ public class BluetoothService extends Service {
             } else if(BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
                 // 状态改变的广播
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if (device.getName().contains("ATET")) {
+                if (device.getName().contains("小米")) {
                     switch (device.getBondState()) {
                         case BluetoothDevice.BOND_NONE:
                             break;
@@ -180,24 +182,50 @@ public class BluetoothService extends Service {
             }
         }
     };
-    private void connect(BluetoothDevice device) throws IOException {
-
-        Log.d("qiqi","connecting:" + device.getName());
-//        for(ParcelUuid uuu : device.getUuids()){
-//            Log.d("qiqi","supported:" + uuu.getUuid());
-//        }
-        // 固定的UUID
-        final String SPP_UUID = "00001101-0000-1000-8000-00805F9B34FB";
-        UUID uuid = UUID.fromString(SPP_UUID);
-        try{
-            BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
-//            Method method = device.getClass().getMethod("createL2capSocket", new Class[]{int.class});
-//            mSocket = (BluetoothSocket) method.invoke(device, 1);
-
-            socket.connect();
-        }catch (Exception e){
-            Log.d("qiqi","connect error:" + e.toString());
+    BluetoothProfile.ServiceListener mProfileListener = new BluetoothProfile.ServiceListener() {
+        @Override
+        public void onServiceConnected(int profile, BluetoothProfile proxy) {
+            //4 == BluetoothInputDevice
+            Log.d("qiqi", "Bluetooth service connected");
+            if (profile == 4) {
+                createBTConnection(proxy, mmmDevice);
+                //doesnot connect ):
+                Log.d("qiqi", "Bluetooth service connected 444444");
+            }
         }
+
+        @Override
+        public void onServiceDisconnected(int profile) {
+            Log.d("qiqi", "Bluetooth service disconnected");
+        }
+    };
+    public boolean createBTConnection(BluetoothProfile proxy, BluetoothDevice btDevice)
+    {
+        Boolean returnValue = false;
+        Class class1 = null;
+        try {
+            class1 = Class.forName("android.bluetooth.BluetoothInputDevice");
+            Method createConnectionMethod = class1.getMethod("connect", new Class[] {BluetoothDevice.class});
+            returnValue = (Boolean) createConnectionMethod.invoke(proxy, btDevice);
+        } catch (Exception e) {
+            Log.d("qiqi", "createBTConnection error:" + e.toString());
+        }
+        Log.d("qiqi", "returnValue:" + returnValue.booleanValue());
+        return returnValue.booleanValue();
+    }
+
+    private void connect(BluetoothDevice device) throws IOException {
+        // 固定的UUID
+        final String SPP_UUID = "00001124-0000-1000-8000-00805F9B34FB";
+        UUID uuid = UUID.fromString(SPP_UUID);
+        mmmDevice = device;
+        bluetoothAdapter.getProfileProxy(this,mProfileListener, 4);
+//        try{
+//            BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
+//            socket.connect();
+//        }catch (Exception e){
+//            Log.d("qiqi","connect error:" + e.toString());
+//        }
 
     }
     private boolean createSocket(){
