@@ -194,9 +194,19 @@ public class Launcher extends AppCompatActivity implements BatteryReceiver.Batte
                                 break;
                             case BluetoothService.STATE_CONNECTED:
                                 break;
+                            case BluetoothService.STATE_XIAOMI_CONNECTED:
+                                disableDialog();
+                                break;
                         }
                     }
                 });
+                if(!mBlueService.checkXIAOMIPaired()){
+                    Log.d("qiqi", "xiaomi no");
+                    enableDialog("Cannot connect to Bluetooth Gamepad!!!");
+                    mBlueService.startScan();
+                }else{
+                    Log.d("qiqi","xiaomi is");
+                }
             }
 
             @Override
