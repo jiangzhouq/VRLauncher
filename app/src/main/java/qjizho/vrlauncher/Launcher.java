@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.RemoteException;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -47,7 +48,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Launcher extends AppCompatActivity implements BatteryReceiver.BatteryHandler{
+public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.BatteryReceiver.BatteryHandler{
     private View mDecorView;
     private List<Map<String, Object>> mapList;
     private List<Map<String, String>> lstPics = new ArrayList<Map<String, String>>();
@@ -87,8 +88,8 @@ public class Launcher extends AppCompatActivity implements BatteryReceiver.Batte
     private int realListAppCount = 0;
     private ArrayList<AppInfo> appList;
 
-    private BluetoothService.BlueBinder mBlueBinder;
-    private BluetoothService mBlueService;
+//    private qjizho.vrlauncher.BluetoothService.BlueBinder mBlueBinder;
+    private IBluetooth mBlueService;
     private ServiceConnection mBlueConn ;
 
     private Handler handler = new Handler(){
@@ -108,6 +109,10 @@ public class Launcher extends AppCompatActivity implements BatteryReceiver.Batte
                 case 2:
                     mAlertConfirmLeft.setText(R.string.apk_uninstalling);
                     mAlertConfirmRight.setText(R.string.apk_uninstalling);
+                    break;
+                case 3:
+                    Log.d("qiqi","disable dialog");
+                    disableDialog();
                     break;
 
             }
@@ -171,42 +176,50 @@ public class Launcher extends AppCompatActivity implements BatteryReceiver.Batte
             }
         });
         requestPermission();
-        BatteryReceiver.ehList.add(this);
+        qjizho.vrlauncher.BatteryReceiver.ehList.add(this);
 
         Intent intent = new Intent("com.pascalwelsch.circularprogressbarsample.BLUE_SERVICE");
         mBlueConn = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-                mBlueBinder = (BluetoothService.BlueBinder)iBinder;
-                mBlueService = mBlueBinder.getService();
-                mBlueService.setOnBTStateListener(new BluetoothService.OnBTStateListener() {
-                    @Override
-                    public void onStateChanged(int state) {
-                        Log.d("qiqi", "state:" + state);
-                        switch (state){
-                            case BluetoothService.STATE_BT_OFF:
-                                break;
-                            case BluetoothService.STATE_BT_ON:
-                                break;
-                            case BluetoothService.STATE_DISCONNECTED:
-                                break;
-                            case BluetoothService.STATE_CONNECTING:
-                                break;
-                            case BluetoothService.STATE_CONNECTED:
-                                break;
-                            case BluetoothService.STATE_XIAOMI_CONNECTED:
-                                disableDialog();
-                                break;
+//                mBlueBinder = (qjizho.vrlauncher.BluetoothService.BlueBinder)iBinder;
+//                mBlueService = mBlueBinder.getService();
+                mBlueService = IBluetooth.Stub.asInterface(iBinder);
+                try{
+                    mBlueService.setListener(new IBluetoothListener.Stub() {
+                        @Override
+                        public void onStateChanged(int state) throws RemoteException {
+                            Log.d("qiqi", "state:" + state);
+                            switch (state) {
+                                case qjizho.vrlauncher.BluetoothService.STATE_BT_OFF:
+                                    break;
+                                case qjizho.vrlauncher.BluetoothService.STATE_BT_ON:
+                                    break;
+                                case qjizho.vrlauncher.BluetoothService.STATE_DISCONNECTED:
+                                    break;
+                                case qjizho.vrlauncher.BluetoothService.STATE_CONNECTING:
+                                    break;
+                                case qjizho.vrlauncher.BluetoothService.STATE_CONNECTED:
+                                    break;
+                                case qjizho.vrlauncher.BluetoothService.STATE_XIAOMI_PAIRED:
+                                case qjizho.vrlauncher.BluetoothService.STATE_XIAOMI_CONNECTED:
+                                    handler.sendEmptyMessage(3);
+                                    break;
+                            }
                         }
+                    });
+
+                    if(!mBlueService.checkXIAOMIPaired()){
+                        Log.d("qiqi", "xiaomi no");
+                        enableDialog("Cannot connect to Bluetooth Gamepad!!!");
+                        mBlueService.startScan();
+                    }else{
+                        Log.d("qiqi","xiaomi is");
                     }
-                });
-                if(!mBlueService.checkXIAOMIPaired()){
-                    Log.d("qiqi", "xiaomi no");
-                    enableDialog("Cannot connect to Bluetooth Gamepad!!!");
-                    mBlueService.startScan();
-                }else{
-                    Log.d("qiqi","xiaomi is");
+                }catch (Exception e){
+                    Log.d("qiqi", e.toString());
                 }
+
             }
 
             @Override

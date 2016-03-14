@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.RemoteException;
 import android.util.Log;
 
 import java.io.IOException;
@@ -34,22 +35,48 @@ public class BluetoothService extends Service {
         void onStateChanged(int state);
     }
     private BluetoothDevice mDevice = null;
-    private OnBTStateListener onBTStateListener = null;
+    private IBluetoothListener onBTStateListener = null;
     private BluetoothSocket mSocket = null;
     private BluetoothAdapter bluetoothAdapter;
     private BluetoothDevice mmmDevice;
+    private BlueBinder blueBinder;
     public BluetoothService() {
-    }
-    public void setOnBTStateListener( OnBTStateListener listener){
-        Log.d("qiqi", "setlitener completed");
-        onBTStateListener = listener;
-        notifyState(mState);
     }
     private void notifyState(int i){
         mState = i;
+        Log.d("qiqi","notify state:" + i);
         if(onBTStateListener != null){
-            onBTStateListener.onStateChanged(i);
+            try{
+                onBTStateListener.onStateChanged(i);
+            }catch(Exception e){
+                Log.d("qiqi","e:" + e.toString());
+            }
+        }else{
+            Log.d("qiqi", "listener == null");
         }
+    }
+
+    public class BlueBinder extends IBluetooth.Stub{
+        @Override
+        public boolean checkXIAOMIPaired() throws RemoteException {
+            return privateCheckXIAOMIPaired();
+        }
+
+        @Override
+        public void startScan() throws RemoteException {
+            privateStartScan();
+        }
+
+        @Override
+        public void setListener(IBluetoothListener listener) throws RemoteException {
+            onBTStateListener = listener;
+        }
+    }
+
+    @Override
+    public void onCreate() {
+        blueBinder = new BlueBinder();
+        super.onCreate();
     }
 
     @Override
@@ -57,10 +84,10 @@ public class BluetoothService extends Service {
         Log.d("qiqi","service binded");
         // TODO: Return the communication channel to the service.
 
-        return new BlueBinder();
+        return blueBinder;
     }
 
-    public boolean checkXIAOMIPaired (){
+    public boolean privateCheckXIAOMIPaired (){
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null)
         {
@@ -78,9 +105,11 @@ public class BluetoothService extends Service {
         if(bluetoothAdapter != null){
 //            if(bluetoothAdapter.isEnabled()){
             Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
+            Log.d("qiqi","bonded size:" + pairedDevices.size());
             if (pairedDevices.size() > 0) {
                 // Loop through paired devices
                 a:for (BluetoothDevice device : pairedDevices) {
+                    Log.d("qiqi", "bonded:" + device.getName());
                     if(device.getName().contentEquals("小米蓝牙手柄")){
                         return true;
                     }
@@ -93,7 +122,7 @@ public class BluetoothService extends Service {
         return false;
     }
 
-    public void startScan(){
+    public void privateStartScan(){
         // 设置广播信息过滤
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BluetoothDevice.ACTION_FOUND);
@@ -181,8 +210,15 @@ public class BluetoothService extends Service {
                 }catch(Exception e){
 
                 }
-                if(!checkXIAOMIPaired()){
+                if(!privateCheckXIAOMIPaired()){
                     bluetoothAdapter.startDiscovery();
+                }
+            }
+            else if (BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED.equals(action)){
+                if(privateCheckXIAOMIPaired()){
+                    notifyState(STATE_XIAOMI_PAIRED);
+                }else{
+                    notifyState(STATE_DISCONNECTED);
                 }
             }
         }
@@ -257,20 +293,20 @@ public class BluetoothService extends Service {
             return true;
         }
     }
-    public class BlueBinder extends Binder{
-        public void start(int time){
-            setDeviceOn(true, time);
-        }
-        public void stop(){
-            setDeviceOn(false, 0);
-        }
-        public void connect(){
-            createSocket();
-        }
-        public BluetoothService getService(){
-            return BluetoothService.this;
-        }
-    }
+//    public class BlueBinder extends Binder{
+//        public void start(int time){
+//            setDeviceOn(true, time);
+//        }
+//        public void stop(){
+//            setDeviceOn(false, 0);
+//        }
+//        public void connect(){
+//            createSocket();
+//        }
+//        public BluetoothService getService(){
+//            return BluetoothService.this;
+//        }
+//    }
 
     @Override
     public boolean onUnbind(Intent intent) {
