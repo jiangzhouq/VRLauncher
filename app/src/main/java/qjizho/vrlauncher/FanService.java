@@ -10,8 +10,10 @@ import android.os.IBinder;
 import android.util.Log;
 
 import java.io.BufferedReader;
-import java.io.File;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 
 public class FanService extends Service {
@@ -46,6 +48,7 @@ public class FanService extends Service {
         return Service.START_STICKY;
     }
 
+    int mSpeed = 100;
     private void startFanListener(){
         new Thread(new Runnable() {
             @Override
@@ -53,7 +56,21 @@ public class FanService extends Service {
                 while(true){
                     try{
                         Thread.sleep(3000);
-                        getTemp(FanService.this);
+//                        getTemp(FanService.this);
+                        int curTemp = getTemp(FanService.this);
+                        if(curTemp < 40){
+                            mSpeed = 50;
+                        }else if (curTemp >= 40 && curTemp < 50){
+                            mSpeed = 100;
+                        }else if (curTemp >= 50 && curTemp < 60){
+                            mSpeed = 150;
+                        }else if (curTemp >= 60 && curTemp < 70){
+                            mSpeed = 200;
+                        }else if (curTemp >= 70){
+                            mSpeed = 255;
+                        }
+                        Log.d("qiqi","current temp:" + curTemp + " set fan speed:" + mSpeed);
+                        setFanSpeed(String.valueOf(mSpeed));
                         Log.d("qiqi","sleep 3000 ,");
                     }catch(Exception e){
                         Log.d("qiqi", "e:" + e.toString());
@@ -143,4 +160,41 @@ public class FanService extends Service {
             return 0;
         }
     }
+
+    public static String setFanSpeed(String cmd) {
+        Runtime runtime = Runtime.getRuntime();
+        DataOutputStream dataOut = null;
+
+        String string1 = "echo " + cmd + " > /sys/devices/platform/pwm-fan.6/speed &\n";
+        Process process = null;
+        try {
+            process = runtime.exec("sh ");
+            dataOut = new DataOutputStream(process.getOutputStream());
+            dataOut.writeBytes(string1);
+            dataOut.flush();
+            dataOut.close();
+            process.waitFor();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                if (dataOut != null) {
+                    dataOut.close();
+                }
+//                if (successResult != null) {
+//                    successResult.close();
+//                }
+//                if (errorResult != null) {
+//                    errorResult.close();
+//                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (process != null) {
+                process.destroy();
+            }
+        }
+        return "";
+    }
+
 }
