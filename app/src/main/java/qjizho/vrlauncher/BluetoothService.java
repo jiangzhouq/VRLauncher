@@ -123,6 +123,7 @@ public class BluetoothService extends Service {
     }
 
     public void privateStartScan(){
+
         // 设置广播信息过滤
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BluetoothDevice.ACTION_FOUND);
@@ -147,7 +148,20 @@ public class BluetoothService extends Service {
         // 注册广播接收器，接收并处理搜索结果
         registerReceiver(receiver, intentFilter);
         // 寻找蓝牙设备，android会将查找到的设备以广播形式发出去
-        bluetoothAdapter.startDiscovery();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Log.d("qiqi","start 10 000 delay");
+                try{
+                    Thread.sleep(10000);
+                }catch(Exception e){
+
+                }
+                Log.d("qiqi","stop 10 000 delay");
+
+                bluetoothAdapter.startDiscovery();
+            }
+        }).start();
     }
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override

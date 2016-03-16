@@ -185,40 +185,45 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
 //                mBlueBinder = (qjizho.vrlauncher.BluetoothService.BlueBinder)iBinder;
 //                mBlueService = mBlueBinder.getService();
                 mBlueService = IBluetooth.Stub.asInterface(iBinder);
-                try{
-                    mBlueService.setListener(new IBluetoothListener.Stub() {
-                        @Override
-                        public void onStateChanged(int state) throws RemoteException {
-                            Log.d("qiqi", "state:" + state);
-                            switch (state) {
-                                case qjizho.vrlauncher.BluetoothService.STATE_BT_OFF:
-                                    break;
-                                case qjizho.vrlauncher.BluetoothService.STATE_BT_ON:
-                                    break;
-                                case qjizho.vrlauncher.BluetoothService.STATE_DISCONNECTED:
-                                    break;
-                                case qjizho.vrlauncher.BluetoothService.STATE_CONNECTING:
-                                    break;
-                                case qjizho.vrlauncher.BluetoothService.STATE_CONNECTED:
-                                    break;
-                                case qjizho.vrlauncher.BluetoothService.STATE_XIAOMI_PAIRED:
-                                case qjizho.vrlauncher.BluetoothService.STATE_XIAOMI_CONNECTED:
-                                    handler.sendEmptyMessage(3);
-                                    break;
+                if(null != mBlueService){
+                    try{
+                        mBlueService.setListener(new IBluetoothListener.Stub() {
+                            @Override
+                            public void onStateChanged(int state) throws RemoteException {
+                                Log.d("qiqi", "state:" + state);
+                                switch (state) {
+                                    case qjizho.vrlauncher.BluetoothService.STATE_BT_OFF:
+                                        break;
+                                    case qjizho.vrlauncher.BluetoothService.STATE_BT_ON:
+                                        break;
+                                    case qjizho.vrlauncher.BluetoothService.STATE_DISCONNECTED:
+                                        break;
+                                    case qjizho.vrlauncher.BluetoothService.STATE_CONNECTING:
+                                        break;
+                                    case qjizho.vrlauncher.BluetoothService.STATE_CONNECTED:
+                                        break;
+                                    case qjizho.vrlauncher.BluetoothService.STATE_XIAOMI_PAIRED:
+                                    case qjizho.vrlauncher.BluetoothService.STATE_XIAOMI_CONNECTED:
+                                        handler.sendEmptyMessage(3);
+                                        break;
+                                }
                             }
-                        }
-                    });
+                        });
 
-                    if(!mBlueService.checkXIAOMIPaired()){
-                        Log.d("qiqi", "xiaomi no");
-                        enableDialog("Cannot connect to Bluetooth Gamepad!!!");
-                        mBlueService.startScan();
-                    }else{
-                        Log.d("qiqi","xiaomi is");
+                        if(!mBlueService.checkXIAOMIPaired()){
+                            Log.d("qiqi", "xiaomi no");
+                            enableDialog("Cannot connect to Bluetooth Gamepad!!!");
+                            mBlueService.startScan();
+                        }else{
+                            Log.d("qiqi","xiaomi is");
+                        }
+                    }catch (Exception e){
+                        Log.d("qiqi", "service connected error:" + e.toString());
                     }
-                }catch (Exception e){
-                    Log.d("qiqi", e.toString());
+                }else{
+                    Log.d("qiqi","mBlueService null");
                 }
+
 
             }
 
