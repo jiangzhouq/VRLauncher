@@ -69,9 +69,16 @@ public class FanService extends Service {
                         }else if (curTemp >= 70){
                             mSpeed = 255;
                         }
-                        Log.d("qiqi","current temp:" + curTemp + " set fan speed:" + mSpeed);
+                        Log.d("qiqi", "current temp:" + curTemp + " set fan speed:" + mSpeed);
                         setFanSpeed(String.valueOf(mSpeed));
-                        Log.d("qiqi","sleep 3000 ,");
+                        boolean isCharging = !catCharging("cat /sys/class/power_supply/battery/status").equalsIgnoreCase("Discharging");
+                        int capacity = Integer.parseInt(catCharging("cat /sys/class/power_supply/battery/capacity"));
+                        Intent batteryIntent = new Intent();
+                        batteryIntent.setAction("qjizho.vrlauncher.action.battery_changed");
+                        batteryIntent.putExtra("status", isCharging);
+                        batteryIntent.putExtra("capacity", capacity);
+                        sendBroadcast(batteryIntent);
+                        Log.d("qiqi", "sleep 3000 ,");
                     }catch(Exception e){
                         Log.d("qiqi", "e:" + e.toString());
                     }
@@ -197,4 +204,51 @@ public class FanService extends Service {
         return "";
     }
 
+    public static String catCharging(String command) {
+        Runtime runtime = Runtime.getRuntime();
+        DataOutputStream dataOut = null;
+        DataInputStream datain = null;
+
+        String string1 = command + "\n";
+        Process process = null;
+        String result = "";
+        try {
+            process = runtime.exec("sh ");
+            dataOut = new DataOutputStream(process.getOutputStream());
+            datain = new DataInputStream(process.getInputStream());
+            dataOut.writeBytes(string1);
+            dataOut.flush();
+            dataOut.writeBytes("exit\n");
+            dataOut.flush();
+            String line = null;
+            while ((line = datain.readLine()) != null) {
+                Log.d("qiqi", "cat:" + line);
+                result = line;
+            }
+            process.waitFor();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                if (dataOut != null) {
+                    dataOut.close();
+                }
+                if (datain != null) {
+                    datain.close();
+                }
+//                if (successResult != null) {
+//                    successResult.close();
+//                }
+//                if (errorResult != null) {
+//                    errorResult.close();
+//                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (process != null) {
+                process.destroy();
+            }
+        }
+        return result;
+    }
 }

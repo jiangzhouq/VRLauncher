@@ -1,9 +1,11 @@
 package qjizho.vrlauncher;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
@@ -17,6 +19,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -63,6 +66,8 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
     private GridView explorer_right;
     private ImageView battery_left;
     private ImageView battery_right;
+    private TextView battery_text_left;
+    private TextView battery_text_right;
     private int[] battery_list = new int[]{
             R.drawable.easyicon_battery_1,
             R.drawable.easyicon_battery_2,
@@ -92,6 +97,9 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
     private IBluetooth mBlueService;
     private ServiceConnection mBlueConn ;
 
+    private boolean isCharging = false;
+    private int capacity = -1;
+    private BroadcastReceiver batteryReceiver = null;
     private Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -151,7 +159,8 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
         mAlertTextRight = (TextView) findViewById(R.id.alert_txt_right);
         mAlertConfirmLeft = (TextView) findViewById(R.id.alert_confirm_left);
         mAlertConfirmRight = (TextView) findViewById(R.id.alert_confirm_right);
-
+        battery_text_left = (TextView) findViewById(R.id.battery_text_left);
+        battery_text_right = (TextView) findViewById(R.id.battery_text_right);
         showLauncher();
         config = ImageLoaderConfiguration.createDefault(this);
         options = new DisplayImageOptions.Builder()
@@ -233,12 +242,51 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
             }
         };
         bindService(intent, mBlueConn, Context.BIND_AUTO_CREATE);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("qjizho.vrlauncher.action.battery_changed");
+        batteryReceiver = new BattReceiver();
+        registerReceiver(batteryReceiver, intentFilter);
     }
 
+    public class BattReceiver extends BroadcastReceiver{
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals("qjizho.vrlauncher.action.battery_changed")) {
+                isCharging = intent.getBooleanExtra("status", false);
+                capacity = intent.getIntExtra("capacity", -1);
+
+                if(isCharging){
+                    battery_left.setImageResource(battery_list[5]);
+                    battery_right.setImageResource(battery_list[5]);
+                }else{
+                    if(capacity == 100){
+                        battery_left.setImageResource(battery_list[4]);
+                        battery_right.setImageResource(battery_list[4]);
+                    }else if(capacity < 100 && capacity >= 70){
+                        battery_left.setImageResource(battery_list[3]);
+                        battery_right.setImageResource(battery_list[3]);
+                    }else if(capacity < 70 && capacity >= 40){
+                        battery_left.setImageResource(battery_list[2]);
+                        battery_right.setImageResource(battery_list[2]);
+                    }else if(capacity < 40 && capacity > 10){
+                        battery_left.setImageResource(battery_list[1]);
+                        battery_right.setImageResource(battery_list[1]);
+                    }else if(capacity <= 10){
+                        battery_left.setImageResource(battery_list[0]);
+                        battery_right.setImageResource(battery_list[0]);
+                    }
+                }
+                battery_text_left.setText(capacity + "%");
+                battery_text_right.setText(capacity + "%");
+            }
+        }
+    }
     @Override
     protected void onDestroy() {
         super.onDestroy();
         unbindService(mBlueConn);
+        if(batteryReceiver != null)
+            unregisterReceiver(batteryReceiver);
     }
 
     @Override
@@ -497,7 +545,11 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
                 break;
             case 1:
                 cur_mode = 3;
-                startActivity(new Intent("com.qjizho.vrlauncher.EXPLORERACTIVITY"));
+                Intent explorerIntent = new Intent("com.qjizho.vrlauncher.EXPLORERACTIVITY");
+                explorerIntent.putExtra("isCharging", isCharging);
+                explorerIntent.putExtra("capacity", capacity);
+                Log.d("qiqi","send isCharging:" + isCharging + " capacity:" + capacity);
+                startActivity(explorerIntent);
                 break;
             default:
                 showExplorer(mode);

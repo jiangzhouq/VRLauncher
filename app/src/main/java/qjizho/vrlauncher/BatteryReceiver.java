@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.BatteryManager;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -15,11 +16,14 @@ public class BatteryReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        Log.d("qiqi","battery changed");
         if(Intent.ACTION_BATTERY_CHANGED.equals(intent.getAction())) {
             //获取当前电量
             int level = intent.getIntExtra("level", 0);
+            Log.d("qiqi","level:" + level);
             //电量的总刻度
             int scale = intent.getIntExtra("scale", 100);
+            Log.d("qiqi","scale:" + scale);
             //把它转成百分比
             int charging = intent.getIntExtra("status", BatteryManager.BATTERY_STATUS_CHARGING);
 

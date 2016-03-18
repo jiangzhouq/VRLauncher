@@ -13,17 +13,31 @@
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:descendantFocusability="blocksDescendants">
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="360dp"
             android:layout_height="450dp"
-            android:gravity="center_horizontal"
             android:layout_centerInParent="true">
-            <ImageView
-                android:id="@+id/battery_left"
-                android:layout_width="40dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="40dp"
-                android:src="@drawable/easyicon_battery_5"/>
-        </LinearLayout>
+                android:gravity="center">
+                <ImageView
+                    android:id="@+id/battery_left"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/easyicon_battery_5"/>
+                <TextView
+                    android:id="@+id/battery_text_left"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="2dp"
+                    android:textSize="14sp"
+                    android:text=""
+                    android:textColor="@color/white"
+                    />
+            </LinearLayout>
+
+        </RelativeLayout>
         <GridView
             android:id="@+id/list_left"
             android:numColumns="3"
@@ -98,17 +112,31 @@
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:descendantFocusability="blocksDescendants">
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="360dp"
             android:layout_height="450dp"
-            android:gravity="center_horizontal"
             android:layout_centerInParent="true">
-            <ImageView
-                android:id="@+id/battery_right"
-                android:layout_width="40dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="40dp"
-                android:src="@drawable/easyicon_battery_5"/>
-        </LinearLayout>
+                android:gravity="center">
+                <ImageView
+                    android:id="@+id/battery_right"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/easyicon_battery_5"/>
+                <TextView
+                    android:id="@+id/battery_text_right"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="2dp"
+                    android:textSize="14sp"
+                    android:text=""
+                    android:textColor="@color/white"
+                    />
+            </LinearLayout>
+
+        </RelativeLayout>
         <GridView
             android:id="@+id/list_right"
             android:numColumns="3"

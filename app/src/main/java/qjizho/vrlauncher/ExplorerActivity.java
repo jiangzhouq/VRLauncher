@@ -1,8 +1,10 @@
 package qjizho.vrlauncher;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.net.wifi.ScanResult;
@@ -45,7 +47,7 @@ import qjizho.vrlauncher.wifi.WTAdapter;
 import qjizho.vrlauncher.wifi.WifiAdmin;
 
 
-public class ExplorerActivity extends Activity implements BatteryReceiver.BatteryHandler{
+public class ExplorerActivity extends Activity implements qjizho.vrlauncher.BatteryReceiver.BatteryHandler{
 
     private View mDecorView;
 
@@ -92,6 +94,8 @@ public class ExplorerActivity extends Activity implements BatteryReceiver.Batter
     private RelativeLayout mALertDialogRight;
     private ImageView battery_left;
     private ImageView battery_right;
+    private TextView battery_text_left;
+    private TextView battery_text_right;
     private int[] battery_list = new int[]{
             R.drawable.easyicon_battery_1,
             R.drawable.easyicon_battery_2,
@@ -112,6 +116,9 @@ public class ExplorerActivity extends Activity implements BatteryReceiver.Batter
     private int realFilesCount;
     private ArrayList<File> mControlPath = new ArrayList<File>();
     private ArrayList<Integer> mControlPosition = new ArrayList<Integer>();
+    private boolean isCharging = false;
+    private int capacity = -1;
+    private BroadcastReceiver batteryReceiver = null;
     Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -182,11 +189,13 @@ public class ExplorerActivity extends Activity implements BatteryReceiver.Batter
         selected_right.setImageResource(R.drawable.easyicon_sd);
         battery_left = (ImageView) findViewById(R.id.battery_left);
         battery_right = (ImageView) findViewById(R.id.battery_right);
+        battery_text_left = (TextView) findViewById(R.id.battery_text_left);
+        battery_text_right = (TextView) findViewById(R.id.battery_text_right);
         //wifi管理类
         m_wiFiAdmin  = WifiAdmin.getInstance(this);
         explorer_left.setAdapter(m_wTAdapter);
         explorer_right.setAdapter(m_wTAdapter);
-        BatteryReceiver.ehList.add(this);
+        qjizho.vrlauncher.BatteryReceiver.ehList.add(this);
         if (Environment.getExternalStorageState().equals(
                 Environment.MEDIA_MOUNTED)) {
             mSDPath = Environment.getExternalStorageDirectory();
@@ -205,8 +214,52 @@ public class ExplorerActivity extends Activity implements BatteryReceiver.Batter
 
         mQueryRun.setPath(mSDPath);
         mQueryRun.run();
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("qjizho.vrlauncher.action.battery_changed");
+        batteryReceiver = new BattReceiver();
+        registerReceiver(batteryReceiver, intentFilter);
+        isCharging = getIntent().getBooleanExtra("isCharging", false);
+        capacity = getIntent().getIntExtra("capacity", 0);
+        updateBatteryInfo();
     }
 
+    public class BattReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals("qjizho.vrlauncher.action.battery_changed")) {
+                isCharging = intent.getBooleanExtra("status", false);
+                capacity = intent.getIntExtra("capacity", -1);
+                updateBatteryInfo();
+            }
+        }
+    }
+    private void updateBatteryInfo(){
+        Log.d("qiqi","update batteryinfo:" + isCharging + " " + capacity);
+        if(isCharging){
+            battery_left.setImageResource(battery_list[5]);
+            battery_right.setImageResource(battery_list[5]);
+        }else{
+            if(capacity == 100){
+                battery_left.setImageResource(battery_list[4]);
+                battery_right.setImageResource(battery_list[4]);
+            }else if(capacity < 100 && capacity >= 70){
+                battery_left.setImageResource(battery_list[3]);
+                battery_right.setImageResource(battery_list[3]);
+            }else if(capacity < 70 && capacity >= 40){
+                battery_left.setImageResource(battery_list[2]);
+                battery_right.setImageResource(battery_list[2]);
+            }else if(capacity < 40 && capacity > 10){
+                battery_left.setImageResource(battery_list[1]);
+                battery_right.setImageResource(battery_list[1]);
+            }else if(capacity <= 10){
+                battery_left.setImageResource(battery_list[0]);
+                battery_right.setImageResource(battery_list[0]);
+            }
+        }
+        battery_text_left.setText(capacity + "%");
+        battery_text_right.setText(capacity + "%");
+    }
     private void enableDialog(String str){
         mAlertTextLeft.setText(str);
         mAlertTextRight.setText(str);
@@ -347,13 +400,13 @@ public class ExplorerActivity extends Activity implements BatteryReceiver.Batter
                         switch (indentifyFileType(cFiles.get(cur_selected_explorer).getName())){
                             //image
                             case 1:
-                                Intent iintent = new Intent(ExplorerActivity.this, SimplePicPlayerActivity.class);
+                                Intent iintent = new Intent(ExplorerActivity.this, qjizho.vrlauncher.SimplePicPlayerActivity.class);
                                 iintent.putExtra("url", cFiles.get(cur_selected_explorer).getAbsolutePath());
                                 startActivity(iintent);
                                 break;
                             //video
                             case 2:
-                                Intent intent = new Intent(ExplorerActivity.this, SimpleStreamPlayerActivity.class);
+                                Intent intent = new Intent(ExplorerActivity.this, qjizho.vrlauncher.SimpleStreamPlayerActivity.class);
                                 intent.putExtra("url", cFiles.get(cur_selected_explorer).getAbsolutePath());
                                 startActivity(intent);
                                 break;
@@ -609,6 +662,8 @@ public class ExplorerActivity extends Activity implements BatteryReceiver.Batter
 
     @Override
     protected void onDestroy() {
+        if(batteryReceiver != null)
+            unregisterReceiver(batteryReceiver);
         super.onDestroy();
     }
 
