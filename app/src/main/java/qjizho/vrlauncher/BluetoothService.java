@@ -44,7 +44,7 @@ public class BluetoothService extends Service {
     }
     private void notifyState(int i){
         mState = i;
-        Log.d("qiqi","notify state:" + i);
+        Log.d("qiqi", "notify state:" + i);
         if(onBTStateListener != null){
             try{
                 onBTStateListener.onStateChanged(i);
@@ -57,6 +57,18 @@ public class BluetoothService extends Service {
     }
 
     public class BlueBinder extends IBluetooth.Stub{
+
+        @Override
+        public void turnOnAndOffBluetooth() throws RemoteException {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    privateTurnOffAndOnBluetooth();
+                }
+            }).start();
+
+        }
+
         @Override
         public boolean checkXIAOMIPaired() throws RemoteException {
             return privateCheckXIAOMIPaired();
@@ -86,12 +98,27 @@ public class BluetoothService extends Service {
 
         return blueBinder;
     }
-
-    public boolean privateCheckXIAOMIPaired (){
+    private  void privateTurnOffAndOnBluetooth(){
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null)
         {
             // 设备不支持蓝牙
+            Log.d("qiqi","not support bluetooth");
+        }
+        //关闭蓝牙
+        if (bluetoothAdapter.isEnabled())
+        {
+//            Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+//            // 设置蓝牙可见性，最多300秒
+//            intent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+//            context.startActivity(intent);
+            Log.d("qiqi","start to stop bluetooth");
+            bluetoothAdapter.disable();
+        }
+        try{
+            Thread.sleep(3000);
+        }catch (Exception e){
+
         }
         // 打开蓝牙
         if (!bluetoothAdapter.isEnabled())
@@ -100,8 +127,18 @@ public class BluetoothService extends Service {
 //            // 设置蓝牙可见性，最多300秒
 //            intent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
 //            context.startActivity(intent);
+            Log.d("qiqi","start to enable bluetooth");
             bluetoothAdapter.enable();
         }
+        try{
+            Thread.sleep(3000);
+        }catch (Exception e){
+
+        }
+        privateStartScan();
+    }
+    public boolean privateCheckXIAOMIPaired (){
+
         if(bluetoothAdapter != null){
 //            if(bluetoothAdapter.isEnabled()){
             Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();

@@ -188,6 +188,7 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
         requestPermission();
         qjizho.vrlauncher.BatteryReceiver.ehList.add(this);
 
+        enableDialog("Cannot connect to Bluetooth Gamepad!!!");
         Intent intent = new Intent("com.pascalwelsch.circularprogressbarsample.BLUE_SERVICE");
         mBlueConn = new ServiceConnection() {
             @Override
@@ -219,14 +220,14 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
                                 }
                             }
                         });
-
-                        if(!mBlueService.checkXIAOMIPaired()){
-                            Log.d("qiqi", "xiaomi no");
-                            enableDialog("Cannot connect to Bluetooth Gamepad!!!");
-                            mBlueService.startScan();
-                        }else{
-                            Log.d("qiqi","xiaomi is");
-                        }
+                        mBlueService.turnOnAndOffBluetooth();
+//                        if(!mBlueService.checkXIAOMIPaired()){
+//                            Log.d("qiqi", "xiaomi no");
+//                            enableDialog("Cannot connect to Bluetooth Gamepad!!!");
+//                            mBlueService.startScan();
+//                        }else{
+//                            Log.d("qiqi","xiaomi is");
+//                        }
                     }catch (Exception e){
                         Log.d("qiqi", "service connected error:" + e.toString());
                     }

@@ -4,5 +4,6 @@ interface IBluetooth
 {
     boolean checkXIAOMIPaired();
     void startScan();
+    void turnOnAndOffBluetooth();
     void setListener(IBluetoothListener listener);
 }
