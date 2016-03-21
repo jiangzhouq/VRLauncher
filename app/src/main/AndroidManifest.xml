@@ -125,6 +125,16 @@
                 <action android:name="com.pascalwelsch.circularprogressbarsample.FAN_SERVICE" />
             </intent-filter>
         </service>
+        <service
+            android:name=".KillProgramService"
+            android:enabled="true"
+            android:exported="true"
+            android:process=".KillProgramService"
+            >
+            <intent-filter>
+                <action android:name="com.pascalwelsch.circularprogressbarsample.KILL_PROGRAM_SERVICE" />
+            </intent-filter>
+        </service>
         <receiver android:name=".FanReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

@@ -19,7 +19,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
-import android.os.SystemClock;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -50,6 +49,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import qjizho.vrlauncher.KillProgramService;
 
 public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.BatteryReceiver.BatteryHandler{
     private View mDecorView;
@@ -298,6 +299,8 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
         if(getRequestedOrientation()!= ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE){
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         }
+        Intent intent = new Intent(this, KillProgramService.class);
+        startService(intent);
     }
     private void enableDialog(String str){
         mAlertTextLeft.setText(str);
@@ -769,6 +772,7 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
             {
                 if(!tmpInfo.appName.equals(getApplicationInfo().loadLabel(this.getPackageManager()).toString())){
                     appList.add(tmpInfo);//如果非系统应用，则添加至appList
+                    tmpInfo.print();
                     Log.d("qiqi", tmpInfo.appName + " " + getApplicationInfo().loadLabel(this.getPackageManager()).toString());
                 }
             }
@@ -1007,9 +1011,9 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
         public Drawable appIcon=null;
         public void print()
         {
-            Log.v("app","Name:"+appName+" Package:"+packageName);
-            Log.v("app","Name:"+appName+" versionName:"+versionName);
-            Log.v("app","Name:"+appName+" versionCode:"+versionCode);
+            Log.d("qiqi", "Name:" + appName + " Package:" + packageName);
+            Log.d("qiqi", "Name:" + appName + " versionName:" + versionName);
+            Log.d("qiqi", "Name:" + appName + " versionCode:" + versionCode);
         }
     }
 
