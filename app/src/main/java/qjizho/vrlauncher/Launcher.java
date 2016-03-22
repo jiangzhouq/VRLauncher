@@ -772,9 +772,11 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
             if((packageInfo.applicationInfo.flags& ApplicationInfo.FLAG_SYSTEM)==0)
             {
                 if(!tmpInfo.appName.equals(getApplicationInfo().loadLabel(this.getPackageManager()).toString())){
-                    appList.add(tmpInfo);//如果非系统应用，则添加至appList
-                    tmpInfo.print();
-                    Log.d("qiqi", tmpInfo.appName + " " + getApplicationInfo().loadLabel(this.getPackageManager()).toString());
+                    if(!tmpInfo.packageName.equals("co.mobius.vrcinema")){
+                        appList.add(tmpInfo);//如果非系统应用，则添加至appList
+                        tmpInfo.print();
+                        Log.d("qiqi", tmpInfo.appName + " " + getApplicationInfo().loadLabel(this.getPackageManager()).toString());
+                    }
                 }
             }
 

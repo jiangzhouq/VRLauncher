@@ -6,7 +6,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.media.MediaMetadataRetriever;
+import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
@@ -235,7 +238,7 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
         }
     }
     private void updateBatteryInfo(){
-        Log.d("qiqi","update batteryinfo:" + isCharging + " " + capacity);
+        Log.d("qiqi", "update batteryinfo:" + isCharging + " " + capacity);
         if(isCharging){
             battery_left.setImageResource(battery_list[5]);
             battery_right.setImageResource(battery_list[5]);
@@ -406,9 +409,25 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
                                 break;
                             //video
                             case 2:
-                                Intent intent = new Intent(ExplorerActivity.this, qjizho.vrlauncher.SimpleStreamPlayerActivity.class);
-                                intent.putExtra("url", cFiles.get(cur_selected_explorer).getAbsolutePath());
-                                startActivity(intent);
+
+                                MediaMetadataRetriever retr = new MediaMetadataRetriever();
+                                retr.setDataSource(this, Uri.parse(cFiles.get(cur_selected_explorer).getAbsolutePath()));
+                                Bitmap bm = retr.getFrameAtTime();
+                                int wVideo = bm.getWidth();
+                                int hVideo = bm.getHeight();
+                                Log.d("qiqi", "wVideo:" + wVideo + " hVideo:" + hVideo);
+                                if(wVideo == 2*hVideo){
+                                    Intent intent = new Intent(ExplorerActivity.this, qjizho.vrlauncher.SimpleStreamPlayerActivity.class);
+                                    intent.putExtra("url", cFiles.get(cur_selected_explorer).getAbsolutePath());
+                                    startActivity(intent);
+                                }else{
+                                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                                    intent.setPackage("co.mobius.vrcinema");
+                                    Uri data = Uri.parse(cFiles.get(cur_selected_explorer).getAbsolutePath());
+                                    intent.setDataAndType(data, "video/*");
+                                    startActivity(intent);
+                                }
+
                                 break;
                             case 3:
                                 mCurState = state_dialog_apk;
