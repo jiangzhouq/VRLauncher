@@ -64,6 +64,14 @@
                 <category android:name="android.intent.category.DEFAULT"></category>
             </intent-filter>
         </activity>
+        <activity android:name=".ShutDownActivity"
+            android:screenOrientation="landscape"
+            >
+            <intent-filter>
+                <action android:name="com.qjizho.vrlauncher.SHUTDOWNACTIVITY"></action>
+                <category android:name="android.intent.category.DEFAULT"></category>
+            </intent-filter>
+        </activity>
         <activity android:name=".ExplorerActivity"
             android:screenOrientation="landscape"
             >
@@ -95,6 +103,11 @@
                     <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
                     <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
                     <action android:name="android.intent.action.ACTION_SHUTDOWN" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".ShutDownReceiver">
+            <intent-filter>
+                <action android:name="com.ut.action.power.off" />
             </intent-filter>
         </receiver>
         <service
