@@ -199,10 +199,18 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
         explorer_left.setAdapter(m_wTAdapter);
         explorer_right.setAdapter(m_wTAdapter);
         qjizho.vrlauncher.BatteryReceiver.ehList.add(this);
+
+
+        String startUrl = getIntent().getStringExtra("startUrl");
+        if(startUrl.isEmpty())
+            startUrl = "/sdcard/";
         if (Environment.getExternalStorageState().equals(
                 Environment.MEDIA_MOUNTED)) {
             mSDPath = Environment.getExternalStorageDirectory();
-            mSDPath = new File("/sdcard/");
+            mSDPath = new File(startUrl);
+            if(mSDPath == null || mSDPath.listFiles() == null || mSDPath.listFiles().length == 0){
+                this.finish();
+            }
             mControlPath.add(mSDPath);
             mControlPosition.add(0);
             QueryRun queryRun = new QueryRun(mSDPath);
@@ -218,10 +226,7 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
         mQueryRun.setPath(mSDPath);
         mQueryRun.run();
 
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction("qjizho.vrlauncher.action.battery_changed");
-        batteryReceiver = new BattReceiver();
-        registerReceiver(batteryReceiver, intentFilter);
+
         isCharging = getIntent().getBooleanExtra("isCharging", false);
         capacity = getIntent().getIntExtra("capacity", 0);
         updateBatteryInfo();
@@ -275,8 +280,19 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        if(batteryReceiver != null)
+            unregisterReceiver(batteryReceiver);
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("qjizho.vrlauncher.action.battery_changed");
+        batteryReceiver = new BattReceiver();
+        registerReceiver(batteryReceiver, intentFilter);
     }
 
     @Override
@@ -681,8 +697,7 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
 
     @Override
     protected void onDestroy() {
-        if(batteryReceiver != null)
-            unregisterReceiver(batteryReceiver);
+
         super.onDestroy();
     }
 

@@ -21,4 +21,5 @@
     <string name="shutdown_ok">A键 确认关闭电源</string>
     <string name="shutdown_cancel">B键 取消</string>
     <string name="shutdown_ing">正在关闭电源……</string>
+    <string name="unmounted">设备未插入</string>
 </resources>

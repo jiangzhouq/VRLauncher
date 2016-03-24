@@ -15,6 +15,7 @@ import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.BatteryManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -44,13 +45,13 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import qjizho.vrlauncher.KillProgramService;
 
 public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.BatteryReceiver.BatteryHandler{
     private View mDecorView;
@@ -244,10 +245,18 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
             }
         };
         bindService(intent, mBlueConn, Context.BIND_AUTO_CREATE);
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction("qjizho.vrlauncher.action.battery_changed");
-        batteryReceiver = new BattReceiver();
-        registerReceiver(batteryReceiver, intentFilter);
+
+
+
+        try {
+            String path = Environment.getExternalStorageDirectory() + "/Cardboard";
+            File dir = new File(path);
+            if (dir.mkdirs() || dir.isDirectory()) {
+                CopyRAWtoSDCard(R.raw.current_device_params, path + File.separator + "current_device_params");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public class BattReceiver extends BroadcastReceiver{
@@ -287,6 +296,12 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
     protected void onDestroy() {
         super.onDestroy();
         unbindService(mBlueConn);
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
         if(batteryReceiver != null)
             unregisterReceiver(batteryReceiver);
     }
@@ -300,8 +315,12 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
         if(getRequestedOrientation()!= ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE){
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         }
-        Intent intent = new Intent(this, KillProgramService.class);
+        Intent intent = new Intent(this, qjizho.vrlauncher.KillProgramService.class);
         startService(intent);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("qjizho.vrlauncher.action.battery_changed");
+        batteryReceiver = new BattReceiver();
+        registerReceiver(batteryReceiver, intentFilter);
     }
     private void enableDialog(String str){
         mAlertTextLeft.setText(str);
@@ -549,7 +568,7 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
                 break;
             case 1:
                 cur_mode = 3;
-                Intent explorerIntent = new Intent("com.qjizho.vrlauncher.EXPLORERACTIVITY");
+                Intent explorerIntent = new Intent(this, ExplorerChooseActivity.class);
                 explorerIntent.putExtra("isCharging", isCharging);
                 explorerIntent.putExtra("capacity", capacity);
                 Log.d("qiqi","send isCharging:" + isCharging + " capacity:" + capacity);
@@ -1042,6 +1061,20 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
                 battery_left.setImageResource(R.drawable.easyicon_battery_1);
                 battery_right.setImageResource(R.drawable.easyicon_battery_1);
             }
+        }
+    }
+    private void CopyRAWtoSDCard(int id, String path) throws IOException {
+        InputStream in = getResources().openRawResource(id);
+        FileOutputStream out = new FileOutputStream(path);
+        byte[] buff = new byte[1024];
+        int read = 0;
+        try {
+            while ((read = in.read(buff)) > 0) {
+                out.write(buff, 0, read);
+            }
+        } finally {
+            in.close();
+            out.close();
         }
     }
 }

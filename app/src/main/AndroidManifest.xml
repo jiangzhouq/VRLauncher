@@ -72,6 +72,14 @@
                 <category android:name="android.intent.category.DEFAULT"></category>
             </intent-filter>
         </activity>
+        <activity android:name=".ExplorerChooseActivity"
+            android:screenOrientation="landscape"
+            >
+            <intent-filter>
+                <action android:name="com.qjizho.vrlauncher.EXPLORERCHOOSEACTIVITY"></action>
+                <category android:name="android.intent.category.DEFAULT"></category>
+            </intent-filter>
+        </activity>
         <activity android:name=".ExplorerActivity"
             android:screenOrientation="landscape"
             >
