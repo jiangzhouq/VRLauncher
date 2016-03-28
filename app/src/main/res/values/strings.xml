@@ -22,4 +22,5 @@
     <string name="shutdown_cancel">B键 取消</string>
     <string name="shutdown_ing">正在关闭电源……</string>
     <string name="unmounted">设备未插入</string>
+    <string name="no_gampad">未连接到蓝牙手柄，请短按打开开关，首次连接请长按开始配对！</string>
 </resources>

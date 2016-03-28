@@ -31,9 +31,11 @@ public class BluetoothService extends Service {
     public static final int STATE_XIAOMI_PAIRED = 6;
     public static final int STATE_XIAOMI_FINDING = 7;
     private int mState = STATE_BT_OFF;
+
     public interface OnBTStateListener{
         void onStateChanged(int state);
     }
+
     private BluetoothDevice mDevice = null;
     private IBluetoothListener onBTStateListener = null;
     private BluetoothSocket mSocket = null;
@@ -99,27 +101,33 @@ public class BluetoothService extends Service {
         return blueBinder;
     }
     private  void privateTurnOffAndOnBluetooth(){
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (bluetoothAdapter == null)
-        {
-            // 设备不支持蓝牙
-            Log.d("qiqi","not support bluetooth");
-        }
-        //关闭蓝牙
-        if (bluetoothAdapter.isEnabled())
-        {
-//            Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-//            // 设置蓝牙可见性，最多300秒
-//            intent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
-//            context.startActivity(intent);
-            Log.d("qiqi","start to stop bluetooth");
-            bluetoothAdapter.disable();
-        }
-        try{
-            Thread.sleep(3000);
-        }catch (Exception e){
+//        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+//        if (bluetoothAdapter == null)
+//        {
+//            // 设备不支持蓝牙
+//            Log.d("qiqi","not support bluetooth");
+//        }
+//        //关闭蓝牙
+//        if (bluetoothAdapter.isEnabled())
+//        {
+////            Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+////            // 设置蓝牙可见性，最多300秒
+////            intent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+////            context.startActivity(intent);
+//            Log.d("qiqi","start to stop bluetooth");
+//            bluetoothAdapter.disable();
+//        }
+//        try{
+//            Thread.sleep(3000);
+//        }catch (Exception e){
+//
+//        }
 
-        }
+//        privateStartScan();
+    }
+    public boolean privateCheckXIAOMIPaired (){
+        if (bluetoothAdapter == null)
+            bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         // 打开蓝牙
         if (!bluetoothAdapter.isEnabled())
         {
@@ -129,15 +137,11 @@ public class BluetoothService extends Service {
 //            context.startActivity(intent);
             Log.d("qiqi","start to enable bluetooth");
             bluetoothAdapter.enable();
+            try{
+                Thread.sleep(3000);
+            }catch (Exception e){
+            }
         }
-        try{
-            Thread.sleep(3000);
-        }catch (Exception e){
-
-        }
-        privateStartScan();
-    }
-    public boolean privateCheckXIAOMIPaired (){
 
         if(bluetoothAdapter != null){
 //            if(bluetoothAdapter.isEnabled()){
@@ -200,6 +204,7 @@ public class BluetoothService extends Service {
             }
         }).start();
     }
+
     private BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -313,7 +318,7 @@ public class BluetoothService extends Service {
         final String SPP_UUID = "00001124-0000-1000-8000-00805F9B34FB";
         UUID uuid = UUID.fromString(SPP_UUID);
         mmmDevice = device;
-        bluetoothAdapter.getProfileProxy(this,mProfileListener, 4);
+        bluetoothAdapter.getProfileProxy(this, mProfileListener, 4);
 //        try{
 //            BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
 //            socket.connect();

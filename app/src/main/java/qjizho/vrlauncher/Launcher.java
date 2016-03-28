@@ -189,7 +189,7 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
         requestPermission();
         qjizho.vrlauncher.BatteryReceiver.ehList.add(this);
 
-        enableDialog("Cannot connect to Bluetooth Gamepad!!!");
+
         Intent intent = new Intent("com.pascalwelsch.circularprogressbarsample.BLUE_SERVICE");
         mBlueConn = new ServiceConnection() {
             @Override
@@ -221,22 +221,20 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
                                 }
                             }
                         });
-                        mBlueService.turnOnAndOffBluetooth();
-//                        if(!mBlueService.checkXIAOMIPaired()){
-//                            Log.d("qiqi", "xiaomi no");
-//                            enableDialog("Cannot connect to Bluetooth Gamepad!!!");
-//                            mBlueService.startScan();
-//                        }else{
-//                            Log.d("qiqi","xiaomi is");
-//                        }
+//                        mBlueService.turnOnAndOffBluetooth();
+                        if(!mBlueService.checkXIAOMIPaired()){
+                            Log.d("qiqi", "xiaomi no");
+                            enableDialog(getResources().getString(R.string.no_gampad));
+                            mBlueService.startScan();
+                        }else{
+                            Log.d("qiqi","xiaomi is");
+                        }
                     }catch (Exception e){
                         Log.d("qiqi", "service connected error:" + e.toString());
                     }
                 }else{
                     Log.d("qiqi","mBlueService null");
                 }
-
-
             }
 
             @Override
@@ -257,6 +255,7 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
         } catch (IOException e) {
             e.printStackTrace();
         }
+        Settings.Global.putInt(getContentResolver(), Settings.Global.INSTALL_NON_MARKET_APPS,1);
     }
 
     public class BattReceiver extends BroadcastReceiver{
@@ -295,13 +294,17 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unbindService(mBlueConn);
-
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        try{
+            unbindService(mBlueConn);
+
+        }catch (Exception e){
+
+        }
         if(batteryReceiver != null)
             unregisterReceiver(batteryReceiver);
     }

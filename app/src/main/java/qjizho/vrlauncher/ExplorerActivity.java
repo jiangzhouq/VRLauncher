@@ -590,8 +590,10 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
         return( path.delete() );
     }
     private boolean deleteMyFile(String selectedFilePath){
+        Log.d("qiqi","start to delete file: " + selectedFilePath);
         File file = new File(selectedFilePath);
         boolean deleted = file.delete();
+        Log.d("qiqi","delete result:" + deleted);
         return deleted;
     }
     /**

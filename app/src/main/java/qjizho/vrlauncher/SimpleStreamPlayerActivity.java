@@ -10,6 +10,8 @@
 
 package qjizho.vrlauncher;
 
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -38,7 +40,7 @@ public class SimpleStreamPlayerActivity extends FragmentActivity implements PFAs
 
 	PFView _pfview;
 	PFAsset _pfasset;
-    PFNavigationMode _currentNavigationMode = PFNavigationMode.MOTION;
+    PFNavigationMode _currentNavigationMode = PFNavigationMode.TOUCH;
 
 	boolean 			_updateThumb = true;;
     Timer 				_scrubberMonitorTimer;
@@ -129,6 +131,21 @@ public class SimpleStreamPlayerActivity extends FragmentActivity implements PFAs
         _frameContainer.addView(_pfview.getView(), 0);
 
     }
+
+	@Override
+	protected void onResume() {
+		if(getRequestedOrientation()!= ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE){
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+		}
+		if(_pfview != null){
+			_pfview.setMode(2,1);
+			_currentNavigationMode = PFNavigationMode.MOTION;
+			_touchButton.setText("motion");
+			_pfview.setNavigationMode(_currentNavigationMode);
+			_pfview.handleOrientationChange();
+		}
+		super.onResume();
+	}
 
 	/**
 	 * Status callback from the PFAsset instance.
@@ -304,4 +321,32 @@ public class SimpleStreamPlayerActivity extends FragmentActivity implements PFAs
 		_updateThumb = true;
 	}
 
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		Log.d("qiqi", "newConfig");
+		if(newConfig.orientation==Configuration.ORIENTATION_PORTRAIT){
+			Log.d("qiqi", "现在是竖屏");
+//			Toast.makeText(MainActivity.this, "现在是竖屏", Toast.LENGTH_SHORT).show();
+			if(_pfview != null){
+				_pfview.setMode(0,1);
+				_currentNavigationMode = PFNavigationMode.TOUCH;
+				_touchButton.setText("touch");
+				_pfview.setNavigationMode(_currentNavigationMode);
+				_pfview.handleOrientationChange();
+			}
+		}
+		if(newConfig.orientation==Configuration.ORIENTATION_LANDSCAPE){
+//			Toast.makeText(MainActivity.this, "现在是横屏", Toast.LENGTH_SHORT).show();
+			Log.d("qiqi", "现在是横屏");
+
+			if(_pfview != null){
+				_pfview.setMode(2,1);
+				_currentNavigationMode = PFNavigationMode.MOTION;
+				_touchButton.setText("motion");
+				_pfview.setNavigationMode(_currentNavigationMode);
+				_pfview.handleOrientationChange();
+			}
+		}
+	}
 }
