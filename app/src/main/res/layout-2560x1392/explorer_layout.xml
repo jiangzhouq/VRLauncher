@@ -69,6 +69,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
                 android:textSize="16.0sp"
+                android:gravity="center"
                 android:layout_centerInParent="true"/>
             <TextView
                 android:id="@+id/alert_confirm_left"
@@ -162,6 +163,7 @@
                 android:layout_width="240dp"
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
+                android:gravity="center"
                 android:textSize="16.0sp"
                 android:layout_centerInParent="true"/>
             <TextView

@@ -36,7 +36,6 @@ public class BluetoothService extends Service {
         void onStateChanged(int state);
     }
 
-    private BluetoothDevice mDevice = null;
     private IBluetoothListener onBTStateListener = null;
     private BluetoothSocket mSocket = null;
     private BluetoothAdapter bluetoothAdapter;
@@ -213,9 +212,9 @@ public class BluetoothService extends Service {
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 // 获取查找到的蓝牙设备
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                System.out.println(device.getName());
+//                System.out.println(device.getName());
                 // 如果查找到的设备符合要连接的设备，处理
-                if (device.getName().contains("小米蓝牙手柄")) {
+                if (device !=null && device.getName() != null && device.getName().contains("小米蓝牙手柄")) {
                     // 搜索蓝牙设备的过程占用资源比较多，一旦找到需要连接的设备后需要及时关闭搜索
                     bluetoothAdapter.cancelDiscovery();
                     // 获取蓝牙设备的连接状态
@@ -240,6 +239,8 @@ public class BluetoothService extends Service {
 //                            }
 //                            break;
                     }
+                }else{
+                    Log.d("qiqi","device == null!!!!!!!!!!");
                 }
             }
             else if(BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
@@ -286,7 +287,16 @@ public class BluetoothService extends Service {
             //4 == BluetoothInputDevice
             Log.d("qiqi", "Bluetooth service connected");
             if (profile == 4) {
-                createBTConnection(proxy, mmmDevice);
+                    for(int i = 0; i< 10; i++){
+                        boolean connected = createBTConnection(proxy, mmmDevice);
+                        Log.d("qiqi","for i try:" + i + "  boolean:" + connected);
+                        if(!connected){
+                            Log.d("qiqi","break the for");
+                            continue;
+                        }
+                        break;
+                    }
+
                 notifyState(STATE_XIAOMI_CONNECTED);
                 //doesnot connect ):
                 Log.d("qiqi", "Bluetooth service connected 444444");
@@ -319,50 +329,8 @@ public class BluetoothService extends Service {
         UUID uuid = UUID.fromString(SPP_UUID);
         mmmDevice = device;
         bluetoothAdapter.getProfileProxy(this, mProfileListener, 4);
-//        try{
-//            BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
-//            socket.connect();
-//        }catch (Exception e){
-//            Log.d("qiqi","connect error:" + e.toString());
-//        }
 
     }
-    private boolean createSocket(){
-        Method method;
-        if(mDevice == null)
-            return false;
-        try {
-            method = mDevice.getClass().getMethod("createRfcommSocket", new Class[]{int.class});
-            mSocket = (BluetoothSocket) method.invoke(mDevice, 1);
-        } catch (Exception e) {
-            Log.e("TAG", e.toString());
-        }
-        if(mSocket == null){
-            Log.d("qiqi","create socket false");
-            return false;
-        }else{
-            Log.d("qiqi","create socket true");
-            try{
-                mSocket.connect();
-            }catch (Exception e){
-            }
-            return true;
-        }
-    }
-//    public class BlueBinder extends Binder{
-//        public void start(int time){
-//            setDeviceOn(true, time);
-//        }
-//        public void stop(){
-//            setDeviceOn(false, 0);
-//        }
-//        public void connect(){
-//            createSocket();
-//        }
-//        public BluetoothService getService(){
-//            return BluetoothService.this;
-//        }
-//    }
 
     @Override
     public boolean onUnbind(Intent intent) {
@@ -372,35 +340,5 @@ public class BluetoothService extends Service {
 
         }
         return super.onUnbind(intent);
-    }
-    private void setDeviceOn(boolean isOn, int time){
-
-        try {
-//            if(!mSocket.isConnected()){
-//                createSocket();
-//            }
-            OutputStream outStream = mSocket.getOutputStream();
-            if(isOn){
-                outStream.write(getHexBytes("AA000100045502100" + Integer.toHexString(time) +"0000CC33C33C"));
-                outStream.write(getHexBytes("AA000100045502100" + Integer.toHexString(time) +"0000CC33C33C"));
-            }else{
-                outStream.write(getHexBytes("AA0201000355011F0000CC33C33C"));
-                outStream.write(getHexBytes("AA0201000355011F0000CC33C33C"));
-            }
-        } catch (Exception e) {
-            Log.e("qiqi", e.toString());
-            notifyState(STATE_DISCONNECTED);
-        }
-    }
-    private byte[] getHexBytes(String message) {
-        int len = message.length() / 2;
-        char[] chars = message.toCharArray();
-        String[] hexStr = new String[len];
-        byte[] bytes = new byte[len];
-        for (int i = 0, j = 0; j < len; i += 2, j++) {
-            hexStr[j] = "" + chars[i] + chars[i + 1];
-            bytes[j] = (byte) Integer.parseInt(hexStr[j], 16);
-        }
-        return bytes;
     }
 }

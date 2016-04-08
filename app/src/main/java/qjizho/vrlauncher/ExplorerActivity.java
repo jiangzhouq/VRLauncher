@@ -2,13 +2,12 @@ package qjizho.vrlauncher;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
@@ -64,6 +63,7 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
     private static final int state_dialog_delete = 7;
     private static final int state_dialog_deleting = 8;
     private static final int state_dialog_deleted = 9;
+    private static final int state_dialog_video_choose = 10;
 
     private int mCurState = 0;
 
@@ -122,6 +122,7 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
     private boolean isCharging = false;
     private int capacity = -1;
     private BroadcastReceiver batteryReceiver = null;
+    private int video_mode = 0;
     Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -313,6 +314,24 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
                         }
                         mFilesAdapter.notifyDataSetChanged();
                     }
+                }else if(mCurState == state_dialog_video_choose){
+                    video_mode --;
+                    if(video_mode == -1)
+                        video_mode = 0;
+                    switch (video_mode){
+                        case 0:
+                            mAlertTextLeft.setText(R.string.video_normal);
+                            mAlertTextRight.setText(R.string.video_normal);
+                            break;
+                        case 1:
+                            mAlertTextLeft.setText(R.string.video_quanjing);
+                            mAlertTextRight.setText(R.string.video_quanjing);
+                            break;
+                        case 2:
+                            mAlertTextLeft.setText(R.string.video_zuoyou);
+                            mAlertTextRight.setText(R.string.video_zuoyou);
+                            break;
+                    }
                 }
                 break;
             case KeyEvent.KEYCODE_DPAD_RIGHT:
@@ -331,6 +350,25 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
                             explorer_right.setSelection(cur_page_explorer*9);
                         }
                         mFilesAdapter.notifyDataSetChanged();
+                    }
+                }else if(mCurState == state_dialog_video_choose){
+
+                    video_mode ++;
+                    if(video_mode == 3)
+                        video_mode = 2;
+                    switch (video_mode){
+                        case 0:
+                            mAlertTextLeft.setText(R.string.video_normal);
+                            mAlertTextRight.setText(R.string.video_normal);
+                            break;
+                        case 1:
+                            mAlertTextLeft.setText(R.string.video_quanjing);
+                            mAlertTextRight.setText(R.string.video_quanjing);
+                            break;
+                        case 2:
+                            mAlertTextLeft.setText(R.string.video_zuoyou);
+                            mAlertTextRight.setText(R.string.video_zuoyou);
+                            break;
                     }
                 }
                 break;
@@ -425,25 +463,9 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
                                 break;
                             //video
                             case 2:
-
-                                MediaMetadataRetriever retr = new MediaMetadataRetriever();
-                                retr.setDataSource(this, Uri.parse(cFiles.get(cur_selected_explorer).getAbsolutePath()));
-                                Bitmap bm = retr.getFrameAtTime();
-                                int wVideo = bm.getWidth();
-                                int hVideo = bm.getHeight();
-                                Log.d("qiqi", "wVideo:" + wVideo + " hVideo:" + hVideo);
-                                if(wVideo == 2*hVideo){
-                                    Intent intent = new Intent(ExplorerActivity.this, qjizho.vrlauncher.SimpleStreamPlayerActivity.class);
-                                    intent.putExtra("url", cFiles.get(cur_selected_explorer).getAbsolutePath());
-                                    startActivity(intent);
-                                }else{
-                                    Intent intent = new Intent(Intent.ACTION_VIEW);
-                                    intent.setPackage("co.mobius.vrcinema");
-                                    Uri data = Uri.parse(cFiles.get(cur_selected_explorer).getAbsolutePath());
-                                    intent.setDataAndType(data, "video/*");
-                                    startActivity(intent);
-                                }
-
+                                enableDialog(getResources().getString(R.string.video_normal));
+                                mCurState = state_dialog_video_choose;
+                                video_mode = 0;
                                 break;
                             case 3:
                                 mCurState = state_dialog_apk;
@@ -496,6 +518,26 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
                     mCurState = state_explorer;
                     QueryRun mQueryRun = new QueryRun(mControlPath.get(mControlPath.size() -1));
                     mQueryRun.run();
+                }else if (mCurState == state_dialog_video_choose){
+                    disableDialog();
+                    mCurState = state_explorer;
+                    if (video_mode == 0){
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.setPackage("co.mobius.vrcinema");
+                        Uri data = Uri.parse(cFiles.get(cur_selected_explorer).getAbsolutePath());
+                        intent.setDataAndType(data, "video/*");
+                        startActivity(intent);
+
+                    }else if(video_mode == 1){
+                        Intent intent = new Intent(ExplorerActivity.this, qjizho.vrlauncher.SimpleStreamPlayerActivity.class);
+                        intent.putExtra("url", cFiles.get(cur_selected_explorer).getAbsolutePath());
+                        startActivity(intent);
+                    }else{
+                        Intent internt = new Intent(Intent.ACTION_VIEW);
+                        internt.setDataAndType(Uri.parse(cFiles.get(cur_selected_explorer).getAbsolutePath()), "video/*");
+                        internt.setComponent(new ComponentName("com.android.gallery3d","com.android.gallery3d.app.MovieActivity"));
+                        startActivity(internt);
+                    }
                 }
                 break;
             case KeyEvent.KEYCODE_BACK:
@@ -537,6 +579,7 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
                     case state_dialog_delete:
                     case state_dialog_pic:
                     case state_dialog_video:
+                    case state_dialog_video_choose:
                         disableDialog();
                         mCurState = state_explorer;
                         break;
