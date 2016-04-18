@@ -675,13 +675,13 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
         List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("img", R.mipmap.setting);
-        map.put("title", "设置");
+        map.put("title", getResources().getString(R.string.menu_settings));
         map.put("action", "");
         list.add(map);
 
         map = new HashMap<String, Object>();
         map.put("img", R.drawable.easyicon_sd);
-        map.put("title", "文件夹");
+        map.put("title", getResources().getString(R.string.menu_folder));
         map.put("info", "");
         list.add(map);
 
@@ -699,7 +699,7 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
 
         map = new HashMap<String, Object>();
         map.put("img", R.mipmap.games);
-        map.put("title", "应用");
+        map.put("title", getResources().getString(R.string.menu_Apps));
         map.put("info", "");
         list.add(map);
 

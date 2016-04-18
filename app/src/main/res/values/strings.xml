@@ -26,4 +26,6 @@
     <string name="video_zuoyou">&#60; -- For 3D mode</string>
     <string name="video_quanjing">&#60; -- For panoramic mode -- &#62;</string>
     <string name="video_normal">For normal mode -- &#62;</string>
+    <string name="menu_folder">Folder</string>
+    <string name="menu_Apps">Apps</string>
 </resources>

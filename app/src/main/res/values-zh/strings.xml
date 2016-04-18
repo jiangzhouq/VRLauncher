@@ -26,4 +26,6 @@
     <string name="video_zuoyou">&#60; -- 左右3D</string>
     <string name="video_quanjing">&#60; -- 全景模式 -- &#62;</string>
     <string name="video_normal">正常模式 -- &#62;</string>
+    <string name="menu_folder">文件夹</string>
+    <string name="menu_Apps">应用</string>
 </resources>
