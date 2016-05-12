@@ -13,7 +13,6 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 
 public class FanService extends Service {
@@ -73,11 +72,17 @@ public class FanService extends Service {
                         setFanSpeed(String.valueOf(mSpeed));
                         boolean isCharging = !catCharging("cat /sys/class/power_supply/battery/status").equalsIgnoreCase("Discharging");
                         int capacity = Integer.parseInt(catCharging("cat /sys/class/power_supply/battery/capacity"));
+
                         Intent batteryIntent = new Intent();
                         batteryIntent.setAction("qjizho.vrlauncher.action.battery_changed");
                         batteryIntent.putExtra("status", isCharging);
                         batteryIntent.putExtra("capacity", capacity);
                         sendBroadcast(batteryIntent);
+                        if(!isCharging && capacity < 10){
+                            Intent intent = new Intent();
+                            intent.setAction("com.ut.action.shut.down");
+                            sendBroadcast(intent);
+                        }
                         Log.d("qiqi", "sleep 3000 ,");
                     }catch(Exception e){
                         Log.d("qiqi", "e:" + e.toString());

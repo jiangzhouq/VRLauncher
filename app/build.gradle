@@ -31,4 +31,5 @@ dependencies {
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.4'
     compile files('libs/panframe-1.9.jar')
     compile 'com.loopj.android:android-async-http:1.4.9'
+    compile 'com.jiongbull:jlog:1.0.5'
 }
