@@ -28,6 +28,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import qjizho.vrlauncher.usb.modules.WIFI;
 import qjizho.vrlauncher.wifi.WFSearchProcess;
 import qjizho.vrlauncher.wifi.WTAdapter;
 import qjizho.vrlauncher.wifi.WifiAdmin;
@@ -193,7 +194,7 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
         selected_left.setImageResource(R.mipmap.setting);
         selected_right.setImageResource(R.mipmap.setting);
         WifiBroadcastReceiver.ehList.add(this);
-        m_wtSearchProcess = new WFSearchProcess(this);
+        m_wtSearchProcess = new WFSearchProcess(WIFI.getInstance(this));
         //wifi管理类
         m_wiFiAdmin  = WifiAdmin.getInstance(this);
         if(!m_wtSearchProcess.running) { //搜索线程没有开启

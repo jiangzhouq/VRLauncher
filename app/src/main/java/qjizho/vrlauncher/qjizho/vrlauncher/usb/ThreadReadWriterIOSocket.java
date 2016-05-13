@@ -113,7 +113,7 @@ public class ThreadReadWriterIOSocket implements Runnable,HandleInput.HandleInpu
 	/* 读取命令 */
 	public String readCMDFromSocket(InputStream in)
 	{
-		int MAX_BUFFER_BYTES = 2048;
+		int MAX_BUFFER_BYTES = 204800;
 		String msg = "";
 		byte[] tempbuffer = new byte[MAX_BUFFER_BYTES];
 		try

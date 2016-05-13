@@ -17,23 +17,23 @@ public class WifiBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if(intent.getAction().endsWith(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
-            Log.d("qiqi", "WTScanResults---->扫描到了可用网络---->"+ "android.net.wifi.SCAN_RESULTS");
+            Log.d("qiqi", "WTScanResults---->扫描到了可用网络---->"+ "android.net.qjizho.vrlauncher.wifi.SCAN_RESULTS");
             //遍历通知各个监听接口
             for(int i = 0; i < ehList.size(); i++) {
                 ((EventHandler)ehList.get(i)).scanResultsAvaiable();
             }
 
-            //wifi打开或关闭状态变化   "android.net.wifi.WIFI_STATE_CHANGED"
+            //wifi打开或关闭状态变化   "android.net.qjizho.vrlauncher.wifi.WIFI_STATE_CHANGED"
         }else if(intent.getAction().endsWith(WifiManager.WIFI_STATE_CHANGED_ACTION)) {
-            Log.d("qiqi", "WTScanResults----->wifi状态变化--->"+ "android.net.wifi.WIFI_STATE_CHANGED");
+            Log.d("qiqi", "WTScanResults----->wifi状态变化--->"+ "android.net.qjizho.vrlauncher.wifi.WIFI_STATE_CHANGED");
             //这里不需要连接一个SSID（wifi名称）
             for(int j = 0; j < ehList.size(); j++) {
                 ((EventHandler)ehList.get(j)).wifiStatusNotification();
             }
 
-            //连接上一个SSID后发出的广播，(注：与android.net.wifi.WIFI_STATE_CHANGED的区别)
+            //连接上一个SSID后发出的广播，(注：与android.net.qjizho.vrlauncher.wifi.WIFI_STATE_CHANGED的区别)
         }else if(intent.getAction().endsWith(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
-            Log.d("qiqi", "WTScanResults----->网络状态变化---->" +  "android.net.wifi.STATE_CHANGE");
+            Log.d("qiqi", "WTScanResults----->网络状态变化---->" +  "android.net.qjizho.vrlauncher.wifi.STATE_CHANGE");
             for(int m = 0; m < ehList.size(); m++) {
                 ((EventHandler)ehList.get(m)).handleConnectChange();
             }

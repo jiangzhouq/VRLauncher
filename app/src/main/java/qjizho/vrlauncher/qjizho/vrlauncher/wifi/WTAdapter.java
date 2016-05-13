@@ -75,7 +75,7 @@ public class WTAdapter extends BaseAdapter {
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-        //For the view of wifi locked or unlocked.
+        //For the view of qjizho.vrlauncher.wifi locked or unlocked.
         if(localScanResult.capabilities.contains("WPA")
                 || localScanResult.capabilities.contains("wpa")
                 || localScanResult.capabilities.contains("WEP")

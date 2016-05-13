@@ -1,17 +1,15 @@
 package qjizho.vrlauncher.wifi;
 
-import android.os.Message;
-
-import qjizho.vrlauncher.WifiActivity;
+import qjizho.vrlauncher.usb.modules.WIFI;
 
 /**
  * Created by qjizho on 15/10/27.
  */
 public class WFSearchProcess implements Runnable {
 
-    public WifiActivity context;
-    public WFSearchProcess(WifiActivity context) {
-        this.context = context;
+    public WIFI wifi;
+    public WFSearchProcess(WIFI wifi) {
+        this.wifi = wifi;
     }
 
     public boolean running = false;
@@ -25,8 +23,7 @@ public class WFSearchProcess implements Runnable {
             if(!running) return;
             if(System.currentTimeMillis() - startTime >= 30000L) {
                 //发送（搜索超时）消息
-                Message msg = context.mHandler.obtainMessage(context.m_nWifiSearchTimeOut);
-                context.mHandler.sendMessage(msg);
+                wifi.notifyTimeOut();
             }
             try {
                 Thread.sleep(10L);

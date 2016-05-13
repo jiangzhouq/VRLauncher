@@ -31,7 +31,7 @@ public class BatteryReceiver extends BroadcastReceiver {
                 ((BatteryHandler)ehList.get(i)).handleBatteryChanged(charging, level*100/scale);
             }
 
-            //wifi打开或关闭状态变化   "android.net.wifi.WIFI_STATE_CHANGED"
+            //wifi打开或关闭状态变化   "android.net.qjizho.vrlauncher.wifi.WIFI_STATE_CHANGED"
         }
 
     }

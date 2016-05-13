@@ -89,6 +89,10 @@ public class WifiAdmin {
             mWifiManager.setWifiEnabled(false);
         }
     }
+
+    public boolean getWifiTurn() {
+        return mWifiManager.isWifiEnabled();
+    }
     /**端口指定id的wifi**/
     public void disconnectWifi(int paramInt) {
         this.mWifiManager.disableNetwork(paramInt);
@@ -143,10 +147,10 @@ public class WifiAdmin {
      * @param ssid 名称 
      * @param passawrd 密码 
      * @param paramInt 有3个参数，1是无密码，2是简单密码，3是wap加密 
-     * @param type 是"ap"还是"wifi" 
+     * @param type 是"ap"还是"qjizho.vrlauncher.wifi"
      * @return
      */
-    public WifiConfiguration createWifiInfo(String ssid, String passawrd,int paramInt, String type) {
+    public WifiConfiguration createWifiInfo(String ssid, String passawrd, int paramInt, String type) {
         //配置网络信息类
         WifiConfiguration localWifiConfiguration1 = new WifiConfiguration();
         //设置配置网络属性
