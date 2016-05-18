@@ -13,9 +13,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"></uses-permission>
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"></uses-permission>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"></uses-permission>
     <uses-permission android:name="android.permission.BLUETOOTH"></uses-permission>
     <uses-permission android:name="android.permission.INSTALL_PACKAGES"></uses-permission>
     <uses-permission android:name="android.permission.DELETE_PACKAGES"></uses-permission>
@@ -32,6 +30,7 @@
     <uses-permission android:name="android.permission.SET_TIME"></uses-permission>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"></uses-permission>
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"></uses-permission>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"></uses-permission>
     <application
         android:name=".VRLauncherApplication"
         android:allowBackup="true"
@@ -106,6 +105,11 @@
                     <action android:name="android.net.wifi.WIFI_STATE_CHANGED" />
                     <action android:name="android.net.wifi.SCAN_RESULTS" />
                     <action android:name="android.net.wifi.STATE_CHANGE" />
+                    <action android:name="android.net.wifi.RSSI_CHANGED" />
+                    <action android:name="android.net.wifi.NETWORK_IDS_CHANGED" />
+                    <action android:name="android.net.wifi.supplicant.CONNECTION_CHANGE" />
+                    <action android:name="android.net.wifi.supplicant.STATE_CHANGE" />
+                    <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
         <receiver android:name=".BatteryReceiver">

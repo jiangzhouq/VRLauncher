@@ -451,7 +451,7 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
     }
 
     @Override
-    public void handleConnectChange() {
+    public void handleConnectChange(String str) {
         Message msg = mHandler.obtainMessage(m_nWTConnectResult);
         mHandler.sendMessage(msg);
     }
@@ -460,6 +460,11 @@ public class WifiActivity extends Activity implements WifiBroadcastReceiver.Even
     public void scanResultsAvaiable() {
         Message msg = mHandler.obtainMessage(m_nWTScanResult);
         mHandler.sendMessage(msg);
+    }
+
+    @Override
+    public void supplicantStateChanged() {
+
     }
 
     @Override

@@ -3,6 +3,8 @@ package qjizho.vrlauncher.wifi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
 
@@ -34,19 +36,51 @@ public class WifiBroadcastReceiver extends BroadcastReceiver {
             //连接上一个SSID后发出的广播，(注：与android.net.qjizho.vrlauncher.wifi.WIFI_STATE_CHANGED的区别)
         }else if(intent.getAction().endsWith(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
             Log.d("qiqi", "WTScanResults----->网络状态变化---->" +  "android.net.qjizho.vrlauncher.wifi.STATE_CHANGE");
+            NetworkInfo info =intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
             for(int m = 0; m < ehList.size(); m++) {
-                ((EventHandler)ehList.get(m)).handleConnectChange();
+                ((EventHandler)ehList.get(m)).handleConnectChange(info.getState().toString());
             }
+        }
+        else if(intent.getAction().endsWith(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION)) {
+            Log.d("qiqi", "WTScanResults----->supplicant connection变化---->" +  "android.net.qjizho.vrlauncher.wifi.STATE_CHANGE");
+//            for(int m = 0; m < ehList.size(); m++) {
+//                ((EventHandler)ehList.get(m)).handleConnectChange();
+//            }
+        }
+        else if(intent.getAction().endsWith(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION)) {
+            Log.d("qiqi", "WTScanResults----->supplicant state变化---->" +  "android.net.qjizho.vrlauncher.wifi.STATE_CHANGE");
+            for(int m = 0; m < ehList.size(); m++) {
+                ((EventHandler)ehList.get(m)).supplicantStateChanged();
+            }
+        }
+        else if(intent.getAction().endsWith(WifiManager.RSSI_CHANGED_ACTION)) {
+            Log.d("qiqi", "WTScanResults----->rssi变化---->" +  "android.net.qjizho.vrlauncher.wifi.STATE_CHANGE");
+//            for(int m = 0; m < ehList.size(); m++) {
+//                ((EventHandler)ehList.get(m)).handleConnectChange();
+//            }
+        }
+        else if(intent.getAction().endsWith(WifiManager.NETWORK_IDS_CHANGED_ACTION)) {
+            Log.d("qiqi", "WTScanResults----->network id变化---->" +  "android.net.qjizho.vrlauncher.wifi.STATE_CHANGE");
+//            for(int m = 0; m < ehList.size(); m++) {
+//                ((EventHandler)ehList.get(m)).handleConnectChange();
+//            }
+        }
+        else if(intent.getAction().endsWith(ConnectivityManager.CONNECTIVITY_ACTION)) {
+            Log.d("qiqi", "WTScanResults----->CONNECTIVITY_ACTION变化---->" +  "android.net.qjizho.vrlauncher.wifi.STATE_CHANGE");
+//            for(int m = 0; m < ehList.size(); m++) {
+//                ((EventHandler)ehList.get(m)).handleConnectChange();
+//            }
         }
 
     }
 
     public static abstract interface EventHandler {
         /**处理连接变化事件**/
-        public abstract void handleConnectChange();
+        public abstract void handleConnectChange(String str);
         /**扫描结果是有效事件**/
         public abstract void scanResultsAvaiable();
         /**wifi状态变化事件**/
         public abstract void wifiStatusNotification();
+        public abstract  void supplicantStateChanged();
     }
 }

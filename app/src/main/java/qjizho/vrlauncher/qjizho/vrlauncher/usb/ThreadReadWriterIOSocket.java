@@ -3,6 +3,8 @@ package qjizho.vrlauncher.usb;
 import android.content.Context;
 import android.util.Log;
 
+import com.jiongbull.jlog.JLog;
+
 import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
@@ -23,13 +25,15 @@ public class ThreadReadWriterIOSocket implements Runnable,HandleInput.HandleInpu
 		this.client = client;
 		this.context = context;
 		handleInput = HandleInput.getInstance(this.context);
+		handleInput.setHandleInputListener(this);
 	}
 
 
 	@Override
-	public void sendToClient() {
+	public void sendToClient(JSONObject jsonObject) {
 		try{
-			out.write("".getBytes());
+			JLog.json(jsonObject.toString());
+			out.write(jsonObject.toString().getBytes("UTF-8"));
 			out.flush();
 		}catch (Exception e){
 
@@ -62,27 +66,9 @@ public class ThreadReadWriterIOSocket implements Runnable,HandleInput.HandleInpu
 					currCMD = readCMDFromSocket(in);
 					Log.v(androidService.TAG, Thread.currentThread().getName() + "---->" + "**currCMD ==== " + currCMD);
 
-					out.write(handleInput.handleJSON(new JSONObject(currCMD)).toString().getBytes());
+					out.write(handleInput.handleJSON(new JSONObject(currCMD)).toString().getBytes("UTF-8"));
 					out.flush();
 
-					/* 根据命令分别处理数据 */
-//					if (currCMD.equals("1"))
-//					{
-//						out.write("OK".getBytes());
-//						out.flush();
-//					} else if (currCMD.equals("2"))
-//					{
-//						out.write("OK".getBytes());
-//						out.flush();
-//					} else if (currCMD.equals("3"))
-//					{
-//						out.write("OK".getBytes());
-//						out.flush();
-//					} else if (currCMD.equalsIgnoreCase("exit"))
-//					{
-//						out.write("exit ok".getBytes());
-//						out.flush();
-//					}
 				} catch (Exception e)
 				{
 					e.printStackTrace();

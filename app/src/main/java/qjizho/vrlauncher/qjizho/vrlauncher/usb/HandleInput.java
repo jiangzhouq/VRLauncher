@@ -1,7 +1,6 @@
 package qjizho.vrlauncher.usb;
 
 import android.content.Context;
-import android.net.wifi.ScanResult;
 
 import com.jiongbull.jlog.JLog;
 
@@ -28,18 +27,20 @@ import qjizho.vrlauncher.usb.modules.WIFI;
 public class HandleInput implements Bluetooth.BluetoothListener, WIFI.WifiListener {
 
     /* Define public json key */
-    private String KEY_COMMAND = "cmd";
-    private String KEY_VALUE_OK = "ok";
-    private String KEY_ID = "id";
-    private String KEY_VALUE_VOL = "volume";
-    private String KEY_VALUE_TIME = "time";
-    private String KEY_VALUE_MODULE = "module";
-    private String KEY_VALUE_SDK = "sdk";
-    private String KEY_VALUE_SYSTEM = "system";
-    private String KEY_VALUE_LANG = "language";
-    private String KEY_VALUE_SUPPORTED_LANG = "supported";
-    private String KEY_VALUE_FILES = "files";
-    private String KEY_VALUE_QUERY_URL = "query";
+    public static final String KEY_COMMAND = "cmd";
+    public static final String KEY_VALUE_OK = "ok";
+    public static final String KEY_ID = "id";
+    public static final String KEY_VALUE_VOL = "volume";
+    public static final String KEY_VALUE_TIME = "time";
+    public static final String KEY_VALUE_MODULE = "module";
+    public static final String KEY_VALUE_SDK = "sdk";
+    public static final String KEY_VALUE_SYSTEM = "system";
+    public static final String KEY_VALUE_LANG = "language";
+    public static final String KEY_VALUE_SUPPORTED_LANG = "supported";
+    public static final String KEY_VALUE_FILES = "files";
+    public static final String KEY_VALUE_QUERY_URL = "query";
+    public static final String KEY_VALUE_WIFI_TURN = "turn";
+    public static final String KEY_VALUE_WIFI_RESULT = "wifi";
 
     private ArrayList<MyFile> avFiles = new ArrayList<MyFile>();
     private static Context mContext;
@@ -53,6 +54,7 @@ public class HandleInput implements Bluetooth.BluetoothListener, WIFI.WifiListen
     public static final int CMD_WIFI_SCAN = 12;
     public static final int CMD_WIFI_CONNECT = 13;
     public static final int CMD_WIFI_FORGET= 14;
+    public static final int CMD_WIFI_GET_TURN= 15;
     //BLUETOOTH
     //time
     public static final int CMD_GET_TIME = 2;
@@ -93,7 +95,7 @@ public class HandleInput implements Bluetooth.BluetoothListener, WIFI.WifiListen
     }
 
     public interface  HandleInputListener{
-        void sendToClient();
+        void sendToClient(JSONObject jsonObject);
     }
     private HandleInputListener handleInputListener;
     public void setHandleInputListener(HandleInputListener handleInputListener){
@@ -101,13 +103,14 @@ public class HandleInput implements Bluetooth.BluetoothListener, WIFI.WifiListen
     }
 
     @Override
-    public void returnSearchedWifi(ArrayList<ScanResult> results) {
-
+    public void returnToClient(JSONObject wifiObject) {
+        handleInputListener.sendToClient(wifiObject);
+        JLog.json(wifiObject.toString());
     }
 
     @Override
     public void returnSearchedBlue(Bluetooth.BlueDevice blueDevice) {
-        handleInputListener.sendToClient();
+        handleInputListener.sendToClient(null);
     }
 
     public JSONObject handleJSON(JSONObject json){
@@ -215,6 +218,12 @@ public class HandleInput implements Bluetooth.BluetoothListener, WIFI.WifiListen
                     }
                     jsonObject.put(KEY_VALUE_FILES, queryFilesArray);
                     break;
+                case CMD_WIFI_GET_TURN:
+                    mWifi = WIFI.getInstance(mContext);
+                    jsonObject.put(KEY_ID, json.getInt(KEY_ID));
+                    jsonObject.put(KEY_COMMAND, json.getInt(KEY_COMMAND));
+                    jsonObject.put(KEY_VALUE_WIFI_TURN, mWifi.getTurn());
+                    break;
                 case CMD_WIFI_TURN_ON:
                     mWifi = WIFI.getInstance(mContext);
                     mWifi.setTurn(true);
@@ -236,6 +245,24 @@ public class HandleInput implements Bluetooth.BluetoothListener, WIFI.WifiListen
                     jsonObject.put(KEY_COMMAND, json.getInt(KEY_COMMAND));
                     jsonObject.put(KEY_VALUE_OK, 1);
                     break;
+                case CMD_WIFI_CONNECT:
+                    mWifi = WIFI.getInstance(mContext);
+                    if(json.getString("passwd").isEmpty()){
+                        mWifi.connectConfiguration(json.getString("uuid"));
+                    }else{
+                        mWifi.addNetWork(json.getString("uuid"), json.getString("passwd"));
+                    }
+                    jsonObject.put(KEY_ID, json.getInt(KEY_ID));
+                    jsonObject.put(KEY_COMMAND, json.getInt(KEY_COMMAND));
+                    jsonObject.put(KEY_VALUE_OK, 1);
+                    break;
+                case CMD_WIFI_FORGET:
+                    mWifi = WIFI.getInstance(mContext);
+                    mWifi.removeNetWork(json.getString("uuid"));
+                    jsonObject.put(KEY_ID, json.getInt(KEY_ID));
+                    jsonObject.put(KEY_COMMAND, json.getInt(KEY_COMMAND));
+                    jsonObject.put(KEY_VALUE_OK, 1);
+                    break;
             }
             JLog.json(jsonObject.toString());
             return jsonObject;
@@ -247,18 +274,22 @@ public class HandleInput implements Bluetooth.BluetoothListener, WIFI.WifiListen
     }
     private static final String MOUNTS_FILE = "/proc/mounts";
 
-    private String[] mMountPoints=new String[]{"/storage/sdcard0",
+    private String[] mMountPoints=new String[]{
+            "/storage/sdcard0",
             "/storage/sdcard1",
             "/storage/usbdrive1",
             "/storage/usbdrive2",
             "/storage/usbdrive3",
-            "/storage/usbdrive4",
+            "/storage/usbdrive4"
             };
 
     public static boolean isMounted(String path) {
         boolean blnRet = false;
         String strLine = null;
         BufferedReader reader = null;
+        if(path.equals("/storage/sdcard0")){
+            return true;
+        }
         try {
             reader = new BufferedReader(new FileReader(MOUNTS_FILE));
 

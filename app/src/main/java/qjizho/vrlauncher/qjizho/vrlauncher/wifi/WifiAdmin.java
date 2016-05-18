@@ -60,6 +60,18 @@ public class WifiAdmin {
         }while(!localWifiConfiguration.SSID.equals("\"" + str + "\""));
         return localWifiConfiguration;
     }
+    /**
+     * 检查是否已经存在
+     */
+    public boolean isConfigExsits(String str) {
+        Iterator localIterator = this.mWifiManager.getConfiguredNetworks().iterator();
+        WifiConfiguration localWifiConfiguration;
+        do {
+            if(!localIterator.hasNext()) return false;
+            localWifiConfiguration = (WifiConfiguration) localIterator.next();
+        }while(!localWifiConfiguration.SSID.equals("\"" + str + "\""));
+        return true;
+    }
 
     /**锁定WifiLock，当下载大文件时需要锁定 **/
     public void AcquireWifiLock() {
@@ -93,8 +105,23 @@ public class WifiAdmin {
     public boolean getWifiTurn() {
         return mWifiManager.isWifiEnabled();
     }
+
     /**端口指定id的wifi**/
     public void disconnectWifi(int paramInt) {
+        this.mWifiManager.disableNetwork(paramInt);
+        this.mWifiManager.removeNetwork(paramInt);
+        mWifiManager.saveConfiguration();
+    }
+
+    public void forgetWifi(String uuid) {
+        int paramInt = 0;
+        for(WifiConfiguration wifiConfiguration : this.mWifiManager.getConfiguredNetworks()){
+            if(wifiConfiguration.SSID.equals("\"" + uuid + "\"")){
+                paramInt = wifiConfiguration.networkId;
+                break;
+            }
+        }
+
         this.mWifiManager.disableNetwork(paramInt);
         this.mWifiManager.removeNetwork(paramInt);
         mWifiManager.saveConfiguration();
@@ -108,15 +135,18 @@ public class WifiAdmin {
 
     /**
      * 连接指定配置好的网络
-     * @param index 配置好网络的ID
+     * @param ssid 配置好网络的ssid
      */
-    public void connectConfiguration(int index) {
+    public void connectConfiguration(String ssid) {
         // 索引大于配置好的网络索引返回    
-        if (index > mWifiConfiguration.size()) {
-            return;
+        for(WifiConfiguration wifiConfiguration : getConfiguration()){
+            if(wifiConfiguration.SSID.equals("\"" + ssid + "\"")){
+                mWifiManager.enableNetwork(wifiConfiguration.networkId, true);
+                break;
+            }
         }
         //连接配置好的指定ID的网络    
-        mWifiManager.enableNetwork(mWifiConfiguration.get(index).networkId, true);
+
     }
 
     /**
@@ -248,6 +278,7 @@ public class WifiAdmin {
 
     /**得到配置好的网络 **/
     public List<WifiConfiguration> getConfiguration() {
+        mWifiConfiguration = mWifiManager.getConfiguredNetworks();
         return this.mWifiConfiguration;
     }
 
