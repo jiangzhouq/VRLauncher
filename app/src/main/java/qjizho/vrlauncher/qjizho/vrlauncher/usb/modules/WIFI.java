@@ -50,19 +50,19 @@ public class WIFI implements WifiBroadcastReceiver.EventHandler {
 //    };
 
     public void notifyTimeOut(){
-
+        startScan();
     }
     @Override
     public void handleConnectChange(String str) {
-        JLog.d("connection changed: " + str);
-        JSONObject json = new JSONObject();
-        try{
-            json.put("id",9999);
-            json.put("cmd", -1);
-            json.put("connection", str);
-        }catch (Exception e){
-        }
-        wifiListener.returnToClient(json);
+//        JLog.d("connection changed: " + str);
+//        JSONObject json = new JSONObject();
+//        try{
+//            json.put("id",9999);
+//            json.put("cmd", -1);
+//            json.put("connection", str);
+//        }catch (Exception e){
+//        }
+//        wifiListener.returnToClient(json);
     }
 
     @Override
@@ -72,17 +72,17 @@ public class WIFI implements WifiBroadcastReceiver.EventHandler {
 
     @Override
     public void supplicantStateChanged() {
-        JLog.d("supplicantStateChanged:state ---" + mWifiAdmin.getWifiInfo().getSupplicantState().toString());
-        JLog.d("supplicantStateChanged:SSID  ---" + mWifiAdmin.getWifiInfo().getSSID());
-        JSONObject json = new JSONObject();
-        try{
-            json.put("id",9998);
-            json.put("cmd", -1);
-            json.put("ssid", mWifiAdmin.getWifiInfo().getSSID());
-            json.put("supplicant", mWifiAdmin.getWifiInfo().getSupplicantState().toString());
-        }catch (Exception e){
-        }
-        wifiListener.returnToClient(json);
+//        JLog.d("supplicantStateChanged:state ---" + mWifiAdmin.getWifiInfo().getSupplicantState().toString());
+//        JLog.d("supplicantStateChanged:SSID  ---" + mWifiAdmin.getWifiInfo().getSSID());
+//        JSONObject json = new JSONObject();
+//        try{
+//            json.put("id",9998);
+//            json.put("cmd", -1);
+//            json.put("ssid", mWifiAdmin.getWifiInfo().getSSID());
+//            json.put("supplicant", mWifiAdmin.getWifiInfo().getSupplicantState().toString());
+//        }catch (Exception e){
+//        }
+//        wifiListener.returnToClient(json);
     }
 
     @Override
@@ -92,7 +92,7 @@ public class WIFI implements WifiBroadcastReceiver.EventHandler {
         JSONObject wifiObject = new JSONObject();
         try{
             wifiObject.put(HandleInput.KEY_COMMAND, HandleInput.CMD_WIFI_SCAN);
-            wifiObject.put(HandleInput.KEY_ID, "9997");
+            wifiObject.put(HandleInput.KEY_ID, 9997);
             JSONArray resultsJsonArray = new JSONArray();
             for(ScanResult scanResult : wifiResults){
                 JSONObject object = new JSONObject();

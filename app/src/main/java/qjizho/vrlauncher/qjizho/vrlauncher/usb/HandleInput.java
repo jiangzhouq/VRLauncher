@@ -56,6 +56,12 @@ public class HandleInput implements Bluetooth.BluetoothListener, WIFI.WifiListen
     public static final int CMD_WIFI_FORGET= 14;
     public static final int CMD_WIFI_GET_TURN= 15;
     //BLUETOOTH
+    public static final int CMD_BLUE_TURN_ON = 16;
+    public static final int CMD_BLUE_TURN_OFF = 17;
+    public static final int CMD_BLUE_SCAN = 18;
+    public static final int CMD_BLUE_CONNECT = 19;
+    public static final int CMD_BLUE_FORGET = 20;
+    public static final int CMD_BLUE_GET_TURN =21;
     //time
     public static final int CMD_GET_TIME = 2;
     public static final int CMD_SET_TIME = 3;
@@ -86,6 +92,8 @@ public class HandleInput implements Bluetooth.BluetoothListener, WIFI.WifiListen
     private HandleInput(){
         mWifi = WIFI.getInstance(mContext);
         mWifi.setWifiListener(this);
+        mBluetooth = Bluetooth.getInstance(mContext);
+        mBluetooth.setBluetoothListener(this);
     }
     public static HandleInput getInstance(Context context){
         mContext = context;
@@ -109,8 +117,9 @@ public class HandleInput implements Bluetooth.BluetoothListener, WIFI.WifiListen
     }
 
     @Override
-    public void returnSearchedBlue(Bluetooth.BlueDevice blueDevice) {
-        handleInputListener.sendToClient(null);
+    public void returnBlueToClient(JSONObject blueObject) {
+        handleInputListener.sendToClient(blueObject);
+        JLog.json(blueObject.toString());
     }
 
     public JSONObject handleJSON(JSONObject json){
@@ -263,11 +272,51 @@ public class HandleInput implements Bluetooth.BluetoothListener, WIFI.WifiListen
                     jsonObject.put(KEY_COMMAND, json.getInt(KEY_COMMAND));
                     jsonObject.put(KEY_VALUE_OK, 1);
                     break;
+                case CMD_BLUE_TURN_ON:
+                    mBluetooth = Bluetooth.getInstance(mContext);
+                    mBluetooth.setBluetoothTurn(true);
+                    jsonObject.put(KEY_ID, json.getInt(KEY_ID));
+                    jsonObject.put(KEY_COMMAND, json.getInt(KEY_COMMAND));
+                    jsonObject.put(KEY_VALUE_OK, 1);
+                    break;
+                case CMD_BLUE_TURN_OFF:
+                    mBluetooth = Bluetooth.getInstance(mContext);
+                    mBluetooth.setBluetoothTurn(false);
+                    jsonObject.put(KEY_ID, json.getInt(KEY_ID));
+                    jsonObject.put(KEY_COMMAND, json.getInt(KEY_COMMAND));
+                    jsonObject.put(KEY_VALUE_OK, 1);
+                    break;
+                case CMD_BLUE_SCAN:
+                    mBluetooth = Bluetooth.getInstance(mContext);
+                    mBluetooth.startScan();
+                    jsonObject.put(KEY_ID, json.getInt(KEY_ID));
+                    jsonObject.put(KEY_COMMAND, json.getInt(KEY_COMMAND));
+                    jsonObject.put(KEY_VALUE_OK, 1);
+                    break;
+                case CMD_BLUE_CONNECT:
+                    mBluetooth = Bluetooth.getInstance(mContext);
+                    mBluetooth.bondBlue(json.getString("address"));
+                    jsonObject.put(KEY_ID, json.getInt(KEY_ID));
+                    jsonObject.put(KEY_COMMAND, json.getInt(KEY_COMMAND));
+                    jsonObject.put(KEY_VALUE_OK, 1);
+                    break;
+                case CMD_BLUE_FORGET:
+                    mBluetooth = Bluetooth.getInstance(mContext);
+                    mBluetooth.diconncetBlue(json.getString("address"));
+                    jsonObject.put(KEY_ID, json.getInt(KEY_ID));
+                    jsonObject.put(KEY_COMMAND, json.getInt(KEY_COMMAND));
+                    jsonObject.put(KEY_VALUE_OK, 1);
+                    break;
+                case CMD_BLUE_GET_TURN:
+                    mBluetooth = Bluetooth.getInstance(mContext);
+                    jsonObject.put(KEY_ID, json.getInt(KEY_ID));
+                    jsonObject.put(KEY_COMMAND, json.getInt(KEY_COMMAND));
+                    jsonObject.put("turn", mBluetooth.getBluetoothState());
+                    break;
             }
             JLog.json(jsonObject.toString());
             return jsonObject;
         }catch (Exception e){
-
         }
 
         return null;

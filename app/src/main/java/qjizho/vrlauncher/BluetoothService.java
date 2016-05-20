@@ -263,7 +263,6 @@ public class BluetoothService extends Service {
             else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)){
                 try{
                     Thread.sleep(5000);
-
                 }catch(Exception e){
 
                 }
