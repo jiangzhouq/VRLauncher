@@ -27,20 +27,19 @@ public class Volume {
     }
 
     public void setVolume(int vol){
-        int mVol = vol;
         if(null == tAm)
             tAm = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
-        tAm.setStreamVolume(AudioManager.STREAM_MUSIC, mVol, AudioManager.FLAG_PLAY_SOUND);
-        JLog.v("chl", "Set = " + vol + " final /100 * max = " + mVol);
+        tAm.setStreamVolume(AudioManager.STREAM_MUSIC, vol, AudioManager.FLAG_PLAY_SOUND);
+        tAm.setStreamVolume(AudioManager.STREAM_MUSIC, vol, AudioManager.FLAG_PLAY_SOUND);
+        JLog.d("Set = " + vol);
     }
 
     public int getVolume(){
         if(null == tAm)
             tAm = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
         int curVol = tAm.getStreamVolume(AudioManager.STREAM_MUSIC);
-        int returnVol = curVol;
-        JLog.v("chl", "Get = " + curVol + " final /max * 100 = " + returnVol  );
-        return returnVol;
+        JLog.d("Get = " + curVol);
+        return curVol;
     }
 
 //    private int getMaxVolume(){

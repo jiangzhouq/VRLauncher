@@ -28,16 +28,18 @@ public class ThreadReadWriterIOSocket implements Runnable,HandleInput.HandleInpu
 		handleInput.setHandleInputListener(this);
 	}
 
-
-	@Override
-	public void sendToClient(JSONObject jsonObject) {
+	private synchronized void send(JSONObject jsonObject){
 		try{
-			JLog.json(jsonObject.toString());
 			out.write(jsonObject.toString().getBytes("UTF-8"));
 			out.flush();
 		}catch (Exception e){
 
 		}
+	}
+
+	@Override
+	public void sendToClient(JSONObject jsonObject) {
+		send(jsonObject);
 	}
 
 	@Override
@@ -64,10 +66,12 @@ public class ThreadReadWriterIOSocket implements Runnable,HandleInput.HandleInpu
 					Log.v(androidService.TAG, Thread.currentThread().getName() + "---->" + "will read......");
 					/* 读操作命令 */
 					currCMD = readCMDFromSocket(in);
+					JLog.d(currCMD);
 					Log.v(androidService.TAG, Thread.currentThread().getName() + "---->" + "**currCMD ==== " + currCMD);
 
-					out.write(handleInput.handleJSON(new JSONObject(currCMD)).toString().getBytes("UTF-8"));
-					out.flush();
+					send(handleInput.handleJSON(new JSONObject(currCMD)));
+//					out.write(handleInput.handleJSON(new JSONObject(currCMD)).toString().getBytes("UTF-8"));
+//					out.flush();
 
 				} catch (Exception e)
 				{

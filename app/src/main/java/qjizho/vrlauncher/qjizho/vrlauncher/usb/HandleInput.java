@@ -89,11 +89,16 @@ public class HandleInput implements Bluetooth.BluetoothListener, WIFI.WifiListen
     private JSONObject jsonObject;
 
     private static HandleInput instance;
+
     private HandleInput(){
         mWifi = WIFI.getInstance(mContext);
         mWifi.setWifiListener(this);
         mBluetooth = Bluetooth.getInstance(mContext);
         mBluetooth.setBluetoothListener(this);
+        mVolume = Volume.getInstance(mContext);
+        mTime = Time.getInstance(mContext);
+        mAbout = About.getInstance(mContext);
+        mLanguage = Language.getInstance(mContext);
     }
     public static HandleInput getInstance(Context context){
         mContext = context;

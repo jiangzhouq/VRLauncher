@@ -7,7 +7,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.ParcelUuid;
 import android.util.Log;
 
 import com.jiongbull.jlog.JLog;
@@ -30,6 +29,7 @@ public class Bluetooth {
     private static Context mContext;
     BluetoothAdapter bluetoothAdapter;
     private ArrayList<BluetoothDevice> mDevicesList = new ArrayList<>();
+    private ArrayList<BlueDevice> mBlueList = new ArrayList<>();
     private Bluetooth(Context context){
         mContext = context;
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -56,6 +56,11 @@ public class Bluetooth {
             if (!bluetoothAdapter.isEnabled())
             {
                 bluetoothAdapter.enable();
+                try{
+                    Thread.sleep(2000);
+                }catch (Exception e){
+
+                }
                 startScan();
             }
         }else{
@@ -72,8 +77,9 @@ public class Bluetooth {
     }
 
     public void startScan(){
-        getBondedBlues();
         mDevicesList.clear();
+        mBlueList.clear();
+        getBondedBlues();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BluetoothDevice.ACTION_FOUND);
         intentFilter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
@@ -91,23 +97,32 @@ public class Bluetooth {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             JLog.d("action:" + action);
-            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                JSONObject blueObject = new JSONObject();
+            out:if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+//                JSONObject blueObject = new JSONObject();
 
                 try{
-                    blueObject.put(HandleInput.KEY_ID, 10007);
-                    blueObject.put(HandleInput.KEY_COMMAND, HandleInput.CMD_BLUE_SCAN);
+//                    blueObject.put(HandleInput.KEY_ID, 10007);
+//                    blueObject.put(HandleInput.KEY_COMMAND, HandleInput.CMD_BLUE_SCAN);
                     BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                     if(device != null){
-
-                        JLog.d(device.getAddress().toString());
-                        JLog.d(device.getName().toString());
-                        JLog.d("" + device.getType());
+                        if(mBlueList.size()>0){
+                            JLog.d("mBlueList.size()" + mBlueList.size());
+                            for( BlueDevice blueDevice : mBlueList){
+                                JLog.d(blueDevice.bAdress);
+                                JLog.d(device.getAddress());
+                                if(blueDevice.bAdress.equals(device.getAddress())){
+                                    break out;
+                                }
+                            }
+                        }
+//                        JLog.d(device.getAddress().toString());
+//                        JLog.d(device.getName().toString());
+//                        JLog.d("" + device.getType());
 //                        JLog.d("" + device.getUuids().toString());
 
-                        blueObject.put("name", device.getName().toString());
-                        blueObject.put("address", device.getAddress().toString());
-                        blueObject.put("type", device.getType());
+//                        blueObject.put("name", device.getName().toString());
+//                        blueObject.put("address", device.getAddress().toString());
+//                        blueObject.put("type", device.getType());
 //                        JSONArray uuidArray = new JSONArray();
 //                        for (ParcelUuid uuid : device.getUuids()){
 //                            JSONObject uuidObject = new JSONObject();
@@ -116,14 +131,22 @@ public class Bluetooth {
 //                        }
 //                        blueObject.put("uuid", uuidArray);
                         mDevicesList.add(device);
+
+                        BlueDevice blueDevice = new BlueDevice();
+                        blueDevice.bName = device.getName();
+                        blueDevice.bAdress = device.getAddress();
+                        blueDevice.bType = device.getType();
+                        blueDevice.bBond = device.getBondState();
+                        blueDevice.bConnect = false;
+                        mBlueList.add(blueDevice);
                     }else{
                         JLog.d("device == null");
                     }
                 }catch (Exception e){
                     JLog.d(e.toString());
                 }
-                JLog.json(blueObject.toString());
-                bluetoothListener.returnBlueToClient(blueObject);
+//                JLog.json(blueObject.toString());
+//                bluetoothListener.returnBlueToClient(blueObject);
             }else if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)){
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 if (device.getName().contains("小米蓝牙手柄")) {
@@ -141,89 +164,138 @@ public class Bluetooth {
                 }
             }
             else if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)){
-                JSONObject jsonObject = new JSONObject();
-                try{
-                    jsonObject.put(HandleInput.KEY_ID, 10007);
-                    jsonObject.put(HandleInput.KEY_COMMAND, HandleInput.CMD_BLUE_SCAN);
-                    jsonObject.put("discovery", true);
-                }catch (Exception e){
-
-                }
-                JLog.json(jsonObject.toString());
-                bluetoothListener.returnBlueToClient(jsonObject);
+//                JSONObject jsonObject = new JSONObject();
+//                try{
+//                    jsonObject.put(HandleInput.KEY_ID, 10007);
+//                    jsonObject.put(HandleInput.KEY_COMMAND, HandleInput.CMD_BLUE_SCAN);
+//                    jsonObject.put("discovery", true);
+//                }catch (Exception e){
+//
+//                }
+//                JLog.json(jsonObject.toString());
+//                bluetoothListener.returnBlueToClient(jsonObject);
             }
             else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)){
-                JSONObject jsonObject = new JSONObject();
-                try{
-                    jsonObject.put(HandleInput.KEY_ID, 10007);
-                    jsonObject.put(HandleInput.KEY_COMMAND, HandleInput.CMD_BLUE_SCAN);
-                    jsonObject.put("discovery", false);
-                }catch (Exception e){
-
-                }
-                JLog.json(jsonObject.toString());
-                bluetoothListener.returnBlueToClient(jsonObject);
+//                JSONObject jsonObject = new JSONObject();
+//                try{
+//                    jsonObject.put(HandleInput.KEY_ID, 10007);
+//                    jsonObject.put(HandleInput.KEY_COMMAND, HandleInput.CMD_BLUE_SCAN);
+//                    jsonObject.put("discovery", false);
+//                }catch (Exception e){
+//
+//                }
+//                JLog.json(jsonObject.toString());
+//                bluetoothListener.returnBlueToClient(jsonObject);
+//                getBondedBlues();
+                returnBlues();
             }
             else if (BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED.equals(action)){
 
             }
             else if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)){
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                JSONObject jsonObject = new JSONObject();
-                try{
-                    jsonObject.put(HandleInput.KEY_ID, 10007);
-                    jsonObject.put(HandleInput.KEY_COMMAND, HandleInput.CMD_BLUE_CONNECT);
-                    jsonObject.put("bluetooth", device.getName());
-                    jsonObject.put("connected", true);
-                }catch (Exception e){
-
+//                JSONObject jsonObject = new JSONObject();
+//                try{
+//                    jsonObject.put(HandleInput.KEY_ID, 10007);
+//                    jsonObject.put(HandleInput.KEY_COMMAND, HandleInput.CMD_BLUE_CONNECT);
+//                    jsonObject.put("bluetooth", device.getName());
+//                    jsonObject.put("connected", true);
+//                }catch (Exception e){
+//
+//                }
+//                JLog.json(jsonObject.toString());
+//                bluetoothListener.returnBlueToClient(jsonObject);
+                for(BlueDevice blueDevice : mBlueList){
+                    if(blueDevice.bAdress.equals(device.getAddress())){
+                        blueDevice.bConnect = true;
+                    }
                 }
-                JLog.json(jsonObject.toString());
-                bluetoothListener.returnBlueToClient(jsonObject);
+                returnBlues();
             }
             else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)){
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                JSONObject jsonObject = new JSONObject();
-                try{
-                    jsonObject.put(HandleInput.KEY_ID, 10007);
-                    jsonObject.put(HandleInput.KEY_COMMAND, HandleInput.CMD_BLUE_CONNECT);
-                    jsonObject.put("bluetooth", device.getName());
-                    jsonObject.put("connected", false);
-                }catch (Exception e){
+//                JSONObject jsonObject = new JSONObject();
+//                try{
+//                    jsonObject.put(HandleInput.KEY_ID, 10007);
+//                    jsonObject.put(HandleInput.KEY_COMMAND, HandleInput.CMD_BLUE_CONNECT);
+//                    jsonObject.put("bluetooth", device.getName());
+//                    jsonObject.put("connected", false);
+//                }catch (Exception e){
+//
+//                }
+//                JLog.json(jsonObject.toString());
+//                bluetoothListener.returnBlueToClient(jsonObject);
 
+                for(BlueDevice blueDevice : mBlueList){
+                    if(blueDevice.bAdress.equals(device.getAddress())){
+                        blueDevice.bConnect = false;
+                    }
                 }
-                JLog.json(jsonObject.toString());
-                bluetoothListener.returnBlueToClient(jsonObject);
+                returnBlues();
             }
         }
     };
 
+    private void returnBlues(){
+
+        JSONObject blueObject = new JSONObject();
+        try{
+            JSONArray blueArray = new JSONArray();
+            blueObject.put(HandleInput.KEY_ID, 10008);
+            blueObject.put(HandleInput.KEY_COMMAND, HandleInput.CMD_BLUE_SCAN);
+            JLog.d("mBlueList.size():" + mBlueList.size());
+            for(BlueDevice blueDevice : mBlueList){
+                JSONObject object = new JSONObject();
+                object.put("name", blueDevice.bName);
+                object.put("address", blueDevice.bAdress);
+                object.put("type", blueDevice.bType);
+                object.put("bond", blueDevice.bBond);
+                object.put("connnect", blueDevice.bConnect);
+                blueArray.put(object);
+            }
+            blueObject.put("bluetooth", blueArray);
+        }catch (Exception e){
+
+        }
+        JLog.json(blueObject.toString());
+        bluetoothListener.returnBlueToClient(blueObject);
+    }
     public void getBondedBlues(){
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
         ArrayList<BluetoothDevice> pairedDevicesList = new ArrayList<>(pairedDevices);
-        JSONObject bondObject = new JSONObject();
+        JLog.d("paired size:" + pairedDevicesList.size());
+//        JSONObject bondObject = new JSONObject();
         try{
-            bondObject.put(HandleInput.KEY_ID, 10007);
-            bondObject.put(HandleInput.KEY_COMMAND, HandleInput.CMD_BLUE_SCAN);
-            JSONArray blueArray = new JSONArray();
+//            bondObject.put(HandleInput.KEY_ID, 10008);
+//            bondObject.put(HandleInput.KEY_COMMAND, HandleInput.CMD_BLUE_SCAN);
+//            JSONArray blueArray = new JSONArray();
             for(BluetoothDevice bluetoothDevice : pairedDevicesList){
-                JSONObject blueObject = new JSONObject();
-                blueObject.put("name", bluetoothDevice.getName());
-                blueObject.put("address", bluetoothDevice.getAddress());
-                blueObject.put("type", bluetoothDevice.getType());
-                JSONArray uuidArray = new JSONArray();
-                for (ParcelUuid uuid : bluetoothDevice.getUuids()){
-                    JSONObject uuidObject = new JSONObject();
-                    uuidObject.put("uuid", uuid.getUuid().toString());
-                    uuidArray.put(uuidObject);
-                }
-                blueObject.put("uuid", uuidArray);
+//                JSONObject blueObject = new JSONObject();
+//                blueObject.put("name", bluetoothDevice.getName());
+//                blueObject.put("address", bluetoothDevice.getAddress());
+//                blueObject.put("type", bluetoothDevice.getType());
+//                blueObject.put("bond", bluetoothDevice.getBondState());
+//                blueArray.put(blueObject);
+                BlueDevice blueDevice = new BlueDevice();
+                blueDevice.bName = bluetoothDevice.getName();
+                blueDevice.bAdress = bluetoothDevice.getAddress();
+                blueDevice.bType = bluetoothDevice.getType();
+                blueDevice.bBond = bluetoothDevice.getBondState();
+                blueDevice.bConnect = false;
+                mBlueList.add(blueDevice);
+//                JSONArray uuidArray = new JSONArray();
+//                for (ParcelUuid uuid : bluetoothDevice.getUuids()){
+//                    JSONObject uuidObject = new JSONObject();
+//                    uuidObject.put("uuid", uuid.getUuid().toString());
+//                    uuidArray.put(uuidObject);
+//                }
+//                blueObject.put("uuid", uuidArray);
             }
         }catch ( Exception e){
 
         }
-        JLog.json(bondObject.toString());
-        bluetoothListener.returnBlueToClient(bondObject);
+//        JLog.json(bondObject.toString());
+//        bluetoothListener.returnBlueToClient(bondObject);
     }
 
     public void bondBlue(String address){
@@ -319,6 +391,7 @@ public class Bluetooth {
         public String bName;
         public String bAdress;
         public int bType;
-        public ArrayList<String> bUuid;
+        public int bBond;
+        public boolean bConnect;
     }
 }

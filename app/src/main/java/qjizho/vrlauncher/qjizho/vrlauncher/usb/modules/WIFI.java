@@ -25,6 +25,7 @@ public class WIFI implements WifiBroadcastReceiver.EventHandler {
     public WifiAdmin mWifiAdmin;
     private WFSearchProcess mWFSearchProcess;
     public static final int m_nWifiSearchTimeOut = 0;// 搜索超时
+    private boolean mWifiCanReturn = false;
     private WIFI(Context context){
         mContext = context;
         mWifiAdmin = WifiAdmin.getInstance(mContext);
@@ -107,7 +108,11 @@ public class WIFI implements WifiBroadcastReceiver.EventHandler {
         }catch(Exception e){
 
         }
-        wifiListener.returnToClient(wifiObject);
+        if(mWifiCanReturn){
+            wifiListener.returnToClient(wifiObject);
+            mWifiCanReturn = false;
+        }
+
     }
 
     public static synchronized WIFI getInstance(Context context){
@@ -124,6 +129,7 @@ public class WIFI implements WifiBroadcastReceiver.EventHandler {
     public void setTurn(boolean on){
         if(on){
             mWifiAdmin.OpenWifi();
+            startScan();
         }else{
             mWifiAdmin.closeWifi();
         }
@@ -131,16 +137,18 @@ public class WIFI implements WifiBroadcastReceiver.EventHandler {
     }
 
     public void startScan(){
-        if(!mWFSearchProcess.running){
+//        if(!mWFSearchProcess.running){
             mWifiAdmin.startScan();
             JLog.d("WIFI startScan");
-            mWFSearchProcess.start();
-        }else{
-            mWFSearchProcess.stop();
-            mWifiAdmin.startScan();
-            JLog.d("WIFI startScan");
-            mWFSearchProcess.start();
-        }
+//            mWFSearchProcess.start();
+            mWifiCanReturn = true;
+//        }else{
+//            mWFSearchProcess.stop();
+//            mWifiAdmin.startScan();
+//            JLog.d("WIFI startScan");
+//            mWFSearchProcess.start();
+//            mWifiCanReturn = true;
+//        }
     }
 
     public void addNetWork(String uuid, String passwd){

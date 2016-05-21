@@ -38,21 +38,72 @@
             </LinearLayout>
 
         </RelativeLayout>
-        <GridView
-            android:id="@+id/list_left"
-            android:numColumns="3"
+
+        <RelativeLayout
+            android:layout_width="640px"
+            android:layout_height="360px"
             android:layout_centerInParent="true"
-            android:layout_width="420dp"
-            android:layout_height="wrap_content"
-            android:clickable="false"
-            >
-        </GridView>
-        <GridView
-            android:id="@+id/explorer_left"
-            android:layout_width="360dp"
-            android:layout_height="360dp"
-            android:layout_centerInParent="true"
-            android:numColumns="3"></GridView>
+            android:background="@drawable/bg_home_b">
+            <GridView
+                android:id="@+id/list_left"
+                android:numColumns="3"
+                android:layout_centerInParent="true"
+                android:layout_width="420px"
+                android:layout_height="280px"
+                android:clickable="false"
+                >
+            </GridView>
+            <LinearLayout
+                android:layout_width="420px"
+                android:layout_height="280px"
+                android:layout_centerInParent="true"
+                android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+                    <RelativeLayout
+                        android:id="@+id/iPlayer_left"
+                        android:layout_width="0dp"
+                        android:layout_weight="2"
+                        android:layout_height="match_parent"
+                        >
+                    </RelativeLayout>
+                    <RelativeLayout
+                        android:id="@+id/player_left"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent">
+                    </RelativeLayout>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+                    <RelativeLayout
+                        android:id="@+id/file_explorer_left"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent">
+                    </RelativeLayout>
+                    <RelativeLayout
+                        android:id="@+id/game1_left"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent">
+                    </RelativeLayout>
+                    <RelativeLayout
+                        android:id="@+id/game2_left"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent">
+                    </RelativeLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </RelativeLayout>
+
         <RelativeLayout
             android:id="@+id/alert_layout_left"
             android:layout_width="360dp"
@@ -90,19 +141,6 @@
                 android:layout_marginBottom="30dp"/>
         </RelativeLayout>
 
-        <ImageView
-            android:id="@+id/selected_left"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:layout_centerVertical="true"
-            android:layout_toLeftOf="@+id/arrow_left"/>
-        <ImageView
-            android:id="@+id/arrow_left"
-            android:layout_width="40dp"
-            android:layout_height="80dp"
-            android:src="@mipmap/arrow"
-            android:layout_centerVertical="true"
-            android:layout_toLeftOf="@+id/explorer_left"/>
     </RelativeLayout>
     <RelativeLayout
         android:id="@+id/right_view"
@@ -193,19 +231,5 @@
             android:layout_height="80dp"
             android:layout_centerVertical="true"
             android:layout_toLeftOf="@+id/arrow_right"/>
-        <ImageView
-            android:id="@+id/arrow_right"
-            android:layout_width="40dp"
-            android:layout_height="80dp"
-            android:src="@mipmap/arrow"
-            android:layout_centerVertical="true"
-            android:layout_toLeftOf="@+id/explorer_right"/>
-        <TextView
-            android:id="@+id/to_launcher"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:background="@android:color/transparent"/>
     </RelativeLayout>
 </LinearLayout>

@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:layout_width="120dp"
-    android:layout_height="120dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:id="@+id/img_bg"
     >
     <ImageView
         android:id="@+id/img"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:scaleType="centerCrop"
+        android:layout_width="80px"
+        android:layout_height="80px"
+        android:scaleType="centerInside"
         android:focusable="false"
         android:clickable="false"
         android:layout_centerInParent="true"
