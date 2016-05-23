@@ -48,6 +48,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import qjizho.vrlauncher.usb.modules.Bluetooth;
+
 public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.BatteryReceiver.BatteryHandler{
     private View mDecorView;
     private List<Map<String, Object>> mapList;
@@ -177,6 +179,8 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
             e.printStackTrace();
         }
         Settings.Global.putInt(getContentResolver(), Settings.Global.INSTALL_NON_MARKET_APPS,1);
+
+        Bluetooth bluetooth = Bluetooth.getInstance(this);
     }
     private void showHome(){
         LayoutInflater inflater = getLayoutInflater();

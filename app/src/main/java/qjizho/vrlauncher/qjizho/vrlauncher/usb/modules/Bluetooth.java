@@ -33,7 +33,9 @@ public class Bluetooth {
     private Bluetooth(Context context){
         mContext = context;
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        connectedBlues = new ArrayList<>();
     }
+    private ArrayList<String> connectedBlues;
     public static synchronized Bluetooth getInstance(Context context){
         if(null == tInstance){
             tInstance = new Bluetooth(context);
@@ -137,7 +139,11 @@ public class Bluetooth {
                         blueDevice.bAdress = device.getAddress();
                         blueDevice.bType = device.getType();
                         blueDevice.bBond = device.getBondState();
-                        blueDevice.bConnect = false;
+                        if(connectedBlues.contains(device.getAddress())){
+                            blueDevice.bConnect = true;
+                        }else{
+                            blueDevice.bConnect = false;
+                        }
                         mBlueList.add(blueDevice);
                     }else{
                         JLog.d("device == null");
@@ -210,6 +216,9 @@ public class Bluetooth {
                         blueDevice.bConnect = true;
                     }
                 }
+                if(!connectedBlues.contains(device.getAddress())){
+                    connectedBlues.add(device.getAddress());
+                }
                 returnBlues();
             }
             else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)){
@@ -230,6 +239,9 @@ public class Bluetooth {
                     if(blueDevice.bAdress.equals(device.getAddress())){
                         blueDevice.bConnect = false;
                     }
+                }
+                if(connectedBlues.contains(device.getAddress())){
+                    connectedBlues.remove(device.getAddress());
                 }
                 returnBlues();
             }
@@ -281,7 +293,11 @@ public class Bluetooth {
                 blueDevice.bAdress = bluetoothDevice.getAddress();
                 blueDevice.bType = bluetoothDevice.getType();
                 blueDevice.bBond = bluetoothDevice.getBondState();
-                blueDevice.bConnect = false;
+                if(connectedBlues.contains(bluetoothDevice.getAddress())){
+                    blueDevice.bConnect = true;
+                }else{
+                    blueDevice.bConnect = false;
+                }
                 mBlueList.add(blueDevice);
 //                JSONArray uuidArray = new JSONArray();
 //                for (ParcelUuid uuid : bluetoothDevice.getUuids()){
