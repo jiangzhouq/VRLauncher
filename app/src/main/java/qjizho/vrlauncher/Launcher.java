@@ -263,8 +263,8 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
         if(getRequestedOrientation()!= ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE){
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         }
-        Intent intent = new Intent(this, qjizho.vrlauncher.KillProgramService.class);
-        startService(intent);
+//        Intent intent = new Intent(this, qjizho.vrlauncher.KillProgramService.class);
+//        startService(intent);
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("qjizho.vrlauncher.action.battery_changed");
         batteryReceiver = new BattReceiver();
