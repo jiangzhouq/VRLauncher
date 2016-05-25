@@ -57,7 +57,8 @@
                 android:layout_width="420px"
                 android:layout_height="280px"
                 android:layout_centerInParent="true"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:id="@+id/home_left">
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
@@ -96,6 +97,63 @@
                     </RelativeLayout>
                     <RelativeLayout
                         android:id="@+id/game2_left"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent">
+                    </RelativeLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="420px"
+                android:layout_height="280px"
+                android:layout_centerInParent="true"
+                android:orientation="vertical"
+                android:id="@+id/launchpad_left">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+                    <RelativeLayout
+                        android:id="@+id/icon1_left"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent"
+                        >
+                    </RelativeLayout>
+                    <RelativeLayout
+                        android:id="@+id/icon2_left"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent">
+                    </RelativeLayout>
+                    <RelativeLayout
+                        android:id="@+id/icon3_left"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent">
+                    </RelativeLayout>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+                    <RelativeLayout
+                        android:id="@+id/icon4_left"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent">
+                    </RelativeLayout>
+                    <RelativeLayout
+                        android:id="@+id/icon5_left"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent">
+                    </RelativeLayout>
+                    <RelativeLayout
+                        android:id="@+id/icon6_left"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="match_parent">

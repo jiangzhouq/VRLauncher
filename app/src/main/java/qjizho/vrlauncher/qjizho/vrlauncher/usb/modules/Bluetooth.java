@@ -63,7 +63,7 @@ public class Bluetooth {
                 }catch (Exception e){
 
                 }
-                startScan();
+//                startScan();
             }
         }else{
             if (bluetoothAdapter.isEnabled())
@@ -262,7 +262,7 @@ public class Bluetooth {
                 object.put("address", blueDevice.bAdress);
                 object.put("type", blueDevice.bType);
                 object.put("bond", blueDevice.bBond);
-                object.put("connnect", blueDevice.bConnect);
+                object.put("connect", blueDevice.bConnect);
                 blueArray.put(object);
             }
             blueObject.put("bluetooth", blueArray);

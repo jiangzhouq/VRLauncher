@@ -7,12 +7,13 @@
     >
     <ImageView
         android:id="@+id/img"
-        android:layout_width="80px"
-        android:layout_height="80px"
-        android:scaleType="centerInside"
+        android:layout_width="60px"
+        android:layout_height="60px"
+        android:scaleType="fitXY"
         android:focusable="false"
         android:clickable="false"
-        android:layout_centerInParent="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30px"
         android:focusableInTouchMode="false"/>
     <TextView
         android:id="@+id/txt"
@@ -22,5 +23,5 @@
         android:textSize="16sp"
         android:textColor="@color/white"
         android:layout_centerHorizontal="true"
-        android:layout_below="@+id/img"/>
+        android:layout_alignParentBottom="true"/>
 </RelativeLayout>

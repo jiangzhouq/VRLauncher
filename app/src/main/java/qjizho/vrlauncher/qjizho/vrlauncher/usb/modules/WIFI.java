@@ -98,6 +98,7 @@ public class WIFI implements WifiBroadcastReceiver.EventHandler {
             for(ScanResult scanResult : wifiResults){
                 JSONObject object = new JSONObject();
                 object.put("ssid", scanResult.SSID);
+                JLog.d("SSID:" + scanResult.SSID);
                 object.put("capabilities", scanResult.capabilities);
                 object.put("level", scanResult.level);
                 object.put("configuration", mWifiAdmin.isConfigExsits(scanResult.SSID));
@@ -129,7 +130,7 @@ public class WIFI implements WifiBroadcastReceiver.EventHandler {
     public void setTurn(boolean on){
         if(on){
             mWifiAdmin.OpenWifi();
-            startScan();
+//            startScan();
         }else{
             mWifiAdmin.closeWifi();
         }

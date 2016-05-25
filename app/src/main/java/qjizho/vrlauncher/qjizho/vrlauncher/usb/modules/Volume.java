@@ -30,7 +30,8 @@ public class Volume {
         if(null == tAm)
             tAm = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
         tAm.setStreamVolume(AudioManager.STREAM_MUSIC, vol, AudioManager.FLAG_PLAY_SOUND);
-        tAm.setStreamVolume(AudioManager.STREAM_MUSIC, vol, AudioManager.FLAG_PLAY_SOUND);
+        tAm.setStreamVolume(AudioManager.STREAM_SYSTEM, vol, AudioManager.FLAG_PLAY_SOUND);
+        tAm.setStreamVolume(AudioManager.STREAM_NOTIFICATION, vol, AudioManager.FLAG_PLAY_SOUND);
         JLog.d("Set = " + vol);
     }
 
