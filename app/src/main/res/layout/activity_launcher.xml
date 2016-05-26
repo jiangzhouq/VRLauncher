@@ -43,6 +43,7 @@
             android:layout_width="640px"
             android:layout_height="360px"
             android:layout_centerInParent="true"
+            android:id="@+id/bg_home"
             android:background="@drawable/bg_home_b">
             <GridView
                 android:id="@+id/list_left"
@@ -160,6 +161,80 @@
                     </RelativeLayout>
                 </LinearLayout>
             </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="420px"
+                android:layout_height="280px"
+                android:layout_centerInParent="true"
+                android:orientation="vertical"
+                android:id="@+id/uninstall_alert_left">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="2"
+                    android:orientation="horizontal">
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1">
+                    </RelativeLayout>
+                    <RelativeLayout
+                        android:id="@+id/uninstall_alert_left_icon"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/icon_circle">
+                    </RelativeLayout>
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1">
+                    </RelativeLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:text="@string/apk_uninstall_alert1"
+                        android:textColor="@color/white"
+                        android:gravity="center"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:text="@string/apk_uninstall_alert2"
+                        android:textColor="@color/blue_dark"
+                        android:gravity="center"/>
+                </LinearLayout>
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1">
+                    <Button
+                        android:id="@+id/uninstall_alert_left_cancel"
+                        android:layout_width="96px"
+                        android:layout_height="33px"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentLeft="true"
+                        android:textColor="@color/white"
+                        android:background="@drawable/uninstall_btn"/>
+                    <Button
+                        android:id="@+id/uninstall_alert_left_confirm"
+                        android:layout_width="96px"
+                        android:layout_height="33px"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentRight="true"
+                        android:textColor="@color/white"
+                        android:background="@drawable/uninstall_btn"/>
+                </RelativeLayout>
+            </LinearLayout>
+
         </RelativeLayout>
 
         <RelativeLayout

@@ -28,4 +28,6 @@
     <string name="video_normal">For normal mode -- &#62;</string>
     <string name="menu_folder">Folder</string>
     <string name="menu_Apps">Apps</string>
+    <string name="apk_uninstall_alert1">您需要卸载此应用吗？</string>
+    <string name="apk_uninstall_alert2">卸载某个应用会导致其不可用！</string>
 </resources>

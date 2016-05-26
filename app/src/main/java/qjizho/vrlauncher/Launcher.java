@@ -28,6 +28,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -49,6 +50,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.zip.Inflater;
 
 import qjizho.vrlauncher.usb.modules.Bluetooth;
 
@@ -65,6 +67,7 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
     private TextView battery_text_right;
 
     private ArrayList<RelativeLayout> homeListLeft = new ArrayList<>();
+    private ArrayList<RelativeLayout> launchpadListLeft = new ArrayList<>();
     private int[] battery_list = new int[]{
             R.drawable.easyicon_battery_1,
             R.drawable.easyicon_battery_2,
@@ -83,14 +86,16 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
     private ImageLoader imageLoader;
     private ImageLoaderConfiguration config ;
     private AppsAdapter mAppAdapter;
-    private RelativeLayout[] home_layout_list_left = new RelativeLayout[5];
+    private int LauncherState = 0;
+
+    private RelativeLayout bg_home;
+
     private LinearLayout home_layout_left;
     private RelativeLayout layout_iplayer_left;
     private RelativeLayout layout_player_left;
     private RelativeLayout layout_file_explorer_left;
     private RelativeLayout layout_game1_left;
     private RelativeLayout layout_game2_left;
-    private RelativeLayout[] launchpad_layout_list = new RelativeLayout[6];
     private LinearLayout launchpad_layout_left;
     private RelativeLayout layout_icon1_left;
     private RelativeLayout layout_icon2_left;
@@ -98,6 +103,12 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
     private RelativeLayout layout_icon4_left;
     private RelativeLayout layout_icon5_left;
     private RelativeLayout layout_icon6_left;
+
+    private LinearLayout uninstall_layout_left;
+    private RelativeLayout uninstall_icon_left;
+    private Button uninstall_cancel_left;
+    private Button uninstall_confirm_left;
+
     //3 = lancuer mode ; 0 - 2 explorer mode ,4 for uninstall app, 5 for uninstalling, 6 for uninstaled
     private DisplayImageOptions options;
     private ArrayList<AppInfo> appList;
@@ -112,14 +123,8 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
         public void handleMessage(Message msg) {
             switch(msg.what){
                 case 1:
-                    mAlertConfirmLeft.setVisibility(View.VISIBLE);
-                    mAlertConfirmRight.setVisibility(View.VISIBLE);
-                    mAlertConfirmLeft.setText(R.string.apk_uninstalled);
-                    mAlertConfirmRight.setText(R.string.apk_uninstalled);
                     break;
                 case 2:
-                    mAlertConfirmLeft.setText(R.string.apk_uninstalling);
-                    mAlertConfirmRight.setText(R.string.apk_uninstalling);
                     break;
                 case 3:
                     Log.d("qiqi","disable dialog");
@@ -129,12 +134,6 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
             }
         }
     };
-    private RelativeLayout mAlertDialogLeft;
-    private RelativeLayout mALertDialogRight;
-    private TextView mAlertTextLeft;
-    private TextView mAlertTextRight;
-    private TextView mAlertConfirmLeft;
-    private TextView mAlertConfirmRight;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -150,18 +149,13 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
         grid_right = (GridView) findViewById(R.id.list_right);
         battery_left = (ImageView) findViewById(R.id.battery_left);
         battery_right = (ImageView) findViewById(R.id.battery_right);
-        mAlertDialogLeft = (RelativeLayout) findViewById(R.id.alert_layout_left);
-        mALertDialogRight = (RelativeLayout) findViewById(R.id.alert_layout_right);
-        mAlertTextLeft = (TextView)findViewById(R.id.alert_txt_left);
-        mAlertTextRight = (TextView) findViewById(R.id.alert_txt_right);
-        mAlertConfirmLeft = (TextView) findViewById(R.id.alert_confirm_left);
-        mAlertConfirmRight = (TextView) findViewById(R.id.alert_confirm_right);
         battery_text_left = (TextView) findViewById(R.id.battery_text_left);
         battery_text_right = (TextView) findViewById(R.id.battery_text_right);
 
         home_layout_left = (LinearLayout) findViewById(R.id.home_left);
         layout_iplayer_left = (RelativeLayout) findViewById(R.id.iPlayer_left);
         layout_player_left = (RelativeLayout) findViewById(R.id.player_left);
+
         layout_file_explorer_left = (RelativeLayout) findViewById(R.id.file_explorer_left);
         layout_game1_left = (RelativeLayout) findViewById(R.id.game1_left);
         layout_game2_left = (RelativeLayout) findViewById(R.id.game2_left);
@@ -170,6 +164,7 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
         homeListLeft.add(layout_file_explorer_left);
         homeListLeft.add(layout_game1_left);
         homeListLeft.add(layout_game2_left);
+
         launchpad_layout_left = (LinearLayout) findViewById(R.id.launchpad_left);
         layout_icon1_left = (RelativeLayout) findViewById(R.id.icon1_left);
         layout_icon2_left = (RelativeLayout) findViewById(R.id.icon2_left);
@@ -177,12 +172,19 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
         layout_icon4_left = (RelativeLayout) findViewById(R.id.icon4_left);
         layout_icon5_left = (RelativeLayout) findViewById(R.id.icon5_left);
         layout_icon6_left = (RelativeLayout) findViewById(R.id.icon6_left);
-        launchpad_layout_list
-        home_layout_list_left[0] = layout_iplayer_left;
-        home_layout_list_left[1] = layout_player_left;
-        home_layout_list_left[2] = layout_file_explorer_left;
-        home_layout_list_left[3] = layout_game1_left;
-        home_layout_list_left[4] = layout_game2_left;
+        launchpadListLeft.add(layout_icon1_left);
+        launchpadListLeft.add(layout_icon2_left);
+        launchpadListLeft.add(layout_icon3_left);
+        launchpadListLeft.add(layout_icon4_left);
+        launchpadListLeft.add(layout_icon5_left);
+        launchpadListLeft.add(layout_icon6_left);
+
+        uninstall_layout_left = (LinearLayout) findViewById(R.id.uninstall_alert_left);
+        uninstall_icon_left = (RelativeLayout) findViewById(R.id.uninstall_alert_left_icon);
+        uninstall_cancel_left = (Button) findViewById(R.id.uninstall_alert_left_cancel);
+        uninstall_confirm_left = (Button) findViewById(R.id.uninstall_alert_left_confirm);
+
+        bg_home = (RelativeLayout)findViewById(R.id.bg_home);
 
         config = ImageLoaderConfiguration.createDefault(this);
         options = new DisplayImageOptions.Builder()
@@ -195,7 +197,8 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
         imageLoader.init(config);
 
         prepareApps();
-        showHome();
+        updateLauncher(0, 0);
+//        showHome();
 //        final AppsAdapter adapter = new AppsAdapter(this, appList);
 //        grid_left.setAdapter(adapter);
 //        grid_right.setAdapter(adapter);
@@ -216,6 +219,11 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
         Bluetooth bluetooth = Bluetooth.getInstance(this);
     }
     private void showHome(){
+        JLog.d("showHome");
+        bg_home.setBackgroundResource(R.drawable.bg_home_b);
+        home_layout_left.setVisibility(View.VISIBLE);
+        launchpad_layout_left.setVisibility(View.GONE);
+        uninstall_layout_left.setVisibility(View.GONE);
         LayoutInflater inflater = getLayoutInflater();
         for (int i = 0; i < 5 ; i ++){
             RelativeLayout.LayoutParams params1 = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -225,6 +233,7 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
 //            ((ImageView)view1.findViewById(R.id.img)).setBackgroundResource(R.drawable.icon_circle);
             ((TextView)view1.findViewById(R.id.txt)).setText(appList.get(i).appName);
             view1.setLayoutParams(params1);
+            homeListLeft.get(i).removeAllViews();
             homeListLeft.get(i).addView(view1);
             if(i == 0){
                 homeListLeft.get(i).setBackgroundResource(R.drawable.icon_circle_long);
@@ -233,13 +242,35 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
             }
 //            updateBack(0,0);
         }
-        updateBack(0,0);
     }
     private void showLaunchPad(){
+        JLog.d("showLaunchPad");
+
+        bg_home.setBackgroundResource(R.drawable.bg_home_6);
+        home_layout_left.setVisibility(View.GONE);
+        launchpad_layout_left.setVisibility(View.VISIBLE);
+        uninstall_layout_left.setVisibility(View.GONE);
         int page = (cur_selected_pos - 5) / 6;
         int startPos = 5 + (page*6);
-        for (int i = startPos; i < startPos + 6; i++){
-            
+        LayoutInflater inflater = getLayoutInflater();
+        for (int i = startPos , j = 0; i < startPos + 6; i++, j++){
+            RelativeLayout.LayoutParams params1 = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            params1.addRule(RelativeLayout.CENTER_IN_PARENT);
+            View view1 = inflater.inflate(R.layout.explorer_list_item_with_name, null);
+            if(i < appList.size()){
+                ((ImageView)view1.findViewById(R.id.img)).setImageDrawable(appList.get(i).appIcon);
+//            ((ImageView)view1.findViewById(R.id.img)).setBackgroundResource(R.drawable.icon_circle);
+                ((TextView)view1.findViewById(R.id.txt)).setText(appList.get(i).appName);
+            }
+
+            view1.setLayoutParams(params1);
+            launchpadListLeft.get(j).removeAllViews();
+            launchpadListLeft.get(j).addView(view1);
+            if(i == 0){
+                launchpadListLeft.get(j).setBackgroundResource(R.drawable.icon_circle_long);
+            }else{
+                launchpadListLeft.get(j).setBackgroundResource(R.drawable.icon_circle);
+            }
         }
     }
     public class BattReceiver extends BroadcastReceiver{
@@ -302,15 +333,23 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
         batteryReceiver = new BattReceiver();
         registerReceiver(batteryReceiver, intentFilter);
     }
-    private void enableDialog(String str){
-        mAlertTextLeft.setText(str);
-        mAlertTextRight.setText(str);
-        mAlertDialogLeft.setVisibility(View.VISIBLE);
-        mALertDialogRight.setVisibility(View.VISIBLE);
+    private void enableUninstallDialog(int i){
+        bg_home.setBackgroundResource(R.drawable.bg_home_uninstall);
+        uninstall_layout_left.setVisibility(View.VISIBLE);
+        launchpad_layout_left.setVisibility(View.GONE);
+        home_layout_left.setVisibility(View.GONE);
+        LayoutInflater inflater = getLayoutInflater();
+        RelativeLayout.LayoutParams params1 = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        params1.addRule(RelativeLayout.CENTER_IN_PARENT);
+        View view1 = inflater.inflate(R.layout.explorer_list_item_with_name, null);
+        ((ImageView)view1.findViewById(R.id.img)).setImageDrawable(appList.get(i).appIcon);
+//            ((ImageView)view1.findViewById(R.id.img)).setBackgroundResource(R.drawable.icon_circle);
+        ((TextView)view1.findViewById(R.id.txt)).setText(appList.get(i).appName);
+        view1.setLayoutParams(params1);
+        uninstall_icon_left.removeAllViews();
+        uninstall_icon_left.addView(view1);
     }
     private void disableDialog(){
-        mAlertDialogLeft.setVisibility(View.GONE);
-        mALertDialogRight.setVisibility(View.GONE);
     }
 
     @Override
@@ -331,6 +370,8 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
                 }
                 break;
             case KeyEvent.KEYCODE_DPAD_UP:
+                if((cur_selected_pos + 1)%6 <=2)
+                    break;
                 if(cur_selected_pos - 3 >= 0){
                     old_selected_pos = cur_selected_pos;
                     cur_selected_pos = cur_selected_pos - 3;
@@ -342,6 +383,8 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
                 }
                 break;
             case KeyEvent.KEYCODE_DPAD_DOWN:
+                if((cur_selected_pos + 1)%6 >= 3)
+                    break;
                 if(cur_selected_pos + 3 <= appList.size() - 1){
                     old_selected_pos = cur_selected_pos;
                     cur_selected_pos = cur_selected_pos + 3;
@@ -350,11 +393,14 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
                 break;
             case KeyEvent.KEYCODE_DPAD_CENTER:
             case KeyEvent.KEYCODE_BUTTON_A:
+                Intent launchIntent = getPackageManager().getLaunchIntentForPackage(appList.get(cur_selected_pos).packageName);
+                startActivity(launchIntent);
                 break;
             case KeyEvent.KEYCODE_BACK:
             case KeyEvent.KEYCODE_BUTTON_B:
                 break;
             case KeyEvent.KEYCODE_BUTTON_Y:
+                enableUninstallDialog(cur_selected_pos);
                 break;
             default:
                 break;
@@ -364,24 +410,43 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
 
     private void updateLauncher(int oldPos, int newPos){
         if(oldPos == 5 && newPos == 4){
-            showLaunchPad();
+            LauncherState = 0;
         }else if(oldPos == 4 && newPos == 5){
+            LauncherState = 1;
+        }
+        if(LauncherState == 0){
             showHome();
+        }else{
+            showLaunchPad();
         }
         updateBack(old_selected_pos, cur_selected_pos);
     }
 
     private void updateBack(int oldPos, int newPos){
-        if(oldPos == 0){
-            home_layout_list_left[oldPos].setBackgroundResource(R.drawable.icon_circle_long);
-        }else{
-            home_layout_list_left[oldPos].setBackgroundResource(R.drawable.icon_circle);
+        JLog.d("launcherstate:" + LauncherState + " oldPos:" + oldPos + " newPos:" + newPos);
+        if(LauncherState == 0){
+            if(oldPos >=0 && oldPos <=4){
+                if(oldPos == 0){
+                    homeListLeft.get(oldPos).setBackgroundResource(R.drawable.icon_circle_long);
+                }else{
+                    homeListLeft.get(oldPos).setBackgroundResource(R.drawable.icon_circle);
+                }
+            }
+            if(newPos >= 0 && newPos <=4){
+                if(newPos == 0){
+                    homeListLeft.get(newPos).setBackgroundResource(R.drawable.bg_blue_long);
+                }else{
+                    homeListLeft.get(newPos).setBackgroundResource(icon_bg_list[new Random().nextInt(5)]);
+                }
+            }
+        }else if(LauncherState == 1){
+            JLog.d("(newPos - 5)%6:" + (newPos - 5)%6);
+            if((newPos - 5)%6 <=5)
+                launchpadListLeft.get((newPos - 5)%6).setBackgroundResource(icon_bg_list[new Random().nextInt(5)]);
+            if((oldPos - 5)%6 >=0)
+                launchpadListLeft.get((oldPos - 5)%6).setBackgroundResource(R.drawable.icon_circle);
         }
-        if(newPos == 0){
-            home_layout_list_left[newPos].setBackgroundResource(R.drawable.bg_blue_long);
-        }else{
-            home_layout_list_left[newPos].setBackgroundResource(icon_bg_list[new Random().nextInt(5)]);
-        }
+
 
 
     }
@@ -475,7 +540,9 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
         explorerTmpInfo.appIcon = getResources().getDrawable(R.drawable.icon_file_explorer);
         appList.add(explorerTmpInfo);
         getApps();
-        JLog.d("appList : " + appList.toString());
+        for(AppInfo appInfo : appList){
+            JLog.d(appInfo.appName);
+        }
     }
 
     public void getApps(){
