@@ -41,6 +41,8 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
+import org.w3c.dom.Text;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -108,8 +110,8 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
     private RelativeLayout uninstall_icon_left;
     private Button uninstall_cancel_left;
     private Button uninstall_confirm_left;
-
-    //3 = lancuer mode ; 0 - 2 explorer mode ,4 for uninstall app, 5 for uninstalling, 6 for uninstaled
+    private TextView apk_uninstall_alert1;
+    private int nowState = 0;//0-home,1-uninstall,2-uninstalling,3-uninstalled
     private DisplayImageOptions options;
     private ArrayList<AppInfo> appList;
 
@@ -123,6 +125,8 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
         public void handleMessage(Message msg) {
             switch(msg.what){
                 case 1:
+                    nowState = 3;
+                    apk_uninstall_alert1.setText(R.string.apk_installed);
                     break;
                 case 2:
                     break;
@@ -181,9 +185,9 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
 
         uninstall_layout_left = (LinearLayout) findViewById(R.id.uninstall_alert_left);
         uninstall_icon_left = (RelativeLayout) findViewById(R.id.uninstall_alert_left_icon);
-        uninstall_cancel_left = (Button) findViewById(R.id.uninstall_alert_left_cancel);
+//        uninstall_cancel_left = (Button) findViewById(R.id.uninstall_alert_left_cancel);
         uninstall_confirm_left = (Button) findViewById(R.id.uninstall_alert_left_confirm);
-
+        apk_uninstall_alert1 = (TextView) findViewById(R.id.apk_uninstall_alert1);
         bg_home = (RelativeLayout)findViewById(R.id.bg_home);
 
         config = ImageLoaderConfiguration.createDefault(this);
@@ -333,6 +337,28 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
         batteryReceiver = new BattReceiver();
         registerReceiver(batteryReceiver, intentFilter);
     }
+
+    private void updateState(int i){
+        nowState = i;
+        switch(i){
+            //Launcher
+            case 0:
+                if(cur_selected_pos <=4){
+                    uninstall_layout_left.setVisibility(View.GONE);
+                    launchpad_layout_left.setVisibility(View.GONE);
+                    home_layout_left.setVisibility(View.VISIBLE);
+                }else{
+                    uninstall_layout_left.setVisibility(View.GONE);
+                    launchpad_layout_left.setVisibility(View.VISIBLE);
+                    home_layout_left.setVisibility(View.GONE);
+                }
+                break;
+            //uninstalling
+            case 1:
+                enableUninstallDialog(cur_selected_pos);
+                break;
+        }
+    }
     private void enableUninstallDialog(int i){
         bg_home.setBackgroundResource(R.drawable.bg_home_uninstall);
         uninstall_layout_left.setVisibility(View.VISIBLE);
@@ -393,14 +419,44 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
                 break;
             case KeyEvent.KEYCODE_DPAD_CENTER:
             case KeyEvent.KEYCODE_BUTTON_A:
-                Intent launchIntent = getPackageManager().getLaunchIntentForPackage(appList.get(cur_selected_pos).packageName);
-                startActivity(launchIntent);
+                switch(nowState){
+                    case 0:
+                        Intent launchIntent = getPackageManager().getLaunchIntentForPackage(appList.get(cur_selected_pos).packageName);
+                        startActivity(launchIntent);
+                        break;
+                    case 1:
+                        nowState = 2;
+                        apk_uninstall_alert1.setText(R.string.apk_uninstalling);
+                        UnInstallRun unInstallRun = new UnInstallRun(appList.get(cur_selected_pos).packageName);
+                        unInstallRun.run();
+                        break;
+                    case 3:
+                        apk_uninstall_alert1.setText(R.string.apk_uninstall_alert1);
+                        updateState(0);
+                        prepareApps();
+                        updateLauncher(0, 0);
+                        break;
+                }
+
                 break;
             case KeyEvent.KEYCODE_BACK:
             case KeyEvent.KEYCODE_BUTTON_B:
+                switch(nowState){
+                    case 1:
+                        updateState(0);
+                        break;
+                    case 3:
+                        apk_uninstall_alert1.setText(R.string.apk_uninstall_alert1);
+                        updateState(0);
+                        prepareApps();
+                        updateLauncher(0, 0);
+                        break;
+                }
                 break;
             case KeyEvent.KEYCODE_BUTTON_Y:
-                enableUninstallDialog(cur_selected_pos);
+//                enableUninstallDialog(cur_selected_pos);
+                if(nowState == 0)
+                    updateState(1);
                 break;
             default:
                 break;
@@ -523,6 +579,7 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
     }
 
     public void prepareApps(){
+        cur_selected_pos = 0;
         appList = new ArrayList<AppInfo>(); //用来存储获取的应用信息数据
         AppInfo iPlayerTmpInfo =new AppInfo();
         iPlayerTmpInfo.appName = "iPlayer";

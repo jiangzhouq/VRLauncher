@@ -6,7 +6,7 @@
     <string name="confirm">Confirm</string>
     <string name="alert_text">Confirm to disconnect?</string>
     <string name="apk_confirm">Confirm to install %1$s ?</string>
-    <string name="apk_uninstall_confirm">Confirm to uninstall %1$s ?</string>
+    <string name="apk_uninstall_confirm">A - Confirm  B - Cancel</string>
     <string name="apk_delete_dir">Confirm to delete folder %1$s ?</string>
     <string name="apk_delete_file">Confirm to delete file %1$s ?</string>
     <string name="apk_installing">Installing……</string>
