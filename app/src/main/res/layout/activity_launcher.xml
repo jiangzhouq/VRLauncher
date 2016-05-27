@@ -43,7 +43,7 @@
             android:layout_width="640px"
             android:layout_height="360px"
             android:layout_centerInParent="true"
-            android:id="@+id/bg_home"
+            android:id="@+id/bg_home_left"
             android:background="@drawable/bg_home_b">
             <GridView
                 android:id="@+id/list_left"
@@ -198,7 +198,7 @@
                     android:layout_weight="1"
                     android:orientation="vertical">
                     <TextView
-                        android:id="@+id/apk_uninstall_alert1"
+                        android:id="@+id/apk_uninstall_alert1_left"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:layout_weight="1"
@@ -310,20 +310,205 @@
             </LinearLayout>
 
         </RelativeLayout>
-        <GridView
-            android:id="@+id/list_right"
-            android:numColumns="3"
+        <RelativeLayout
+            android:layout_width="640px"
+            android:layout_height="360px"
             android:layout_centerInParent="true"
-            android:layout_width="420dp"
-            android:layout_height="wrap_content"
-            android:clickable="false">
-        </GridView>
-        <GridView
-            android:id="@+id/explorer_right"
-            android:layout_width="360dp"
-            android:layout_height="360dp"
-            android:layout_centerInParent="true"
-            android:numColumns="3"></GridView>
+            android:id="@+id/bg_home_right"
+            android:background="@drawable/bg_home_b">
+            <GridView
+                android:id="@+id/list_right"
+                android:numColumns="3"
+                android:layout_centerInParent="true"
+                android:layout_width="420px"
+                android:layout_height="280px"
+                android:clickable="false"
+                >
+            </GridView>
+            <LinearLayout
+                android:layout_width="420px"
+                android:layout_height="280px"
+                android:layout_centerInParent="true"
+                android:orientation="vertical"
+                android:id="@+id/home_right">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+                    <RelativeLayout
+                        android:id="@+id/iPlayer_right"
+                        android:layout_width="0dp"
+                        android:layout_weight="2"
+                        android:layout_height="match_parent"
+                        >
+                    </RelativeLayout>
+                    <RelativeLayout
+                        android:id="@+id/player_right"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent">
+                    </RelativeLayout>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+                    <RelativeLayout
+                        android:id="@+id/file_explorer_right"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent">
+                    </RelativeLayout>
+                    <RelativeLayout
+                        android:id="@+id/game1__right"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent">
+                    </RelativeLayout>
+                    <RelativeLayout
+                        android:id="@+id/game2__right"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent">
+                    </RelativeLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="420px"
+                android:layout_height="280px"
+                android:layout_centerInParent="true"
+                android:orientation="vertical"
+                android:id="@+id/launchpad__right">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+                    <RelativeLayout
+                        android:id="@+id/icon1_right"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent"
+                        >
+                    </RelativeLayout>
+                    <RelativeLayout
+                        android:id="@+id/icon2_right"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent">
+                    </RelativeLayout>
+                    <RelativeLayout
+                        android:id="@+id/icon3_right"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent">
+                    </RelativeLayout>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+                    <RelativeLayout
+                        android:id="@+id/icon4_right"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent">
+                    </RelativeLayout>
+                    <RelativeLayout
+                        android:id="@+id/icon5_right"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent">
+                    </RelativeLayout>
+                    <RelativeLayout
+                        android:id="@+id/icon6_right"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="match_parent">
+                    </RelativeLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="420px"
+                android:layout_height="280px"
+                android:layout_centerInParent="true"
+                android:orientation="vertical"
+                android:id="@+id/uninstall_alert_right">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="2"
+                    android:orientation="horizontal">
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1">
+                    </RelativeLayout>
+                    <RelativeLayout
+                        android:id="@+id/uninstall_alert_right_icon"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:background="@drawable/icon_circle">
+                    </RelativeLayout>
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1">
+                    </RelativeLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        android:id="@+id/apk_uninstall_alert1_right"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:text="@string/apk_uninstall_alert1"
+                        android:textColor="@color/white"
+                        android:gravity="center"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:text="@string/apk_uninstall_alert2"
+                        android:textColor="@color/blue_dark"
+                        android:gravity="center"/>
+                </LinearLayout>
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1">
+                    <!--<Button-->
+                    <!--android:id="@+id/uninstall_alert_left_cancel"-->
+                    <!--android:layout_width="96px"-->
+                    <!--android:layout_height="33px"-->
+                    <!--android:layout_centerVertical="true"-->
+                    <!--android:layout_alignParentLeft="true"-->
+                    <!--android:textColor="@color/white"-->
+                    <!--android:text="@android:string/cancel"-->
+                    <!--android:background="@drawable/uninstall_btn"/>-->
+                    <Button
+                        android:id="@+id/uninstall_alert_right_confirm"
+                        android:layout_width="192px"
+                        android:layout_height="33px"
+                        android:layout_centerInParent="true"
+                        android:textColor="@color/white"
+                        android:text="@string/apk_uninstall_confirm"
+                        android:background="@drawable/uninstall_btn"/>
+                </RelativeLayout>
+            </LinearLayout>
+
+        </RelativeLayout>
         <RelativeLayout
             android:id="@+id/alert_layout_right"
             android:layout_width="360dp"
@@ -359,12 +544,6 @@
                 android:paddingRight="10dp"
                 android:layout_marginRight="30dp"
                 android:layout_marginBottom="30dp"/>
-        </RelativeLayout>
-        <ImageView
-            android:id="@+id/selected_right"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:layout_centerVertical="true"
-            android:layout_toLeftOf="@+id/arrow_right"/>
+        </RelativeLayout>/>
     </RelativeLayout>
 </LinearLayout>

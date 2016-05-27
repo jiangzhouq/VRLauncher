@@ -67,8 +67,8 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
 
     private int mCurState = 0;
 
-    private ImageView selected_left;
-    private ImageView selected_right;
+    private RelativeLayout home_left ;
+    private RelativeLayout home_right ;
     private GridView explorer_left;
     private GridView explorer_right;
 
@@ -93,8 +93,8 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
     private ProgressBar mLoadingPBLeft;
     private ProgressBar mLoadingPBRight;
     private LinearLayout mPasswdLayoutLeft;
-    private RelativeLayout mAlertDialogLeft;
-    private RelativeLayout mALertDialogRight;
+    private LinearLayout mAlertDialogLeft;
+    private LinearLayout mALertDialogRight;
     private ImageView battery_left;
     private ImageView battery_right;
     private TextView battery_text_left;
@@ -110,8 +110,10 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
 
     private TextView mAlertTextLeft;
     private TextView mAlertTextRight;
-    private TextView mAlertConfirmLeft;
-    private TextView mAlertConfirmRight;
+//    private TextView mAlertConfirmLeft;
+//    private TextView mAlertConfirmRight;
+    private RelativeLayout DeleteAlertIconLayoutLeft;
+    private RelativeLayout DeleteAlertIconLayoutRight;
     private QueryRun mQueryRun = new QueryRun(null);
     private File mSDPath = null;
     private ArrayList<File> cFiles = null;
@@ -142,24 +144,26 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
                     }
                     break;
                 case 1:
-                    mAlertConfirmLeft.setVisibility(View.VISIBLE);
-                    mAlertConfirmRight.setVisibility(View.VISIBLE);
-                    mAlertConfirmLeft.setText(R.string.apk_installed);
-                    mAlertConfirmRight.setText(R.string.apk_installed);
+//                    mAlertConfirmLeft.setVisibility(View.VISIBLE);
+//                    mAlertConfirmRight.setVisibility(View.VISIBLE);
+//                    mAlertConfirmLeft.setText(R.string.apk_installed);
+//                    mAlertConfirmRight.setText(R.string.apk_installed);
                     break;
                 case 2:
-                    mAlertConfirmLeft.setText(R.string.apk_installing);
-                    mAlertConfirmRight.setText(R.string.apk_installing);
+//                    mAlertConfirmLeft.setText(R.string.apk_installing);
+//                    mAlertConfirmRight.setText(R.string.apk_installing);
                     break;
                 case 3:
-                    mAlertConfirmLeft.setVisibility(View.VISIBLE);
-                    mAlertConfirmRight.setVisibility(View.VISIBLE);
-                    mAlertConfirmLeft.setText(R.string.deleted);
-                    mAlertConfirmRight.setText(R.string.deleted);
+//                    mAlertConfirmLeft.setVisibility(View.VISIBLE);
+//                    mAlertConfirmRight.setVisibility(View.VISIBLE);
+//                    mAlertConfirmLeft.setText(R.string.deleted);
+//                    mAlertConfirmRight.setText(R.string.deleted);
+                    mAlertTextLeft.setText(R.string.deleted);
+                    mAlertTextRight.setText(R.string.deleted);
                     break;
                 case 4:
-                    mAlertConfirmLeft.setText(R.string.deleting);
-                    mAlertConfirmRight.setText(R.string.deleting);
+//                    mAlertConfirmLeft.setText(R.string.deleting);
+//                    mAlertConfirmRight.setText(R.string.deleting);
                     break;
             }
             super.handleMessage(msg);
@@ -176,21 +180,22 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
         setContentView(R.layout.explorer_layout);
         mDecorView = getWindow().getDecorView();
         hideSystemUI();
-        selected_left = (ImageView) findViewById(R.id.selected_left);
-        selected_right = (ImageView) findViewById(R.id.selected_right);
         explorer_left = (GridView) findViewById(R.id.explorer_left);
         explorer_right = (GridView) findViewById(R.id.explorer_right);
         mLoadingPBLeft = (ProgressBar) findViewById(R.id.loading_progressbar_left);
         mLoadingPBRight = (ProgressBar) findViewById(R.id.loading_progressbar_right);
         mPasswdLayoutLeft = (LinearLayout) findViewById(R.id.passwd_layout_left);
-        mAlertDialogLeft = (RelativeLayout) findViewById(R.id.alert_layout_left);
-        mALertDialogRight = (RelativeLayout) findViewById(R.id.alert_layout_right);
-        mAlertTextLeft = (TextView)findViewById(R.id.alert_txt_left);
-        mAlertTextRight = (TextView) findViewById(R.id.alert_txt_right);
-        mAlertConfirmLeft = (TextView) findViewById(R.id.alert_confirm_left);
-        mAlertConfirmRight = (TextView) findViewById(R.id.alert_confirm_right);
-        selected_left.setImageResource(R.drawable.easyicon_sd);
-        selected_right.setImageResource(R.drawable.easyicon_sd);
+        mAlertDialogLeft = (LinearLayout) findViewById(R.id.alert_left);
+        DeleteAlertIconLayoutLeft = (RelativeLayout)findViewById(R.id.delete_alert_left_icon);
+        DeleteAlertIconLayoutRight = (RelativeLayout)findViewById(R.id.delete_alert_right_icon);
+        mALertDialogRight = (LinearLayout) findViewById(R.id.alert_right);
+        mAlertTextLeft = (TextView)findViewById(R.id.alert1_left);
+        mAlertTextRight = (TextView)findViewById(R.id.alert1_right);
+        home_left = (RelativeLayout) findViewById(R.id.bg_home_left);
+        home_right = (RelativeLayout) findViewById(R.id.bg_home_right);
+//        mAlertTextRight = (TextView) findViewById(R.id.alert_txt_right);
+//        mAlertConfirmLeft = (TextView) findViewById(R.id.alert_confirm_left);
+//        mAlertConfirmRight = (TextView) findViewById(R.id.alert_confirm_right);
         battery_left = (ImageView) findViewById(R.id.battery_left);
         battery_right = (ImageView) findViewById(R.id.battery_right);
         battery_text_left = (TextView) findViewById(R.id.battery_text_left);
@@ -220,7 +225,7 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
         }else{
             Log.d("qiqi","sdcard null");
             Toast.makeText(this, "没有SD卡", Toast.LENGTH_LONG).show();
-            enableDialog("未检测到SD卡");
+//            enableDialog("未检测到SD卡");
             finish();
         }
 
@@ -269,15 +274,55 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
         battery_text_left.setText(capacity + "%");
         battery_text_right.setText(capacity + "%");
     }
-    private void enableDialog(String str){
-        mAlertTextLeft.setText(str);
-        mAlertTextRight.setText(str);
+    private void enableDialog(int pos){
+//        mAlertTextLeft.setText(str);
+//        mAlertTextRight.setText(str);
+        LayoutInflater inflater = getLayoutInflater();
+        RelativeLayout.LayoutParams params1 = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        params1.addRule(RelativeLayout.CENTER_IN_PARENT);
+
+        View view1 = inflater.inflate(R.layout.explorer_list_item_with_name, null);
+        if(cFiles.get(pos).isDirectory()){
+            ((ImageView)view1.findViewById(R.id.img)).setImageDrawable(getResources().getDrawable(R.drawable.icon_file_explorer));
+        }else if (cFiles.get(pos).isFile()){
+            ((ImageView)view1.findViewById(R.id.img)).setImageDrawable(calFileType(cFiles.get(pos).getName()));
+        }else{
+            ((ImageView)view1.findViewById(R.id.img)).setImageDrawable(null);
+        }
+        ((TextView)view1.findViewById(R.id.txt)).setText(cFiles.get(pos).getName());
+        view1.setLayoutParams(params1);
+
+
+        View view2 = inflater.inflate(R.layout.explorer_list_item_with_name, null);
+        if(cFiles.get(pos).isDirectory()){
+            ((ImageView)view2.findViewById(R.id.img)).setImageDrawable(getResources().getDrawable(R.drawable.icon_file_explorer));
+        }else if (cFiles.get(pos).isFile()){
+            ((ImageView)view2.findViewById(R.id.img)).setImageDrawable(calFileType(cFiles.get(pos).getName()));
+        }else{
+            ((ImageView)view2.findViewById(R.id.img)).setImageDrawable(null);
+        }
+        ((TextView)view2.findViewById(R.id.txt)).setText(cFiles.get(pos).getName());
+        view2.setLayoutParams(params1);
+
+
+        DeleteAlertIconLayoutLeft.removeAllViews();
+        DeleteAlertIconLayoutLeft.addView(view1);
+        DeleteAlertIconLayoutRight.removeAllViews();
+        DeleteAlertIconLayoutRight.addView(view2);
+        explorer_left.setVisibility(View.GONE);
+        explorer_right.setVisibility(View.GONE);
         mAlertDialogLeft.setVisibility(View.VISIBLE);
         mALertDialogRight.setVisibility(View.VISIBLE);
+        home_left.setBackgroundResource(R.drawable.bg_home_uninstall);
+        home_right.setBackgroundResource(R.drawable.bg_home_uninstall);
     }
     private void disableDialog(){
+        explorer_left.setVisibility(View.VISIBLE);
+        explorer_right.setVisibility(View.VISIBLE);
         mAlertDialogLeft.setVisibility(View.GONE);
         mALertDialogRight.setVisibility(View.GONE);
+        home_left.setBackgroundResource(R.drawable.bg_home_6);
+        home_right.setBackgroundResource(R.drawable.bg_home_6);
     }
 
     @Override
@@ -307,10 +352,10 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
                         mControlPosition.set(mControlPosition.size()-1, cur_selected_explorer);
 //                        (explorer_left.getChildAt(cur_selected_explorer)).setBackgroundColor(getResources().getColor(android.R.color.holo_red_dark));
                         Log.d("qiqi", "cur_selected_explorer :" + cur_selected_explorer);
-                        if((cur_selected_explorer)/9 != cur_page_explorer ){
-                            cur_page_explorer = (cur_selected_explorer)/9;
-                            explorer_left.setSelection(cur_page_explorer*9);
-                            explorer_right.setSelection(cur_page_explorer*9);
+                        if((cur_selected_explorer)/6 != cur_page_explorer ){
+                            cur_page_explorer = (cur_selected_explorer)/6;
+                            explorer_left.setSelection(cur_page_explorer*6);
+                            explorer_right.setSelection(cur_page_explorer*6);
                         }
                         mFilesAdapter.notifyDataSetChanged();
                     }
@@ -320,16 +365,16 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
                         video_mode = 0;
                     switch (video_mode){
                         case 0:
-                            mAlertTextLeft.setText(R.string.video_normal);
-                            mAlertTextRight.setText(R.string.video_normal);
+//                            mAlertTextLeft.setText(R.string.video_normal);
+//                            mAlertTextRight.setText(R.string.video_normal);
                             break;
                         case 1:
-                            mAlertTextLeft.setText(R.string.video_quanjing);
-                            mAlertTextRight.setText(R.string.video_quanjing);
+//                            mAlertTextLeft.setText(R.string.video_quanjing);
+//                            mAlertTextRight.setText(R.string.video_quanjing);
                             break;
                         case 2:
-                            mAlertTextLeft.setText(R.string.video_zuoyou);
-                            mAlertTextRight.setText(R.string.video_zuoyou);
+//                            mAlertTextLeft.setText(R.string.video_zuoyou);
+//                            mAlertTextRight.setText(R.string.video_zuoyou);
                             break;
                     }
                 }
@@ -344,10 +389,10 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
                             cur_selected_explorer = realFilesCount -1;
 //                        (explorer_left.getChildAt(cur_selected_explorer)).setBackgroundColor(getResources().getColor(android.R.color.holo_red_dark));
                         Log.d("qiqi", "cur_selected_explorer :" + cur_selected_explorer);
-                        if((cur_selected_explorer)/9 != cur_page_explorer ){
-                            cur_page_explorer = (cur_selected_explorer)/9;
-                            explorer_left.setSelection(cur_page_explorer*9);
-                            explorer_right.setSelection(cur_page_explorer*9);
+                        if((cur_selected_explorer)/6 != cur_page_explorer ){
+                            cur_page_explorer = (cur_selected_explorer)/6;
+                            explorer_left.setSelection(cur_page_explorer*6);
+                            explorer_right.setSelection(cur_page_explorer*6);
                         }
                         mFilesAdapter.notifyDataSetChanged();
                     }
@@ -358,16 +403,16 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
                         video_mode = 2;
                     switch (video_mode){
                         case 0:
-                            mAlertTextLeft.setText(R.string.video_normal);
-                            mAlertTextRight.setText(R.string.video_normal);
+//                            mAlertTextLeft.setText(R.string.video_normal);
+//                            mAlertTextRight.setText(R.string.video_normal);
                             break;
                         case 1:
-                            mAlertTextLeft.setText(R.string.video_quanjing);
-                            mAlertTextRight.setText(R.string.video_quanjing);
+//                            mAlertTextLeft.setText(R.string.video_quanjing);
+//                            mAlertTextRight.setText(R.string.video_quanjing);
                             break;
                         case 2:
-                            mAlertTextLeft.setText(R.string.video_zuoyou);
-                            mAlertTextRight.setText(R.string.video_zuoyou);
+//                            mAlertTextLeft.setText(R.string.video_zuoyou);
+//                            mAlertTextRight.setText(R.string.video_zuoyou);
                             break;
                     }
                 }
@@ -378,11 +423,11 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
                         cur_selected_explorer = cur_selected_explorer - 3;
                         mControlPosition.set(mControlPosition.size()-1, cur_selected_explorer);
                         Log.d("qiqi", "cur_selected_explorer :" + cur_selected_explorer);
-                        if ((cur_selected_explorer) / 9 != cur_page_explorer) {
-                            cur_page_explorer = (cur_selected_explorer) / 9;
-                            explorer_left.setSelection(cur_page_explorer * 9);
-                            explorer_right.setSelection(cur_page_explorer * 9);
-                            Log.d("qiqi", "setSelection:" + cur_page_explorer * 9);
+                        if ((cur_selected_explorer) / 6 != cur_page_explorer) {
+                            cur_page_explorer = (cur_selected_explorer) / 6;
+                            explorer_left.setSelection(cur_page_explorer * 6);
+                            explorer_right.setSelection(cur_page_explorer * 6);
+                            Log.d("qiqi", "setSelection:" + cur_page_explorer * 6);
                         }
                         mFilesAdapter.notifyDataSetChanged();
                     }
@@ -397,11 +442,11 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
                             cur_selected_explorer = realFilesCount - 1;
 
                         Log.d("qiqi", "cur_selected_explorer :" + cur_selected_explorer);
-                        if ((cur_selected_explorer) / 9 != cur_page_explorer) {
-                            cur_page_explorer = (cur_selected_explorer) / 9;
-                            explorer_left.setSelection(cur_page_explorer * 9);
-                            explorer_right.setSelection(cur_page_explorer * 9);
-                            Log.d("qiqi", "setSelection:" + cur_page_explorer * 9);
+                        if ((cur_selected_explorer) / 6 != cur_page_explorer) {
+                            cur_page_explorer = (cur_selected_explorer) / 6;
+                            explorer_left.setSelection(cur_page_explorer * 6);
+                            explorer_right.setSelection(cur_page_explorer * 6);
+                            Log.d("qiqi", "setSelection:" + cur_page_explorer * 6);
                         }
                         mFilesAdapter.notifyDataSetChanged();
                     }
@@ -431,10 +476,10 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
                                 cur_selected_explorer = realFilesCount - 1;
 //                        (explorer_left.getChildAt(cur_selected_explorer)).setBackgroundColor(getResources().getColor(android.R.color.holo_red_dark));
                             Log.d("qiqi", "cur_selected_explorer :" + cur_selected_explorer);
-                            if ((cur_selected_explorer) / 9 != cur_page_explorer) {
-                                cur_page_explorer = (cur_selected_explorer) / 9;
-                                explorer_left.setSelection(cur_page_explorer * 9);
-                                explorer_right.setSelection(cur_page_explorer * 9);
+                            if ((cur_selected_explorer) / 6 != cur_page_explorer) {
+                                cur_page_explorer = (cur_selected_explorer) / 6;
+                                explorer_left.setSelection(cur_page_explorer * 6);
+                                explorer_right.setSelection(cur_page_explorer * 6);
                             }
                             mFilesAdapter.notifyDataSetChanged();
                         }
@@ -445,10 +490,10 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
                             mControlPosition.set(mControlPosition.size()-1, cur_selected_explorer);
 //                        (explorer_left.getChildAt(cur_selected_explorer)).setBackgroundColor(getResources().getColor(android.R.color.holo_red_dark));
                             Log.d("qiqi", "cur_selected_explorer :" + cur_selected_explorer);
-                            if((cur_selected_explorer)/9 != cur_page_explorer ){
-                                cur_page_explorer = (cur_selected_explorer)/9;
-                                explorer_left.setSelection(cur_page_explorer*9);
-                                explorer_right.setSelection(cur_page_explorer*9);
+                            if((cur_selected_explorer)/6 != cur_page_explorer ){
+                                cur_page_explorer = (cur_selected_explorer)/6;
+                                explorer_left.setSelection(cur_page_explorer*6);
+                                explorer_right.setSelection(cur_page_explorer*6);
                             }
                             mFilesAdapter.notifyDataSetChanged();
                         }
@@ -463,15 +508,17 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
                                 break;
                             //video
                             case 2:
-                                enableDialog(getResources().getString(R.string.video_normal));
-                                mCurState = state_dialog_video_choose;
-                                video_mode = 0;
+//                                mCurState = state_dialog_video_choose;
+//                                video_mode = 0;
+                                Intent intent = new Intent(this, qjizho.vrlauncher.MediaModeChooserActivity.class);
+                                intent.putExtra("url", cFiles.get(cur_selected_explorer).getAbsolutePath());
+                                startActivity(intent);
                                 break;
                             case 3:
                                 mCurState = state_dialog_apk;
-                                enableDialog(String.format(getResources().getString(R.string.apk_confirm),cFiles.get(cur_selected_explorer).getName()));
-                                mAlertConfirmLeft.setText(R.string.confirm);
-                                mAlertConfirmRight.setText(R.string.confirm);
+//                                enableDialog(String.format(getResources().getString(R.string.apk_confirm),cFiles.get(cur_selected_explorer).getName()));
+//                                mAlertConfirmLeft.setText(R.string.confirm);
+//                                mAlertConfirmRight.setText(R.string.confirm);
                                 break;
                             case 4:
                                 break;
@@ -563,11 +610,11 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
 //                                mFilesAdapter.notifyDataSetChanged();
 //                            }
 
-                            if ((cur_selected_explorer) / 9 != cur_page_explorer) {
-                                cur_page_explorer = (cur_selected_explorer) / 9;
+                            if ((cur_selected_explorer) / 6 != cur_page_explorer) {
+                                cur_page_explorer = (cur_selected_explorer) / 6;
                                 explorer_left.requestFocus();
-                                explorer_left.setSelection(cur_page_explorer * 9);
-                                explorer_right.setSelection(cur_page_explorer * 9);
+                                explorer_left.setSelection(cur_page_explorer * 6);
+                                explorer_right.setSelection(cur_page_explorer * 6);
                             }
                             mFilesAdapter.notifyDataSetChanged();
                         }else{
@@ -599,13 +646,9 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
                             break;
                         }
                         mCurState = state_dialog_delete;
-                        if(cFiles.get(cur_selected_explorer).isDirectory()){
-                            enableDialog(String.format(getResources().getString(R.string.apk_delete_dir),cFiles.get(cur_selected_explorer).getName()));
-                        }else{
-                            enableDialog(String.format(getResources().getString(R.string.apk_delete_file),cFiles.get(cur_selected_explorer).getName()));
-                        }
-                        mAlertConfirmLeft.setText(R.string.confirm);
-                        mAlertConfirmRight.setText(R.string.confirm);
+                        enableDialog(cur_selected_explorer);
+//                        mAlertConfirmLeft.setText(R.string.confirm);
+//                        mAlertConfirmRight.setText(R.string.confirm);
                         break;
                 }
                 break;
@@ -762,10 +805,10 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
                 File[] files = queryPath.listFiles();
                 cFiles = new ArrayList<File>(Arrays.asList(files));
                 realFilesCount = cFiles.size();
-                if(cFiles.size()%9 > 0){
+                if(cFiles.size()%6 > 0){
                     while (true){
                         cFiles.add(new File(""));
-                        if(cFiles.size()%9 == 0){
+                        if(cFiles.size()%6 == 0){
                             break;
                         }
                     }
@@ -865,7 +908,7 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
                 holder = (ViewHolder) convertView.getTag();
             }
             if(mFiles.get(position).isDirectory()){
-                holder.image.setImageDrawable(getResources().getDrawable(R.drawable.easyicon_folder));
+                holder.image.setImageDrawable(getResources().getDrawable(R.drawable.icon_file_explorer));
             }else if (mFiles.get(position).isFile()){
                 holder.image.setImageDrawable(calFileType(mFiles.get(position).getName()));
             }else{
@@ -873,7 +916,7 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
             }
             holder.text.setText(mFiles.get(position).getName());
             if(position == cur_selected_explorer){
-                convertView.setBackgroundResource(R.drawable.explorer_item_background);
+                convertView.setBackgroundResource(R.drawable.bg_blue);
             }else{
                 convertView.setBackground(null);
             }
@@ -888,15 +931,15 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
     private Drawable calFileType(String str){
         switch(indentifyFileType(str)){
             case 1:
-                return getResources().getDrawable(R.drawable.easyicon_file_image);
+                return getResources().getDrawable(R.drawable.icon_player);
             case 2:
-                return getResources().getDrawable(R.drawable.easyicon_file_video);
+                return getResources().getDrawable(R.drawable.icon_player);
             case 3:
-                return getResources().getDrawable(R.drawable.easyicon_file_apk);
+                return getResources().getDrawable(R.drawable.icon_player);
             case 4:
-                return getResources().getDrawable(R.drawable.easyicon_file);
+                return getResources().getDrawable(R.drawable.icon_player);
             default:
-                return getResources().getDrawable(R.drawable.easyicon_file);
+                return getResources().getDrawable(R.drawable.icon_player);
         }
     }
 

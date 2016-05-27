@@ -8,7 +8,8 @@
     <string name="apk_confirm">确认安装 %1$s ?</string>
     <string name="apk_uninstall_confirm">A - 确认 B - 取消</string>
     <string name="apk_delete_dir">确认删除文件夹 %1$s ?</string>
-    <string name="apk_delete_file">确认删除文件 %1$s ?</string>
+    <string name="apk_delete_file">确认删除此文件(夹)吗？</string>
+    <string name="apk_delete_file2">请注意：该操作不可逆！</string>
     <string name="apk_installing">安装中……</string>
     <string name="apk_uninstalling">卸载中……</string>
     <string name="apk_installed">已安装</string>
@@ -28,4 +29,6 @@
     <string name="video_normal">正常模式 -- &#62;</string>
     <string name="menu_folder">文件夹</string>
     <string name="menu_Apps">应用</string>
+    <string name="apk_uninstall_alert1">您需要卸载此应用吗？</string>
+    <string name="apk_uninstall_alert2">卸载某个应用会导致其不可用！</string>
 </resources>

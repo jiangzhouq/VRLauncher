@@ -92,6 +92,14 @@
                 <category android:name="android.intent.category.DEFAULT"></category>
             </intent-filter>
         </activity>
+        <activity android:name=".MediaModeChooserActivity"
+            android:screenOrientation="landscape"
+            >
+            <intent-filter>
+                <action android:name="com.qjizho.vrlauncher.MEDIAMODECHOOSERACTIVITY"></action>
+                <category android:name="android.intent.category.DEFAULT"></category>
+            </intent-filter>
+        </activity>
         <activity android:name=".SimplePlayerActivity"
             android:screenOrientation="landscape"
             >
