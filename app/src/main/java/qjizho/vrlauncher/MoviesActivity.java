@@ -45,12 +45,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import qjizho.vrlauncher.R;
 import qjizho.vrlauncher.wifi.WFSearchProcess;
 import qjizho.vrlauncher.wifi.WTAdapter;
 import qjizho.vrlauncher.wifi.WifiAdmin;
 
 
-public class ExplorerActivity extends Activity implements qjizho.vrlauncher.BatteryReceiver.BatteryHandler{
+public class MoviesActivity extends Activity implements qjizho.vrlauncher.BatteryReceiver.BatteryHandler{
 
     private View mDecorView;
 
@@ -138,7 +139,7 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
                     mCurState = state_explorer;
                     Log.d("qiqi", "cFiles.length:" + cFiles.size());
                     if(mFilesAdapter == null){
-                        mFilesAdapter = new FilesAdapter(ExplorerActivity.this, cFiles);
+                        mFilesAdapter = new FilesAdapter(MoviesActivity.this, cFiles);
                         explorer_left.setAdapter(mFilesAdapter);
                         explorer_right.setAdapter(mFilesAdapter);
                     }else{
@@ -215,14 +216,14 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
 
         String startUrl = getIntent().getStringExtra("startUrl");
         if(startUrl.isEmpty())
-            startUrl = "/storage/";
+            startUrl = "/sdcard/Movies/";
         if (Environment.getExternalStorageState().equals(
                 Environment.MEDIA_MOUNTED)) {
             mSDPath = Environment.getExternalStorageDirectory();
             mSDPath = new File(startUrl);
-            if(mSDPath == null || mSDPath.listFiles() == null || mSDPath.listFiles().length == 0){
-                this.finish();
-            }
+//            if(mSDPath == null || mSDPath.listFiles() == null || mSDPath.listFiles().length == 0){
+//                this.finish();
+//            }
             mControlPath.add(mSDPath);
             mControlPosition.add(0);
             QueryRun queryRun = new QueryRun(mSDPath);
@@ -508,7 +509,7 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
                         switch (indentifyFileType(cFiles.get(cur_selected_explorer).getName())){
                             //image
                             case 1:
-                                Intent iintent = new Intent(ExplorerActivity.this, qjizho.vrlauncher.SimplePicPlayerActivity.class);
+                                Intent iintent = new Intent(MoviesActivity.this, qjizho.vrlauncher.SimplePicPlayerActivity.class);
                                 iintent.putExtra("url", cFiles.get(cur_selected_explorer).getAbsolutePath());
                                 startActivity(iintent);
                                 break;
@@ -521,7 +522,7 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
                                 startActivity(intent);
                                 break;
                             case 3:
-//                                mCurState = state_dialog_apk;
+                                mCurState = state_dialog_apk;
 //                                enableDialog(String.format(getResources().getString(R.string.apk_confirm),cFiles.get(cur_selected_explorer).getName()));
 //                                mAlertConfirmLeft.setText(R.string.confirm);
 //                                mAlertConfirmRight.setText(R.string.confirm);
@@ -582,7 +583,7 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
                         startActivity(intent);
 
                     }else if(video_mode == 1){
-                        Intent intent = new Intent(ExplorerActivity.this, qjizho.vrlauncher.SimpleStreamPlayerActivity.class);
+                        Intent intent = new Intent(MoviesActivity.this, qjizho.vrlauncher.SimpleStreamPlayerActivity.class);
                         intent.putExtra("url", cFiles.get(cur_selected_explorer).getAbsolutePath());
                         startActivity(intent);
                     }else{
@@ -806,20 +807,14 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
 
         @Override
         public void run() {
-            Log.d("qiqi","queryPath:" + queryPath.getAbsolutePath());
+            Log.d("qiqi","queryPath:" + queryPath);
             if(queryPath != null){
                 File[] files = queryPath.listFiles();
                 cFiles = new ArrayList<File>(Arrays.asList(files));
-                Log.d("qiqi","aaa:" + queryPath.getAbsolutePath().toString());
-                if (queryPath.getAbsolutePath().toString().equals("/storage")){
-                    ArrayList<File> aFiles = new ArrayList<>();
-                    for(File file : cFiles){
-                        Log.d("qiqi","aaa:" +file.getName());
-                        if(!file.getName().contains("emulated") && file.listFiles() != null && file.listFiles().length != 0){
-                            aFiles.add(file);
-                        }
+                for(File file : cFiles){
+                    if (indentifyFileType(file.getName()) != 2){
+                        cFiles.remove(file);
                     }
-                    cFiles = aFiles;
                 }
                 realFilesCount = cFiles.size();
                 if(cFiles.size()%6 > 0){
@@ -846,7 +841,7 @@ public class ExplorerActivity extends Activity implements qjizho.vrlauncher.Batt
         @Override
         public void run() {
             if (installPath != null) {
-                int result = installSlient(ExplorerActivity.this, installPath);
+                int result = installSlient(MoviesActivity.this, installPath);
                 if (result == 0) {
                     mCurState = state_dialog_apk_installed;
                     handler.sendEmptyMessage(1);

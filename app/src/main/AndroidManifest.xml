@@ -43,7 +43,6 @@
             >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.HOME" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.MONKEY"/>
                 <!--<category android:name="android.intent.category.LAUNCHER" />-->
@@ -76,6 +75,14 @@
                 <category android:name="android.intent.category.DEFAULT"></category>
             </intent-filter>
         </activity>
+        <activity android:name=".ShutDownActivity2"
+            android:screenOrientation="landscape"
+            >
+            <intent-filter>
+                <action android:name="com.qjizho.vrlauncher.SHUTDOWNACTIVITY2"></action>
+                <category android:name="android.intent.category.DEFAULT"></category>
+            </intent-filter>
+        </activity>
         <activity android:name=".ExplorerChooseActivity"
             android:screenOrientation="landscape"
             >
@@ -89,6 +96,14 @@
             >
             <intent-filter>
                 <action android:name="com.qjizho.vrlauncher.EXPLORERACTIVITY"></action>
+                <category android:name="android.intent.category.DEFAULT"></category>
+            </intent-filter>
+        </activity>
+        <activity android:name=".MoviesActivity"
+            android:screenOrientation="landscape"
+            >
+            <intent-filter>
+                <action android:name="com.qjizho.vrlauncher.MOVIESACTIVITY"></action>
                 <category android:name="android.intent.category.DEFAULT"></category>
             </intent-filter>
         </activity>
@@ -174,6 +189,9 @@
             </intent-filter>
         </service>
         <receiver android:name=".FanReceiver" >
+            <intent-filter>
+                <action android:name="com.3dinlife.FAN_RECEIVER" />
+            </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>

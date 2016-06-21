@@ -12,6 +12,7 @@
         android:layout_height="match_parent"
         android:focusable="true"
         android:focusableInTouchMode="true"
+        android:background="@drawable/big_bg"
         android:descendantFocusability="blocksDescendants">
         <RelativeLayout
             android:layout_width="640px"
@@ -56,6 +57,7 @@
         android:layout_height="match_parent"
         android:focusable="true"
         android:focusableInTouchMode="true"
+        android:background="@drawable/big_bg"
         android:descendantFocusability="blocksDescendants">
     <RelativeLayout
         android:layout_width="640px"

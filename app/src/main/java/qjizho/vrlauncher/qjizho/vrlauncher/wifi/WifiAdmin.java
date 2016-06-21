@@ -130,6 +130,7 @@ public class WifiAdmin {
     /**添加指定网络**/
     public void addNetwork(WifiConfiguration paramWifiConfiguration) {
         int i = mWifiManager.addNetwork(paramWifiConfiguration);
+        mWifiManager.saveConfiguration();
         mWifiManager.enableNetwork(i, true);
     }
 

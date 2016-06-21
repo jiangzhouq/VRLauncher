@@ -30,6 +30,6 @@ public class About {
     }
 
     public String getSystemInfo(){
-        return Build.VERSION.RELEASE;
+        return "0.0.1";
     }
 }

@@ -83,30 +83,30 @@ public class SimpleStreamPlayerActivity extends FragmentActivity implements PFAs
 		_scrubber.setEnabled(false);
 
 		String[] splitStrings = getIntent().getStringExtra("url").split("/");
-//		loadVideo(getIntent().getStringExtra("url"));
+		loadVideo(getIntent().getStringExtra("url"));
 		Log.d("qiqi", "play url:" + getIntent().getStringExtra("url"));
-//		loadVideo("http://devimages.apple.com/iphone/samples/bipbop/gear1/prog_index.m3u8");
-		try{
-			File file=new File("/mnt/sdcard/aa.txt");
-			FileReader fr = new FileReader(file);
-			BufferedReader br=new BufferedReader(fr);
-			String temp = null;
-			String s = "";
-			if((temp=br.readLine())!=null){
-				s+=temp+"\n";
-			}
-			if(s.equals("0")){
-				s = getIntent().getStringExtra("url");
-			}
-			Log.d("qiqi", "play url ssssss:" + s);
-			loadVideo(s);
-//			String [] ss=s.split("\n");
-//			for (int i = 0; i < ss.length; i++) {
-//				System.out.println(ss[i]);
+//		loadVideo("http://192.168.120.27/H%3A/Media/media-meinv-xingzoufeiluomeng20160115.mp4");
+//		try{
+//			File file=new File("/mnt/sdcard/aa.txt");
+//			FileReader fr = new FileReader(file);
+//			BufferedReader br=new BufferedReader(fr);
+//			String temp = null;
+//			String s = "";
+//			if((temp=br.readLine())!=null){
+//				s+=temp+"\n";
 //			}
-		}catch ( Exception e){
-
-		}
+//			if(s.equals("0")){
+//				s = getIntent().getStringExtra("url");
+//			}
+//			Log.d("qiqi", "play url ssssss:" + s);
+//			loadVideo(s);
+////			String [] ss=s.split("\n");
+////			for (int i = 0; i < ss.length; i++) {
+////				System.out.println(ss[i]);
+////			}
+//		}catch ( Exception e){
+//
+//		}
 
 		showControls(false);
 

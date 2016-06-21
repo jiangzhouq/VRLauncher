@@ -2,6 +2,7 @@ package qjizho.vrlauncher;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -29,6 +30,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.DigitalClock;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -146,6 +148,8 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
     private int cur_selected_pos = 0;
     private int old_selected_pos = 0;
     private boolean isCharging = false;
+    private DigitalClock mDigitalClockLeft;
+    private DigitalClock mDigitalClockRight;
     private int capacity = -1;
     private BroadcastReceiver batteryReceiver = null;
     private Handler handler = new Handler(){
@@ -167,6 +171,16 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
             }
         }
     };
+
+    BroadcastReceiver installReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            JLog.d(intent.getAction() + " received");
+            prepareApps();
+            updateLauncher(0, 0);
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -265,15 +279,17 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
         imageLoader = ImageLoader.getInstance();
         imageLoader.init(config);
 
-        prepareApps();
-        updateLauncher(0, 0);
+        mDigitalClockLeft = (DigitalClock) findViewById(R.id.clock_left);
+        mDigitalClockRight = (DigitalClock) findViewById(R.id.clock_left);
+
 //        showHome();
 //        final AppsAdapter adapter = new AppsAdapter(this, appList);
 //        grid_left.setAdapter(adapter);
 //        grid_right.setAdapter(adapter);
         requestPermission();
         qjizho.vrlauncher.BatteryReceiver.ehList.add(this);
-
+        prepareApps();
+        updateLauncher(0, 0);
         try {
             String path = Environment.getExternalStorageDirectory() + "/Cardboard";
             File dir = new File(path);
@@ -286,6 +302,7 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
         Settings.Global.putInt(getContentResolver(), Settings.Global.INSTALL_NON_MARKET_APPS,1);
 
         Bluetooth bluetooth = Bluetooth.getInstance(this);
+
     }
     private void showHome(){
         JLog.d("showHome");
@@ -300,6 +317,14 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
 
         LayoutInflater inflater = getLayoutInflater();
         for (int i = 0; i < 5 ; i ++){
+            if(i >= appList.size()){
+                JLog.d("remove all views for:" + i);
+                homeListLeft.get(i).removeAllViews();
+                homeListRight.get(i).removeAllViews();
+                homeListLeft.get(i).setBackground(null);
+                homeListRight.get(i).setBackground(null);
+                return;
+            }
             RelativeLayout.LayoutParams params1 = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
             params1.addRule(RelativeLayout.CENTER_IN_PARENT);
             View view1 = inflater.inflate(R.layout.explorer_list_item_with_name, null);
@@ -328,6 +353,10 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
                 homeListRight.get(i).setBackgroundResource(R.drawable.icon_circle);
             }
 //            updateBack(0,0);
+            if(appList.get(i).appName.isEmpty()){
+                launchpadListLeft.get(i).setBackground(null);
+                launchpadListRight.get(i).setBackground(null);
+            }
         }
     }
     private void showLaunchPad(){
@@ -379,6 +408,11 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
             }else{
                 launchpadListRight.get(j).setBackgroundResource(R.drawable.icon_circle);
             }
+            if(i >= appList.size() || appList.get(i).appName.isEmpty()){
+                    launchpadListLeft.get(j).setBackground(null);
+                    launchpadListRight.get(j).setBackground(null);
+            }
+
         }
     }
     public class BattReceiver extends BroadcastReceiver{
@@ -419,6 +453,16 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        try{
+            this.unregisterReceiver(installReceiver);
+        }catch (Exception e){
+
+        }
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
         if(batteryReceiver != null)
@@ -440,6 +484,15 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
         intentFilter.addAction("qjizho.vrlauncher.action.battery_changed");
         batteryReceiver = new BattReceiver();
         registerReceiver(batteryReceiver, intentFilter);
+        Intent batteryBoradcast = new Intent();
+        batteryBoradcast.setAction("com.3dinlife.FAN_RECEIVER");
+        sendBroadcast(batteryBoradcast);
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("android.intent.action.PACKAGE_ADDED");
+//        filter.addAction("android.intent.action.PACKAGE_REMOVED");
+        filter.addDataScheme("package");
+        this.registerReceiver(installReceiver, filter);
     }
 
     private void updateState(int i){
@@ -505,55 +558,76 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
+        JLog.d("nowState:" + nowState + " current pos:" + cur_selected_pos);
         switch(keyCode){
             case KeyEvent.KEYCODE_DPAD_LEFT:
-                if(cur_selected_pos > 0){
+                if(nowState == 0 && cur_selected_pos > 0){
                     old_selected_pos = cur_selected_pos;
                     cur_selected_pos = cur_selected_pos - 1;
+                    JLog.d("old_selected_pos:" + old_selected_pos + " cur_selected_pos:" + cur_selected_pos);
                     updateLauncher(old_selected_pos, cur_selected_pos);
                 }
                 break;
             case KeyEvent.KEYCODE_DPAD_RIGHT:
-                if(cur_selected_pos < appList.size() - 1){
+                if(nowState == 0 && cur_selected_pos < appList.size() - 1){
                     old_selected_pos = cur_selected_pos;
                     cur_selected_pos = cur_selected_pos + 1;
+                    JLog.d("old_selected_pos:" + old_selected_pos + " cur_selected_pos:" + cur_selected_pos);
                     updateLauncher(old_selected_pos, cur_selected_pos);
                 }
                 break;
             case KeyEvent.KEYCODE_DPAD_UP:
-                if((cur_selected_pos + 1)%6 <=2)
-                    break;
-                if(cur_selected_pos - 3 >= 0){
-                    old_selected_pos = cur_selected_pos;
-                    cur_selected_pos = cur_selected_pos - 3;
-                    updateLauncher(old_selected_pos, cur_selected_pos);
-                }else if(cur_selected_pos - 3 >= -1){
-                    old_selected_pos = cur_selected_pos;
-                    cur_selected_pos = 0;
-                    updateLauncher(old_selected_pos, cur_selected_pos);
+                if(nowState == 0){
+                    if((cur_selected_pos + 1)%6 <=2)
+                        break;
+                    if(cur_selected_pos - 3 >= 0){
+                        old_selected_pos = cur_selected_pos;
+                        cur_selected_pos = cur_selected_pos - 3;
+                        JLog.d("old_selected_pos:" + old_selected_pos + " cur_selected_pos:" + cur_selected_pos);
+                        updateLauncher(old_selected_pos, cur_selected_pos);
+                    }else if(cur_selected_pos - 3 >= -1){
+                        old_selected_pos = cur_selected_pos;
+                        cur_selected_pos = 0;
+                        JLog.d("old_selected_pos:" + old_selected_pos + " cur_selected_pos:" + cur_selected_pos);
+                        updateLauncher(old_selected_pos, cur_selected_pos);
+                    }
                 }
+
                 break;
             case KeyEvent.KEYCODE_DPAD_DOWN:
-                if((cur_selected_pos + 1)%6 >= 3)
-                    break;
-                if(cur_selected_pos + 3 <= appList.size() - 1){
-                    old_selected_pos = cur_selected_pos;
-                    cur_selected_pos = cur_selected_pos + 3;
-                    updateLauncher(old_selected_pos, cur_selected_pos);
+                if(nowState == 0){
+                    if((cur_selected_pos + 1)%6 >= 3)
+                        break;
+                    if(cur_selected_pos + 3 <= appList.size() - 1){
+                        old_selected_pos = cur_selected_pos;
+                        cur_selected_pos = cur_selected_pos + 3;
+                        JLog.d("old_selected_pos:" + old_selected_pos + " cur_selected_pos:" + cur_selected_pos);
+                        updateLauncher(old_selected_pos, cur_selected_pos);
+                    }
                 }
                 break;
             case KeyEvent.KEYCODE_DPAD_CENTER:
             case KeyEvent.KEYCODE_BUTTON_A:
                 switch(nowState){
                     case 0:
-                        if(cur_selected_pos == 2){
+//                        if(cur_selected_pos == 0){
+//                            Intent intent = new Intent();
+//                            ComponentName componentName = new ComponentName("com.hotcast.vr","com.qihoo.util.StartActivity");
+//                            intent.setComponent(componentName);
+//                            startActivity(intent);
+//                        }else
+                        if(cur_selected_pos == 0){
+                            Intent launchIntent = new Intent(this, qjizho.vrlauncher.MoviesActivity.class);
+                            launchIntent.putExtra("startUrl","");
+                            startActivity(launchIntent);
+                        }else if(cur_selected_pos == 1){
                             Intent launchIntent = new Intent(this, ExplorerActivity.class);
                             launchIntent.putExtra("startUrl","");
                             startActivity(launchIntent);
+                        }else{
+                            Intent launchIntent = getPackageManager().getLaunchIntentForPackage(appList.get(cur_selected_pos).packageName);
+                            startActivity(launchIntent);
                         }
-
-                        Intent launchIntent = getPackageManager().getLaunchIntentForPackage(appList.get(cur_selected_pos).packageName);
-                        startActivity(launchIntent);
                         break;
                     case 1:
                         nowState = 2;
@@ -565,6 +639,9 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
                     case 3:
                         apk_uninstall_alert1_left.setText(R.string.apk_uninstall_alert1);
                         apk_uninstall_alert1_right.setText(R.string.apk_uninstall_alert1);
+                        nowState = 0;
+                        old_selected_pos = cur_selected_pos;
+                        cur_selected_pos = 0;
                         updateState(0);
                         prepareApps();
                         updateLauncher(0, 0);
@@ -581,6 +658,7 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
                     case 3:
                         apk_uninstall_alert1_left.setText(R.string.apk_uninstall_alert1);
                         apk_uninstall_alert1_right.setText(R.string.apk_uninstall_alert1);
+                        nowState = 0;
                         updateState(0);
                         prepareApps();
                         updateLauncher(0, 0);
@@ -589,7 +667,7 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
                 break;
             case KeyEvent.KEYCODE_BUTTON_Y:
 //                enableUninstallDialog(cur_selected_pos);
-                if(nowState == 0)
+                if(nowState == 0 && cur_selected_pos > 2)
                     updateState(1);
                 break;
             default:
@@ -620,6 +698,7 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
                     homeListLeft.get(oldPos).setBackgroundResource(R.drawable.icon_circle_long);
                     homeListRight.get(oldPos).setBackgroundResource(R.drawable.icon_circle_long);
                 }else{
+                    JLog.d("update back circle:" + oldPos);
                     homeListLeft.get(oldPos).setBackgroundResource(R.drawable.icon_circle);
                     homeListRight.get(oldPos).setBackgroundResource(R.drawable.icon_circle);
                 }
@@ -726,11 +805,11 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
     public void prepareApps(){
         cur_selected_pos = 0;
         appList = new ArrayList<AppInfo>(); //用来存储获取的应用信息数据
-        AppInfo iPlayerTmpInfo =new AppInfo();
-        iPlayerTmpInfo.appName = "iPlayer";
-        iPlayerTmpInfo.packageName = "";
-        iPlayerTmpInfo.appIcon = getResources().getDrawable(R.drawable.icon_iplayer);
-        appList.add(iPlayerTmpInfo);
+//        AppInfo iPlayerTmpInfo =new AppInfo();
+//        iPlayerTmpInfo.appName = "VR热播";
+//        iPlayerTmpInfo.packageName = "";
+//        iPlayerTmpInfo.appIcon = getResources().getDrawable(R.drawable.icon_iplayer);
+//        appList.add(iPlayerTmpInfo);
         AppInfo playerTmpInfo =new AppInfo();
         playerTmpInfo.appName = "Player";
         playerTmpInfo.packageName = "";
@@ -748,7 +827,6 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
     }
 
     public void getApps(){
-
         List<PackageInfo> packages = getPackageManager().getInstalledPackages(0);
         for(int i=0;i<packages.size();i++) {
             PackageInfo packageInfo = packages.get(i);
@@ -762,7 +840,7 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
             if((packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM)==0)
             {
                 if(!tmpInfo.appName.equals(getApplicationInfo().loadLabel(this.getPackageManager()).toString())){
-                    if(!tmpInfo.packageName.equals("co.mobius.vrcinema")){
+                    if(!tmpInfo.packageName.equals("co.mobius.vrcinema") && !tmpInfo.packageName.equals("be.ppareit.swiftp") && !tmpInfo.packageName.equals("com.hotcast.vr")){
                         appList.add(tmpInfo);//如果非系统应用，则添加至appList
                         tmpInfo.print();
                         Log.d("qiqi", tmpInfo.appName + " " + getApplicationInfo().loadLabel(this.getPackageManager()).toString());
