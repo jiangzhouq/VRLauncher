@@ -557,7 +557,8 @@ public class Launcher extends AppCompatActivity implements qjizho.vrlauncher.Bat
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
+    public boolean
+    onKeyDown(int keyCode, KeyEvent event) {
         JLog.d("nowState:" + nowState + " current pos:" + cur_selected_pos);
         switch(keyCode){
             case KeyEvent.KEYCODE_DPAD_LEFT:
