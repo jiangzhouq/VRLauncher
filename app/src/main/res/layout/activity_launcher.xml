@@ -231,7 +231,8 @@
                     android:layout_height="24px"
                     android:textSize="11sp"
                     android:textColor="@color/white"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:visibility="gone"/>
                 <ImageView
                     android:id="@+id/battery_left"
                     android:layout_width="24px"
@@ -526,7 +527,8 @@
                     android:layout_height="24px"
                     android:textSize="11sp"
                     android:textColor="@color/white"
-                    android:gravity="center"/>
+                    android:gravity="center"
+                    android:visibility="gone"/>
                 <ImageView
                     android:id="@+id/battery_right"
                     android:layout_width="24px"
